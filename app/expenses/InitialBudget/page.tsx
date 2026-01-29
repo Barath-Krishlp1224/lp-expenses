@@ -163,7 +163,7 @@ function InitialBudget({ budgetPeriodStart, setShowInitialAmountHistory, expense
                 )}
             </div>
 
-            <div className="bg-gradient-to-br from-white to-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all">
+            <div className="bg-linear-to-br from-white to-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all">
                 <div className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-2">
                     Total Spent (Current Period)
                 </div>
@@ -172,7 +172,7 @@ function InitialBudget({ budgetPeriodStart, setShowInitialAmountHistory, expense
                 </div>
             </div>
 
-            <div className="bg-gradient-to-br from-white to-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all">
+            <div className="bg-linear-to-br from-white to-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all">
                 <div className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-2">
                     Pending (Current Period)
                 </div>
@@ -181,7 +181,7 @@ function InitialBudget({ budgetPeriodStart, setShowInitialAmountHistory, expense
                 </div>
             </div>
 
-            <div className="bg-gradient-to-br from-white to-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all">
+            <div className="bg-linear-to-br from-white to-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all">
                 <div className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-2">
                     Remaining (Current Period)
                 </div>

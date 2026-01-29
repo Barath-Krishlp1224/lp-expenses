@@ -99,7 +99,7 @@ const EditSubtaskModal: React.FC<EditSubtaskModalProps> = ({
             Cancel
           </button>
           <button
-            className="px-8 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 shadow-lg transition-all"
+            className="px-8 py-3 rounded-xl font-bold text-white bg-linear-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 shadow-lg transition-all"
             onClick={onSave}
           >
             Save

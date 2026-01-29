@@ -30,6 +30,7 @@ import ErrorState from "./ErrorState";
 import HeaderSection from "./HeaderSection";
 import InitialAmountHistoryModal from "./InitilAmountHistoryModal";
 import AddExpenseButton from "./AddExpenseButtonState";
+import { EMPLOYEES } from "./InitialBudget/EmployeesList";
 
 interface EditExpenseFields {
   shop: string;
@@ -180,21 +181,21 @@ const ExpensesContent: React.FC = () => {
     fetchExpenses();
   }, []);
 
-  useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        const res = await fetch("https://check-seven-steel.vercel.app/api/employees");
-        const data = await res.json();
-        const arr: Employee[] = Array.isArray(data)
-          ? data
-          : data.employees || [];
-        setEmployees(arr);
-      } catch (err) {
-        console.error("Error fetching employees:", err);
-      }
-    };
-    fetchEmployees();
-  }, []);
+  // useEffect(() => {
+  //   const fetchEmployees = async () => {
+  //     try {
+  //       const res = await fetch("https://check-seven-steel.vercel.app/api/employees");
+  //       const data = await res.json();
+  //       const arr: Employee[] = Array.isArray(data)
+  //         ? data
+  //         : data.employees || [];
+  //       setEmployees(arr);
+  //     } catch (err) {
+  //       console.error("Error fetching employees:", err);
+  //     }
+  //   };
+  //   fetchEmployees();
+  // }, []);
 
   // Memoized values (keep the same)
   const shopSuggestions = useMemo(() => {
@@ -379,7 +380,7 @@ const ExpensesContent: React.FC = () => {
       employeeId: selectedEmployeeId || null,
       employeeName:
         selectedEmployeeId &&
-        employees.find((e) => e._id === selectedEmployeeId)?.name,
+        EMPLOYEES.find((e) => e._id === selectedEmployeeId)?.name,
       subtasks: [],
     };
 
@@ -431,6 +432,28 @@ const ExpensesContent: React.FC = () => {
     setSubEmployeeId("");
   };
 
+  // const handleAddSubtask = async (e: React.FormEvent, parent: Expense) => {
+  //   e.preventDefault();
+  //   if (!expandedId) return;
+  //   if (!subTitle.trim() || !subAmount) {
+  //     toast.warn("Sub description and amount required.");
+  //     return;
+  //   }
+
+  //   const newSub: Subtask = {
+  //     id: Math.random().toString(36).slice(2, 9),
+  //     title: subTitle.trim(),
+  //     done: isExpensePaid(parent),
+  //     amount: Number(subAmount),
+  //     date: subDate,
+  //     employeeId: subEmployeeId || undefined,
+  //     employeeName:
+  //       subEmployeeId &&
+  //       EMPLOYEES.find((e) => e._id === subEmployeeId)?.name,
+  //   }
+  //   console.log("newSubnewSub",newSub);;
+  // }
+
   const handleAddSubtask = async (e: React.FormEvent, parent: Expense) => {
     e.preventDefault();
     if (!expandedId) return;
@@ -448,9 +471,41 @@ const ExpensesContent: React.FC = () => {
       employeeId: subEmployeeId || undefined,
       employeeName:
         subEmployeeId &&
-        employees.find((e) => e._id === subEmployeeId)?.name,
+        EMPLOYEES.find((e) => e._id === subEmployeeId)?.name,
     };
-  }
+
+    const updatedSubtasks = [newSub, ...(parent.subtasks || [])];
+
+    const updates = { subtasks: updatedSubtasks, paid: false };
+
+    try {
+      const res = await fetch("/api/expenses", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: parent._id, updates }),
+      });
+      const json = await res.json();
+      if (!json.success) {
+        toast.error(json.error || "Failed to add sub expense.");
+        return;
+      }
+
+      setExpenses((prev) =>
+        prev.map((exp) =>
+          exp._id === parent._id
+            ? { ...exp, subtasks: updatedSubtasks, paid: false }
+            : exp
+        )
+      );
+      setSubTitle("");
+      setSubAmount("");
+      setSubDate(new Date().toISOString().slice(0, 10));
+      setSubEmployeeId("");
+      toast.success("Sub expense added successfully!");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to add sub expense.");
+    }
+  };
 
   const handleUpdateSubtaskStatus = async (
     parentExp: Expense,

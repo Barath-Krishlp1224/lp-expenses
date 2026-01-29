@@ -3,6 +3,7 @@
 
 import React from "react";
 import { type Expense, type Employee, type Subtask, formatDate } from "./types";
+import { EMPLOYEES } from "../InitialBudget/EmployeesList";
 
 interface SubExpensesSectionProps {
   parent: Expense;
@@ -42,7 +43,7 @@ const SubExpensesSection: React.FC<SubExpensesSectionProps> = ({
   onStartEditSubtask,
 }) => {
   return (
-    <tr className="bg-gradient-to-r from-blue-50 to-teal-50">
+    <tr className="bg-linear-to-r from-blue-50 to-teal-50">
       <td className="p-6" colSpan={10}>
         <div className="bg-white rounded-2xl border-2 border-blue-200 p-6 shadow-lg">
           <div className="mb-6 pb-4 border-b-2 border-gray-100">
@@ -56,7 +57,7 @@ const SubExpensesSection: React.FC<SubExpensesSectionProps> = ({
 
           <form
             onSubmit={(ev) => onAddSubtask(ev, parent)}
-            className="mb-6 p-6 bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl border border-gray-200"
+            className="mb-6 p-6 bg-linear-to-br from-gray-50 to-blue-50 rounded-xl border border-gray-200"
           >
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-4">
               <div>
@@ -103,7 +104,7 @@ const SubExpensesSection: React.FC<SubExpensesSectionProps> = ({
                   className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-all bg-white cursor-pointer"
                 >
                   <option value="">Select Employee</option>
-                  {employees.map((emp) => (
+                  {EMPLOYEES.map((emp) => (
                     <option key={emp._id} value={emp._id}>
                       {emp.name}
                     </option>
@@ -114,7 +115,7 @@ const SubExpensesSection: React.FC<SubExpensesSectionProps> = ({
 
             <button
               type="submit"
-              className="px-6 py-2 rounded-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 shadow-md transition-all text-sm"
+              className="px-6 py-2 rounded-lg font-semibold text-white bg-linear-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 shadow-md transition-all text-sm"
             >
               Add Sub Expense
             </button>
@@ -123,7 +124,7 @@ const SubExpensesSection: React.FC<SubExpensesSectionProps> = ({
           {(parent.subtasks || []).length > 0 ? (
             <div className="overflow-x-auto rounded-xl border-2 border-gray-200">
               <table className="min-w-full text-sm">
-                <thead className="bg-gradient-to-r from-gray-100 to-gray-50">
+                <thead className="bg-linear-to-r from-gray-100 to-gray-50">
                   <tr>
                     <th className="p-4 text-left font-bold text-gray-900 uppercase tracking-wide text-xs">
                       Description
