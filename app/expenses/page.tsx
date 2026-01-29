@@ -21,6 +21,8 @@ import SubExpensesSection from "./components/SubExpensesSection";
 import EditExpenseModal from "./components/EditExpenseModal";
 import EditSubtaskModal from "./components/EditSubtaskModal";
 import InitialAmountHistoryModal from "./components/InitialAmountHistoryModal";
+import CurrentBudgetPeriod from "./BudgetPeriod/page";
+import InitialBudget from "./InitialBudget/page";
 
 const ROWS_PER_PAGE = 10;
 const INITIAL_ROWS = 5;
@@ -149,16 +151,11 @@ const ExpensesContent: React.FC = () => {
     InitialAmountHistoryEntry[]
   >([]);
 
-  const initialAmount =
-    initialAmountHistory[0]?.amount || INITIAL_AMOUNT_CONSTANT;
 
-  const [isEditingInitialAmount, setIsEditingInitialAmount] = useState(false);
-  const [initialAmountInput, setInitialAmountInput] = useState(
-    initialAmount.toString()
-  );
-  
+
   const [showInitialAmountHistory, setShowInitialAmountHistory] = useState(false);
 
+  
   const [budgetPeriodStart, setBudgetPeriodStart] = useState(() => {
     const now = new Date().toISOString().slice(0, 10);
     return getMonthStart(now);
@@ -305,34 +302,7 @@ const ExpensesContent: React.FC = () => {
     fetchEmployees();
   }, []);
 
-  const walletStats = useMemo(() => {
-    let spent = 0;
-    let pending = 0;
 
-    const periodExpenses = expenses.filter(
-      (e) => e.date >= budgetPeriodStart
-    );
-
-    periodExpenses.forEach((e) => {
-      const base = e.amount;
-      const subsTotal = (e.subtasks || []).reduce(
-        (sum, s) => sum + (s.amount || 0),
-        0
-      );
-      const full = base + subsTotal;
-
-      const paid = isExpensePaid(e);
-
-      if (paid) {
-        spent += full;
-      } else {
-        pending += full;
-      }
-    });
-
-    const remaining = initialAmount - spent;
-    return { spent, pending, remaining };
-  }, [expenses, initialAmount, budgetPeriodStart]);
 
   const shopSuggestions = useMemo(() => {
     const arr = expenses
@@ -422,41 +392,7 @@ const ExpensesContent: React.FC = () => {
     [employeeHistory]
   );
 
-  const handleUpdateInitialAmount = async () => {
-    const newAmount = Number(initialAmountInput);
-    if (!Number.isNaN(newAmount) && newAmount >= 0) {
-      const newEntry: InitialAmountHistoryEntry = {
-        amount: newAmount,
-        date: new Date().toISOString(),
-      };
 
-      if (newAmount !== initialAmountHistory[0]?.amount) {
-        try {
-          const res = await fetch("/api/initial-amount", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(newEntry),
-          });
-          const json = await res.json();
-          if (!json.success) {
-            toast.error(
-              json.error || "Failed to save initial amount to database."
-            );
-            return;
-          }
-
-          const newHistory = [newEntry, ...initialAmountHistory];
-          setInitialAmountHistory(newHistory);
-          toast.success("Initial amount updated successfully!");
-        } catch (err: any) {
-          toast.error(err.message || "Failed to update initial amount.");
-        }
-      }
-      setIsEditingInitialAmount(false);
-    } else {
-      toast.error("Please enter a valid amount.");
-    }
-  };
 
   const loadMoreRows = () => {
     setIsLoadingMore(true);
@@ -812,14 +748,14 @@ const ExpensesContent: React.FC = () => {
 
   const handleSaveEditExpense = async () => {
     if (!editingExpense) return;
-    
+
     const employeeIdFromModal = editExpenseFields.employeeId;
-    
-    const finalEmployeeId = employeeIdFromModal === "" 
-      ? null 
+
+    const finalEmployeeId = employeeIdFromModal === ""
+      ? null
       : employeeIdFromModal;
 
-    const newEmployeeName = finalEmployeeId 
+    const newEmployeeName = finalEmployeeId
       ? employees.find((e) => e._id === finalEmployeeId)?.name
       : null;
 
@@ -832,10 +768,10 @@ const ExpensesContent: React.FC = () => {
       employeeId: finalEmployeeId,
       employeeName: newEmployeeName,
     };
-    
+
     if (updates.role === "manager" && !updates.employeeId) {
-        toast.warn("Employee ID is required for Manager role.");
-        return;
+      toast.warn("Employee ID is required for Manager role.");
+      return;
     }
 
 
@@ -882,24 +818,24 @@ const ExpensesContent: React.FC = () => {
     }
 
     const subEmployeeIdFromModal = editingSubtask.employeeId;
-    const finalSubEmployeeId = subEmployeeIdFromModal === "" 
-        ? undefined
-        : subEmployeeIdFromModal;
+    const finalSubEmployeeId = subEmployeeIdFromModal === ""
+      ? undefined
+      : subEmployeeIdFromModal;
 
-    const newSubEmployeeName = finalSubEmployeeId 
-        ? employees.find((e) => e._id === finalSubEmployeeId)?.name
-        : undefined;
+    const newSubEmployeeName = finalSubEmployeeId
+      ? employees.find((e) => e._id === finalSubEmployeeId)?.name
+      : undefined;
 
     const updatedSubtasks = (parent.subtasks || []).map((s) =>
       s.id === editingSubtask.subId
         ? {
-            ...s,
-            title: editingSubtask.title,
-            amount: Number(editingSubtask.amount),
-            date: editingSubtask.date,
-            employeeId: finalSubEmployeeId,
-            employeeName: newSubEmployeeName,
-          }
+          ...s,
+          title: editingSubtask.title,
+          amount: Number(editingSubtask.amount),
+          date: editingSubtask.date,
+          employeeId: finalSubEmployeeId,
+          employeeName: newSubEmployeeName,
+        }
         : s
     );
 
@@ -991,17 +927,15 @@ const ExpensesContent: React.FC = () => {
             {history.map((entry, index) => (
               <div
                 key={index}
-                className={`flex justify-between p-4 rounded-xl ${
-                  index === 0
-                    ? "bg-blue-50 border-2 border-blue-300 shadow-md"
-                    : "bg-gray-50 border border-gray-200"
-                }`}
+                className={`flex justify-between p-4 rounded-xl ${index === 0
+                  ? "bg-blue-50 border-2 border-blue-300 shadow-md"
+                  : "bg-gray-50 border border-gray-200"
+                  }`}
               >
                 <div>
                   <div
-                    className={`font-bold ${
-                      index === 0 ? "text-blue-700 text-lg" : "text-gray-900"
-                    }`}
+                    className={`font-bold ${index === 0 ? "text-blue-700 text-lg" : "text-gray-900"
+                      }`}
                   >
                     ₹{entry.amount.toLocaleString()}
                     {index === 0 && (
@@ -1041,126 +975,19 @@ const ExpensesContent: React.FC = () => {
             Manage your business finances with ease
           </p>
         </div>
-        
-        <div className="bg-white rounded-2xl p-6 shadow-xl border-2 border-gray-100">
-            <h3 className="text-xl font-black text-gray-900 mb-4">
-                Current Budget Period
-            </h3>
-            <div className="flex flex-col md:flex-row items-end gap-4">
-                <div className="flex-1 w-full">
-                    <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
-                        Period Start Date (Resets Wallet Stats)
-                    </label>
-                    <input
-                        type="date"
-                        value={budgetPeriodStart}
-                        onChange={(e) => setBudgetPeriodStart(e.target.value)}
-                        className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-all bg-white"
-                    />
-                </div>
-                <button 
-                    onClick={() => {
-                        const now = new Date().toISOString().slice(0, 10);
-                        setBudgetPeriodStart(getMonthStart(now));
-                        toast.info("Budget period reset to the start of the current month.");
-                    }}
-                    className="w-full md:w-auto px-6 py-3 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-lg transition-all flex items-center justify-center text-sm"
-                >
-                    Reset to Current Month
-                </button>
-            </div>
-        </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <div className="bg-white rounded-2xl p-6 shadow-xl border-2 border-gray-100 hover:shadow-2xl transition-shadow">
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <div className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-1">
-                  Initial Budget
-                </div>
-                {!isEditingInitialAmount && (
-                  <div className="text-3xl font-black text-gray-900">
-                    ₹{initialAmount.toLocaleString()}
-                  </div>
-                )}
-              </div>
-              <div className="flex gap-2">
-                {!isEditingInitialAmount && (
-                  <button
-                    onClick={() => {
-                      setIsEditingInitialAmount(true);
-                      setInitialAmountInput(initialAmount.toString());
-                    }}
-                    className="px-3 py-1 rounded-lg text-xs font-bold text-blue-600 bg-blue-100 hover:bg-blue-200 transition-all"
-                  >
-                    Edit
-                  </button>
-                )}
-                <button
-                  onClick={() => setShowInitialAmountHistory(true)}
-                  className="px-3 py-1 rounded-lg text-xs font-bold text-teal-600 bg-teal-100 hover:bg-teal-200 transition-all"
-                >
-                  History
-                </button>
-              </div>
-            </div>
-            {isEditingInitialAmount && (
-              <div className="space-y-3">
-                <input
-                  type="number"
-                  value={initialAmountInput}
-                  onChange={(e) => setInitialAmountInput(e.target.value)}
-                  className="w-full border-2 border-gray-300 rounded-xl px-4 py-2 text-gray-900 outline-none focus:border-blue-500"
-                  placeholder="Enter new amount"
-                />
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleUpdateInitialAmount}
-                    className="flex-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm font-bold transition-all"
-                  >
-                    Save
-                  </button>
-                  <button
-                    onClick={() => {
-                      setIsEditingInitialAmount(false);
-                      setInitialAmountInput(initialAmount.toString());
-                    }}
-                    className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 rounded-lg text-sm font-bold transition-all"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+        <CurrentBudgetPeriod
+        budgetPeriodStart={budgetPeriodStart}
+        />
 
-          <div className="bg-gradient-to-br from-white to-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all">
-            <div className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-2">
-              Total Spent (Current Period)
-            </div>
-            <div className="text-3xl font-black text-black">
-              ₹{walletStats.spent.toLocaleString()}
-            </div>
-          </div>
+        <InitialBudget
+          budgetPeriodStart={budgetPeriodStart}
+          setShowInitialAmountHistory={setShowInitialAmountHistory}
+          expenses={expenses}
+          initialAmountHistory={initialAmountHistory}
+          setInitialAmountHistory={setInitialAmountHistory}
 
-          <div className="bg-gradient-to-br from-white to-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all">
-            <div className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-2">
-              Pending (Current Period)
-            </div>
-            <div className="text-3xl font-black text-black">
-              ₹{walletStats.pending.toLocaleString()}
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-br from-white to-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all">
-            <div className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-2">
-              Remaining (Current Period)
-            </div>
-            <div className="text-3xl font-black text-black">
-              ₹{walletStats.remaining.toLocaleString()}
-            </div>
-          </div>
-        </div>
+        />
 
         {showAddForm && (
           <ExpenseForm
@@ -1380,7 +1207,7 @@ const ExpensesContent: React.FC = () => {
                     </thead>
                     <tbody className="divide-y-2 divide-gray-100">
                       {visibleExpenses.length === 0 &&
-                      filteredExpenses.length === 0 ? (
+                        filteredExpenses.length === 0 ? (
                         <tr>
                           <td
                             className="p-16 text-center text-gray-500"
@@ -1437,11 +1264,10 @@ const ExpensesContent: React.FC = () => {
                                         e.target.value === "paid";
                                       handleUpdatePaidStatus(exp, newStatus);
                                     }}
-                                    className={`border-2 rounded-lg px-3 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500 bg-white cursor-pointer ${
-                                      paid
-                                        ? "border-green-300 bg-green-50 text-green-700"
-                                        : "border-orange-300 bg-orange-50 text-orange-700"
-                                    }`}
+                                    className={`border-2 rounded-lg px-3 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500 bg-white cursor-pointer ${paid
+                                      ? "border-green-300 bg-green-50 text-green-700"
+                                      : "border-orange-300 bg-orange-50 text-orange-700"
+                                      }`}
                                   >
                                     <option value="unpaid">Pending</option>
                                     <option value="paid">Done</option>
@@ -1552,25 +1378,24 @@ const ExpensesContent: React.FC = () => {
                     : "All Time Total"}
                 </label>
                 <div
-                  className={`border-2 rounded-xl px-6 py-4 text-2xl font-black ${
-                    historyEmployeeId
-                      ? "border-blue-300 bg-blue-50 text-blue-700"
-                      : "border-green-300 bg-green-50 text-green-700"
-                  }`}
+                  className={`border-2 rounded-xl px-6 py-4 text-2xl font-black ${historyEmployeeId
+                    ? "border-blue-300 bg-blue-50 text-blue-700"
+                    : "border-green-300 bg-green-50 text-green-700"
+                    }`}
                 >
                   ₹
                   {(historyEmployeeId
                     ? employeeHistoryTotal
                     : historyExpenses.reduce(
-                        (sum, e) =>
-                          sum +
-                          e.amount +
-                          (e.subtasks || []).reduce(
-                            (s, sub) => s + (sub.amount || 0),
-                            0
-                          ),
-                        0
-                      )
+                      (sum, e) =>
+                        sum +
+                        e.amount +
+                        (e.subtasks || []).reduce(
+                          (s, sub) => s + (sub.amount || 0),
+                          0
+                        ),
+                      0
+                    )
                   ).toLocaleString()}
                 </div>
               </div>
