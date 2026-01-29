@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState, useRef } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   type Role,
   type Employee,
@@ -10,124 +10,26 @@ import {
   INITIAL_AMOUNT_CONSTANT,
   getWeekStart,
   isExpensePaid,
-  formatDate,
 } from "./components/types";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-
 import ExpenseForm from "./components/ExpenseForm";
 import SubExpensesSection from "./components/SubExpensesSection";
 import EditExpenseModal from "./components/EditExpenseModal";
 import EditSubtaskModal from "./components/EditSubtaskModal";
-import InitialAmountHistoryModal from "./components/InitialAmountHistoryModal";
 import CurrentBudgetPeriod from "./BudgetPeriod/page";
 import InitialBudget from "./InitialBudget/page";
+import FilterComponent from "./FilterComponet/page";
+import { getMonthStart, INITIAL_ROWS, ROWS_PER_PAGE } from "./constFunctions";
 
-const ROWS_PER_PAGE = 10;
-const INITIAL_ROWS = 5;
-
-const getMonthStart = (dateString: string) => {
-  const date = new Date(dateString);
-  return new Date(date.getFullYear(), date.getMonth(), 1)
-    .toISOString()
-    .slice(0, 10);
-};
-
-const convertToCSV = (data: Expense[], employees: Employee[]) => {
-  const employeeMap = employees.reduce((map, emp) => {
-    map.set(emp._id, emp.name);
-    return map;
-  }, new Map<string, string>());
-
-  const headers = [
-    "Date",
-    "Shop/Vendor",
-    "Description",
-    "Role",
-    "Employee",
-    "Amount (Base)",
-    "Sub Expenses Total",
-    "Total Expense",
-    "Status",
-  ];
-
-  let grandTotalAmountBase = 0;
-  let grandTotalSubExpenses = 0;
-  let grandTotalExpense = 0;
-
-  const detailRows = data.map((exp) => {
-    const subsTotal = (exp.subtasks || []).reduce(
-      (s, sub) => s + (sub.amount || 0),
-      0
-    );
-    const total = exp.amount + subsTotal;
-    const paid = isExpensePaid(exp) ? "Done" : "Pending";
-    const employeeName = exp.employeeId
-      ? employeeMap.get(exp.employeeId) || exp.employeeName || "-"
-      : "-";
-
-    grandTotalAmountBase += exp.amount;
-    grandTotalSubExpenses += subsTotal;
-    grandTotalExpense += total;
-
-    const mainRow = [
-      formatDate(exp.date),
-      (exp.shop || "-").replace(/,/g, ""),
-      exp.description.replace(/,/g, ""),
-      exp.role,
-      employeeName.replace(/,/g, ""),
-      exp.amount.toFixed(2),
-      subsTotal.toFixed(2),
-      total.toFixed(2),
-      paid,
-    ];
-
-    const subRows = (exp.subtasks || []).map((sub) => {
-      const subEmployeeName = sub.employeeId
-        ? employeeMap.get(sub.employeeId) || sub.employeeName || "-"
-        : "-";
-
-      const subAmountValue = sub.amount ?? 0;
-
-      return [
-        formatDate(sub.date),
-        "",
-        `  -> ${sub.title}`.replace(/,/g, ""),
-        exp.role,
-        subEmployeeName.replace(/,/g, ""),
-        "0.00",
-        subAmountValue.toFixed(2),
-        subAmountValue.toFixed(2),
-        sub.done ? "Done (Sub)" : "Pending (Sub)",
-      ];
-    });
-
-    return [mainRow, ...subRows];
-  }).flat();
-
-  const totalRow = [
-    "",
-    "",
-    "GRAND TOTAL",
-    "",
-    "",
-    grandTotalAmountBase.toFixed(2),
-    grandTotalSubExpenses.toFixed(2),
-    grandTotalExpense.toFixed(2),
-    "",
-  ];
-
-  const csvContent =
-    "data:text/csv;charset=utf-8," +
-    [
-      headers.join(","),
-      ...detailRows.map((e) => e.join(",")),
-      totalRow.join(","),
-    ].join("\n");
-
-  return encodeURI(csvContent);
-};
+// Import new components
+import ExpensesTable from "./ExpensesTable";
+import PaymentHistorySection from "./PaymentHistorySection";
+import LoadingState from "./LoadingState";
+import ErrorState from "./ErrorState";
+import HeaderSection from "./HeaderSection";
+import InitialAmountHistoryModal from "./InitilAmountHistoryModal";
+import AddExpenseButton from "./AddExpenseButtonState";
 
 interface EditExpenseFields {
   shop: string;
@@ -140,27 +42,21 @@ interface EditExpenseFields {
 }
 
 const ExpensesContent: React.FC = () => {
+  // State declarations (keep the same)
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [, setEmployeesLoading] = useState(false);
-
   const [initialAmountHistory, setInitialAmountHistory] = useState<
     InitialAmountHistoryEntry[]
   >([]);
-
-
-
   const [showInitialAmountHistory, setShowInitialAmountHistory] = useState(false);
-
-  
   const [budgetPeriodStart, setBudgetPeriodStart] = useState(() => {
     const now = new Date().toISOString().slice(0, 10);
     return getMonthStart(now);
   });
 
+  // Form states (keep the same)
   const [shopName, setShopName] = useState("");
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
@@ -168,8 +64,8 @@ const ExpensesContent: React.FC = () => {
   const [role, setRole] = useState<Role>("founder");
   const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
 
+  // UI states (keep the same)
   const [expandedId, setExpandedId] = useState<string | null>(null);
-
   const [subTitle, setSubTitle] = useState("");
   const [subAmount, setSubAmount] = useState("");
   const [subDate, setSubDate] = useState(
@@ -177,6 +73,7 @@ const ExpensesContent: React.FC = () => {
   );
   const [subEmployeeId, setSubEmployeeId] = useState("");
 
+  // Filter states (keep the same)
   const [filterRole, setFilterRole] = useState<"all" | Role>("all");
   const [filterStatus, setFilterStatus] = useState<"all" | "paid" | "unpaid">(
     "all"
@@ -187,13 +84,14 @@ const ExpensesContent: React.FC = () => {
   const [filterFrom, setFilterFrom] = useState("");
   const [filterTo, setFilterTo] = useState("");
 
+  // History states (keep the same)
   const [showHistory, setShowHistory] = useState(false);
   const [historyEmployeeId, setHistoryEmployeeId] = useState<string>("");
   const [visibleRowCount, setVisibleRowCount] = useState(INITIAL_ROWS);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const tableRef = useRef<HTMLDivElement>(null);
   const [showAddForm, setShowAddForm] = useState(false);
 
+  // Editing states (keep the same)
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [editExpenseFields, setEditExpenseFields] = useState<EditExpenseFields>({
     shop: "",
@@ -204,7 +102,6 @@ const ExpensesContent: React.FC = () => {
     employeeId: "",
     employeeName: "",
   });
-
   const [editingSubtask, setEditingSubtask] = useState<{
     parentId: string;
     subId: string;
@@ -214,6 +111,7 @@ const ExpensesContent: React.FC = () => {
     employeeId?: string;
   } | null>(null);
 
+  // Effects (keep the same)
   useEffect(() => {
     const fetchInitialAmount = async () => {
       try {
@@ -282,11 +180,9 @@ const ExpensesContent: React.FC = () => {
     fetchExpenses();
   }, []);
 
-  // UPDATED: Now fetches from the external Vercel URL
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        setEmployeesLoading(true);
         const res = await fetch("https://check-seven-steel.vercel.app/api/employees");
         const data = await res.json();
         const arr: Employee[] = Array.isArray(data)
@@ -295,15 +191,12 @@ const ExpensesContent: React.FC = () => {
         setEmployees(arr);
       } catch (err) {
         console.error("Error fetching employees:", err);
-      } finally {
-        setEmployeesLoading(false);
       }
     };
     fetchEmployees();
   }, []);
 
-
-
+  // Memoized values (keep the same)
   const shopSuggestions = useMemo(() => {
     const arr = expenses
       .map((e) => (e.shop || "").trim())
@@ -364,8 +257,6 @@ const ExpensesContent: React.FC = () => {
     return filteredExpenses.slice(0, visibleRowCount);
   }, [filteredExpenses, visibleRowCount]);
 
-  const hasMoreExpenses = visibleRowCount < filteredExpenses.length;
-
   const historyExpenses = useMemo(
     () =>
       expenses
@@ -392,8 +283,7 @@ const ExpensesContent: React.FC = () => {
     [employeeHistory]
   );
 
-
-
+  // Handler functions (keep the same)
   const loadMoreRows = () => {
     setIsLoadingMore(true);
     setTimeout(() => {
@@ -416,32 +306,6 @@ const ExpensesContent: React.FC = () => {
     filterSearch,
     budgetPeriodStart
   ]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (tableRef.current) {
-        const { scrollTop, clientHeight, scrollHeight } = tableRef.current;
-
-        if (
-          scrollHeight - (scrollTop + clientHeight) < 200 &&
-          !isLoadingMore &&
-          visibleRowCount < filteredExpenses.length
-        ) {
-          loadMoreRows();
-        }
-      }
-    };
-
-    if (tableRef.current) {
-      tableRef.current.addEventListener("scroll", handleScroll);
-    }
-
-    return () => {
-      if (tableRef.current) {
-        tableRef.current.removeEventListener("scroll", handleScroll);
-      }
-    };
-  }, [visibleRowCount, filteredExpenses.length, isLoadingMore]);
 
   const handleUpdatePaidStatus = async (
     exp: Expense,
@@ -586,39 +450,7 @@ const ExpensesContent: React.FC = () => {
         subEmployeeId &&
         employees.find((e) => e._id === subEmployeeId)?.name,
     };
-
-    const updatedSubtasks = [newSub, ...(parent.subtasks || [])];
-
-    const updates = { subtasks: updatedSubtasks, paid: false };
-
-    try {
-      const res = await fetch("/api/expenses", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: parent._id, updates }),
-      });
-      const json = await res.json();
-      if (!json.success) {
-        toast.error(json.error || "Failed to add sub expense.");
-        return;
-      }
-
-      setExpenses((prev) =>
-        prev.map((exp) =>
-          exp._id === parent._id
-            ? { ...exp, subtasks: updatedSubtasks, paid: false }
-            : exp
-        )
-      );
-      setSubTitle("");
-      setSubAmount("");
-      setSubDate(new Date().toISOString().slice(0, 10));
-      setSubEmployeeId("");
-      toast.success("Sub expense added successfully!");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to add sub expense.");
-    }
-  };
+  }
 
   const handleUpdateSubtaskStatus = async (
     parentExp: Expense,
@@ -870,114 +702,16 @@ const ExpensesContent: React.FC = () => {
   const cancelEditSubtask = () => setEditingSubtask(null);
   const cancelAddForm = () => setShowAddForm(false);
 
-  const handleDownloadCSV = () => {
-    if (filteredExpenses.length === 0) {
-      toast.warn("No expenses match the current filters to download.");
-      return;
-    }
-
-    const csvUri = convertToCSV(filteredExpenses, employees);
-    const link = document.createElement("a");
-    link.setAttribute("href", csvUri);
-    link.setAttribute(
-      "download",
-      `expenses_report_${new Date().toISOString().slice(0, 10)}.csv`
-    );
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast.success(`${filteredExpenses.length} expenses downloaded!`);
-  };
-
-  const InitialAmountHistoryView: React.FC<{
-    history: InitialAmountHistoryEntry[];
-    onClose: () => void;
-  }> = ({ history, onClose }) => {
-    return (
-      <div className="fixed inset-0 bg-white/90 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl p-8 shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-          <div className="flex justify-between items-center mb-6 border-b pb-3">
-            <h3 className="text-2xl font-black text-gray-900">
-              Initial Budget History
-            </h3>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M6 18L18 6M6 6l12 12"
-                ></path>
-              </svg>
-            </button>
-          </div>
-          <p className="text-sm text-gray-600 mb-4">
-            This log shows all changes made to the initial budget amount.
-          </p>
-          <div className="space-y-3">
-            {history.map((entry, index) => (
-              <div
-                key={index}
-                className={`flex justify-between p-4 rounded-xl ${index === 0
-                  ? "bg-blue-50 border-2 border-blue-300 shadow-md"
-                  : "bg-gray-50 border border-gray-200"
-                  }`}
-              >
-                <div>
-                  <div
-                    className={`font-bold ${index === 0 ? "text-blue-700 text-lg" : "text-gray-900"
-                      }`}
-                  >
-                    ₹{entry.amount.toLocaleString()}
-                    {index === 0 && (
-                      <span className="ml-2 text-xs font-normal text-green-600 bg-green-100 px-2 py-0.5 rounded-full">
-                        Current
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-xs text-gray-500 font-medium">
-                    {new Date(entry.date).toLocaleString()}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          {history.length === 0 && (
-            <p className="text-center text-gray-500 pt-4">No history found.</p>
-          )}
-        </div>
-      </div>
-    );
-  };
-
-
+  // Render
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50 p-8">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-teal-50 p-8">
       <ToastContainer position="bottom-right" autoClose={3000} />
 
-      <div className="max-w-[1600px] mx-auto space-y-8">
-        <div className="text-center mb-12 mt-16">
-          <h1 className="text-5xl font-black text-gray-900 mb-3 tracking-tight">
-            Expense Tracker
-          </h1>
-          <p className="text-lg text-gray-600">
-            Manage your business finances with ease
-          </p>
-        </div>
+      <div className="max-w-400 mx-auto space-y-8">
+        <HeaderSection />
 
         <CurrentBudgetPeriod
-        budgetPeriodStart={budgetPeriodStart}
+          budgetPeriodStart={budgetPeriodStart}
         />
 
         <InitialBudget
@@ -986,7 +720,6 @@ const ExpensesContent: React.FC = () => {
           expenses={expenses}
           initialAmountHistory={initialAmountHistory}
           setInitialAmountHistory={setInitialAmountHistory}
-
         />
 
         {showAddForm && (
@@ -1012,483 +745,90 @@ const ExpensesContent: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl p-6 shadow-xl border-2 border-gray-100 sticky top-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-black text-gray-900">Filters</h3>
-                <button
-                  type="button"
-                  onClick={() => setShowHistory((s) => !s)}
-                  className="px-4 py-2 rounded-lg text-xs font-bold text-teal-700 bg-teal-100 hover:bg-teal-200 transition-all"
-                >
-                  {showHistory ? "Hide" : "History"}
-                </button>
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
-                    Search
-                  </label>
-                  <input
-                    value={filterSearch}
-                    onChange={(e) => setFilterSearch(e.target.value)}
-                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-all"
-                    placeholder="Search..."
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
-                    Shop
-                  </label>
-                  <select
-                    value={filterShop}
-                    onChange={(e) => setFilterShop(e.target.value)}
-                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-all bg-white"
-                  >
-                    <option value="all">All Shops</option>
-                    {shopSuggestions.map((shop) => (
-                      <option key={shop} value={shop}>
-                        {shop}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
-                    Role
-                  </label>
-                  <select
-                    value={filterRole}
-                    onChange={(e) => setFilterRole(e.target.value as any)}
-                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-all bg-white"
-                  >
-                    <option value="all">All Roles</option>
-                    <option value="founder">Founder</option>
-                    <option value="manager">Manager</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
-                    Status
-                  </label>
-                  <select
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value as any)}
-                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-all bg-white"
-                  >
-                    <option value="all">All Status</option>
-                    <option value="paid">Done/Paid</option>
-                    <option value="unpaid">Pending</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
-                    Employee
-                  </label>
-                  <select
-                    value={filterEmployee}
-                    onChange={(e) => setFilterEmployee(e.target.value)}
-                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-all bg-white"
-                  >
-                    <option value="all">All Employees</option>
-                    {employees.map((emp) => (
-                      <option key={emp._id} value={emp._id}>
-                        {emp.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
-                    From Date
-                  </label>
-                  <input
-                    type="date"
-                    value={filterFrom}
-                    onChange={(e) => setFilterFrom(e.target.value)}
-                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-all bg-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
-                    To Date
-                  </label>
-                  <input
-                    type="date"
-                    value={filterTo}
-                    onChange={(e) => setFilterTo(e.target.value)}
-                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-all bg-white"
-                  />
-                </div>
-
-                <div className="pt-4">
-                  <button
-                    type="button"
-                    onClick={handleDownloadCSV}
-                    className="w-full px-6 py-3 rounded-xl font-bold text-white bg-green-600 hover:bg-green-700 shadow-lg transition-all flex items-center justify-center text-sm"
-                  >
-                    <svg
-                      className="w-4 h-4 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                      ></path>
-                    </svg>
-                    Download Filtered ({filteredExpenses.length})
-                  </button>
-                </div>
-              </div>
-            </div>
+            <FilterComponent
+              setShowHistory={setShowHistory}
+              showHistory={showHistory}
+              filterSearch={filterSearch}
+              setFilterSearch={setFilterSearch}
+              filterShop={filterShop}
+              setFilterShop={setFilterShop}
+              shopSuggestions={shopSuggestions}
+              filterRole={filterRole}
+              setFilterRole={setFilterRole}
+              filterStatus={filterStatus}
+              setFilterStatus={setFilterStatus}
+              filterEmployee={filterEmployee}
+              setFilterEmployee={setFilterEmployee}
+              employees={employees}
+              filterFrom={filterFrom}
+              setFilterFrom={setFilterFrom}
+              filterTo={filterTo}
+              setFilterTo={setFilterTo}
+              filteredExpenses={filteredExpenses}
+            />
           </div>
 
           <div className="lg:col-span-3">
             <div className="bg-white rounded-2xl overflow-hidden shadow-xl border-2 border-gray-100">
               {loading ? (
-                <div className="p-16 text-center">
-                  <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
-                  <p className="mt-4 text-gray-600 font-medium">
-                    Loading expenses...
-                  </p>
-                </div>
+                <LoadingState />
               ) : error ? (
-                <div className="p-16 text-center">
-                  <div className="inline-block w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mb-4">
-                    <span className="text-3xl text-red-600">!</span>
-                  </div>
-                  <p className="text-red-600 font-bold">{error}</p>
-                </div>
+                <ErrorState error={error} />
               ) : (
-                <div
-                  ref={tableRef}
-                  className="overflow-x-auto"
-                  style={{ maxHeight: "70vh" }}
+                <ExpensesTable
+                  visibleExpenses={visibleExpenses}
+                  filteredExpenses={filteredExpenses}
+                  isLoadingMore={isLoadingMore}
+                  visibleRowCount={visibleRowCount}
+                  expandedId={expandedId}
+                  employees={employees}
+                  onToggleExpand={toggleExpand}
+                  onStartEditExpense={onStartEditExpense}
+                  onDeleteExpense={handleDeleteExpense}
+                  onUpdatePaidStatus={(exp: any, status: any) =>
+                    handleUpdatePaidStatus(exp, status)
+                  }
+                  onLoadMore={loadMoreRows}
                 >
-                  <table className="min-w-full">
-                    <thead className="bg-gradient-to-r from-gray-900 to-gray-800 sticky top-0">
-                      <tr>
-                        <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
-                          #
-                        </th>
-                        <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
-                          Shop
-                        </th>
-                        <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
-                          Description
-                        </th>
-                        <th className="p-4 text-right font-black text-white uppercase tracking-wide text-xs">
-                          Amount
-                        </th>
-                        <th className="p-4 text-right font-black text-white uppercase tracking-wide text-xs">
-                          Total
-                        </th>
-                        <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
-                          Date
-                        </th>
-                        <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
-                          Role
-                        </th>
-                        <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
-                          Employee
-                        </th>
-                        <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
-                          Status
-                        </th>
-                        <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y-2 divide-gray-100">
-                      {visibleExpenses.length === 0 &&
-                        filteredExpenses.length === 0 ? (
-                        <tr>
-                          <td
-                            className="p-16 text-center text-gray-500"
-                            colSpan={10}
-                          >
-                            <div className="text-6xl mb-4">📊</div>
-                            <p className="font-bold text-lg">
-                              No expenses found
-                            </p>
-                            <p className="text-sm">Try adjusting your filters</p>
-                          </td>
-                        </tr>
-                      ) : (
-                        visibleExpenses.map((exp, idx) => {
-                          const subsTotal = (exp.subtasks || []).reduce(
-                            (s, sub) => s + (sub.amount || 0),
-                            0
-                          );
-                          const total = exp.amount + subsTotal;
-                          const paid = isExpensePaid(exp);
-
-                          return (
-                            <React.Fragment key={exp._id}>
-                              <tr className="hover:bg-blue-50 transition-colors">
-                                <td className="p-4 text-gray-600 font-bold">
-                                  {idx + 1}
-                                </td>
-                                <td className="p-4 text-gray-900 font-bold">
-                                  {exp.shop || "-"}
-                                </td>
-                                <td className="p-4 text-gray-900">
-                                  {exp.description}
-                                </td>
-                                <td className="p-4 text-right font-bold text-gray-900">
-                                  ₹{exp.amount.toLocaleString()}
-                                </td>
-                                <td className="p-4 text-right font-black text-gray-900 text-lg">
-                                  ₹{total.toLocaleString()}
-                                </td>
-                                <td className="p-4 text-gray-600 text-sm">
-                                  {formatDate(exp.date)}
-                                </td>
-                                <td className="p-4 text-gray-600 capitalize text-sm">
-                                  {exp.role || "other"}
-                                </td>
-                                <td className="p-4 text-gray-600 text-sm">
-                                  {exp.employeeName || "-"}
-                                </td>
-                                <td className="p-4">
-                                  <select
-                                    value={paid ? "paid" : "unpaid"}
-                                    onChange={(e) => {
-                                      const newStatus =
-                                        e.target.value === "paid";
-                                      handleUpdatePaidStatus(exp, newStatus);
-                                    }}
-                                    className={`border-2 rounded-lg px-3 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500 bg-white cursor-pointer ${paid
-                                      ? "border-green-300 bg-green-50 text-green-700"
-                                      : "border-orange-300 bg-orange-50 text-orange-700"
-                                      }`}
-                                  >
-                                    <option value="unpaid">Pending</option>
-                                    <option value="paid">Done</option>
-                                  </select>
-                                </td>
-                                <td className="p-4">
-                                  <div className="flex flex-wrap gap-2">
-                                    <button
-                                      type="button"
-                                      className="px-4 py-2 rounded-lg text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-all"
-                                      onClick={() => toggleExpand(exp._id)}
-                                    >
-                                      {expandedId === exp._id ? "Hide" : "View"}
-                                    </button>
-                                    <button
-                                      type="button"
-                                      className="px-4 py-2 rounded-lg text-xs font-bold text-blue-700 bg-blue-100 hover:bg-blue-200 transition-all"
-                                      onClick={() => onStartEditExpense(exp)}
-                                    >
-                                      Edit
-                                    </button>
-                                    <button
-                                      type="button"
-                                      className="px-4 py-2 rounded-lg text-xs font-bold text-red-700 bg-red-100 hover:bg-red-200 transition-all"
-                                      onClick={() => handleDeleteExpense(exp)}
-                                    >
-                                      Delete
-                                    </button>
-                                  </div>
-                                </td>
-                              </tr>
-
-                              {expandedId === exp._id && (
-                                <SubExpensesSection
-                                  parent={exp}
-                                  employees={employees}
-                                  subTitle={subTitle}
-                                  setSubTitle={setSubTitle}
-                                  subAmount={subAmount}
-                                  setSubAmount={setSubAmount}
-                                  subDate={subDate}
-                                  setSubDate={setSubDate}
-                                  subEmployeeId={subEmployeeId}
-                                  setSubEmployeeId={setSubEmployeeId}
-                                  onAddSubtask={handleAddSubtask}
-                                  onUpdateSubtaskStatus={
-                                    handleUpdateSubtaskStatus
-                                  }
-                                  onDeleteSubtask={handleDeleteSubtask}
-                                  onStartEditSubtask={onStartEditSubtask}
-                                />
-                              )}
-                            </React.Fragment>
-                          );
-                        })
-                      )}
-                    </tbody>
-                  </table>
-
-                  <div className="text-center py-6 text-sm font-bold text-gray-600 bg-gray-50">
-                    {isLoadingMore && <p>Loading more expenses...</p>}
-                    {!hasMoreExpenses && filteredExpenses.length > 0 && (
-                      <p>All expenses loaded</p>
-                    )}
-                    {hasMoreExpenses && !isLoadingMore && (
-                      <button
-                        onClick={loadMoreRows}
-                        className="text-blue-600 hover:text-blue-800 font-bold"
-                      >
-                        Load More ({filteredExpenses.length - visibleRowCount}{" "}
-                        remaining)
-                      </button>
-                    )}
-                  </div>
-                </div>
+                  {expandedId && (
+                    <SubExpensesSection
+                      parent={expenses.find(e => e._id === expandedId)!}
+                      employees={employees}
+                      subTitle={subTitle}
+                      setSubTitle={setSubTitle}
+                      subAmount={subAmount}
+                      setSubAmount={setSubAmount}
+                      subDate={subDate}
+                      setSubDate={setSubDate}
+                      subEmployeeId={subEmployeeId}
+                      setSubEmployeeId={setSubEmployeeId}
+                      onAddSubtask={handleAddSubtask}
+                      onUpdateSubtaskStatus={handleUpdateSubtaskStatus}
+                      onDeleteSubtask={handleDeleteSubtask}
+                      onStartEditSubtask={onStartEditSubtask}
+                    />
+                  )}
+                </ExpensesTable>
               )}
             </div>
           </div>
         </div>
 
-        {showHistory && (
-          <div className="bg-white rounded-2xl p-8 shadow-xl border-2 border-gray-100">
-            <h2 className="text-2xl font-black text-gray-900 mb-6">
-              Payment History
-            </h2>
-            <div className="grid gap-6 md:grid-cols-2 mb-6">
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Filter by Employee
-                </label>
-                <select
-                  value={historyEmployeeId}
-                  onChange={(e) => setHistoryEmployeeId(e.target.value)}
-                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 outline-none focus:border-blue-500 transition-all bg-white"
-                >
-                  <option value="">All Paid Expenses</option>
-                  {employees.map((emp) => (
-                    <option key={emp._id} value={emp._id}>
-                      {emp.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  {historyEmployeeId
-                    ? "Selected Employee Total"
-                    : "All Time Total"}
-                </label>
-                <div
-                  className={`border-2 rounded-xl px-6 py-4 text-2xl font-black ${historyEmployeeId
-                    ? "border-blue-300 bg-blue-50 text-blue-700"
-                    : "border-green-300 bg-green-50 text-green-700"
-                    }`}
-                >
-                  ₹
-                  {(historyEmployeeId
-                    ? employeeHistoryTotal
-                    : historyExpenses.reduce(
-                      (sum, e) =>
-                        sum +
-                        e.amount +
-                        (e.subtasks || []).reduce(
-                          (s, sub) => s + (sub.amount || 0),
-                          0
-                        ),
-                      0
-                    )
-                  ).toLocaleString()}
-                </div>
-              </div>
-            </div>
-
-            <div className="overflow-x-auto rounded-xl border-2 border-gray-200">
-              <table className="min-w-full">
-                <thead className="bg-gradient-to-r from-gray-900 to-gray-800">
-                  <tr>
-                    <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
-                      Date
-                    </th>
-                    <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
-                      Description
-                    </th>
-                    <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
-                      Shop
-                    </th>
-                    <th className="p-4 text-right font-black text-white uppercase tracking-wide text-xs">
-                      Amount
-                    </th>
-                    <th className="p-4 text-right font-black text-white uppercase tracking-wide text-xs">
-                      Total
-                    </th>
-                    <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
-                      Employee
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y-2 divide-gray-100">
-                  {(historyEmployeeId ? employeeHistory : historyExpenses)
-                    .length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={6}
-                        className="p-16 text-center text-gray-500"
-                      >
-                        <div className="text-6xl mb-4">📜</div>
-                        <p className="font-bold text-lg">No payment history</p>
-                      </td>
-                    </tr>
-                  ) : (
-                    (historyEmployeeId ? employeeHistory : historyExpenses).map(
-                      (exp) => {
-                        const subsTotal = (exp.subtasks || []).reduce(
-                          (s, sub) => s + (sub.amount || 0),
-                          0
-                        );
-                        const total = exp.amount + subsTotal;
-                        return (
-                          <tr
-                            key={exp._id}
-                            className="hover:bg-blue-50 transition-colors"
-                          >
-                            <td className="p-4 text-gray-600 text-sm">
-                              {formatDate(exp.date)}
-                            </td>
-                            <td className="p-4 text-gray-900 font-bold">
-                              {exp.description}
-                            </td>
-                            <td className="p-4 text-gray-900">
-                              {exp.shop || "-"}
-                            </td>
-                            <td className="p-4 text-right text-gray-600 font-bold">
-                              ₹{exp.amount.toLocaleString()}
-                            </td>
-                            <td className="p-4 text-right font-black text-gray-900 text-lg">
-                              ₹{total.toLocaleString()}
-                            </td>
-                            <td className="p-4 text-gray-600">
-                              {exp.employeeName || "-"}
-                            </td>
-                          </tr>
-                        );
-                      }
-                    )
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+        <PaymentHistorySection
+          showHistory={showHistory}
+          historyEmployeeId={historyEmployeeId}
+          setHistoryEmployeeId={setHistoryEmployeeId}
+          employees={employees}
+          historyExpenses={historyExpenses}
+          employeeHistory={employeeHistory}
+          employeeHistoryTotal={employeeHistoryTotal}
+        />
       </div>
 
-      {!showAddForm && (
-        <button
-          onClick={() => setShowAddForm(true)}
-          className="fixed bottom-8 right-8 bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 text-white w-16 h-16 rounded-full flex items-center justify-center text-4xl font-light shadow-2xl transition-all duration-300 transform hover:scale-110 z-50"
-          aria-label="Add New Expense"
-        >
-          +
-        </button>
-      )}
+      <AddExpenseButton
+        showAddForm={showAddForm}
+        onClick={() => setShowAddForm(true)}
+      />
 
       {editingExpense && (
         <EditExpenseModal
@@ -1512,7 +852,7 @@ const ExpensesContent: React.FC = () => {
       )}
 
       {showInitialAmountHistory && (
-        <InitialAmountHistoryView
+        <InitialAmountHistoryModal
           history={initialAmountHistory}
           onClose={() => setShowInitialAmountHistory(false)}
         />

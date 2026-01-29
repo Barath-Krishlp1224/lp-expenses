@@ -35,96 +35,10 @@ __turbopack_context__.n(__turbopack_context__.i("[project]/Documents/Expense/lp-
 // import EditExpenseModal from "./components/EditExpenseModal";
 // import EditSubtaskModal from "./components/EditSubtaskModal";
 // import InitialAmountHistoryModal from "./components/InitialAmountHistoryModal";
-// const ROWS_PER_PAGE = 10;
-// const INITIAL_ROWS = 5;
-// const getMonthStart = (dateString: string) => {
-//   const date = new Date(dateString);
-//   return new Date(date.getFullYear(), date.getMonth(), 1)
-//     .toISOString()
-//     .slice(0, 10);
-// };
-// const convertToCSV = (data: Expense[], employees: Employee[]) => {
-//   const employeeMap = employees.reduce((map, emp) => {
-//     map.set(emp._id, emp.name);
-//     return map;
-//   }, new Map<string, string>());
-//   const headers = [
-//     "Date",
-//     "Shop/Vendor",
-//     "Description",
-//     "Role",
-//     "Employee",
-//     "Amount (Base)",
-//     "Sub Expenses Total",
-//     "Total Expense",
-//     "Status",
-//   ];
-//   let grandTotalAmountBase = 0;
-//   let grandTotalSubExpenses = 0;
-//   let grandTotalExpense = 0;
-//   const detailRows = data.map((exp) => {
-//     const subsTotal = (exp.subtasks || []).reduce(
-//       (s, sub) => s + (sub.amount || 0),
-//       0
-//     );
-//     const total = exp.amount + subsTotal;
-//     const paid = isExpensePaid(exp) ? "Done" : "Pending";
-//     const employeeName = exp.employeeId
-//       ? employeeMap.get(exp.employeeId) || exp.employeeName || "-"
-//       : "-";
-//     grandTotalAmountBase += exp.amount;
-//     grandTotalSubExpenses += subsTotal;
-//     grandTotalExpense += total;
-//     const mainRow = [
-//       formatDate(exp.date),
-//       (exp.shop || "-").replace(/,/g, ""),
-//       exp.description.replace(/,/g, ""),
-//       exp.role,
-//       employeeName.replace(/,/g, ""),
-//       exp.amount.toFixed(2),
-//       subsTotal.toFixed(2),
-//       total.toFixed(2),
-//       paid,
-//     ];
-//     const subRows = (exp.subtasks || []).map((sub) => {
-//       const subEmployeeName = sub.employeeId
-//         ? employeeMap.get(sub.employeeId) || sub.employeeName || "-"
-//         : "-";
-//       const subAmountValue = sub.amount ?? 0;
-//       return [
-//         formatDate(sub.date),
-//         "",
-//         `  -> ${sub.title}`.replace(/,/g, ""),
-//         exp.role,
-//         subEmployeeName.replace(/,/g, ""),
-//         "0.00",
-//         subAmountValue.toFixed(2),
-//         subAmountValue.toFixed(2),
-//         sub.done ? "Done (Sub)" : "Pending (Sub)",
-//       ];
-//     });
-//     return [mainRow, ...subRows];
-//   }).flat();
-//   const totalRow = [
-//     "",
-//     "",
-//     "GRAND TOTAL",
-//     "",
-//     "",
-//     grandTotalAmountBase.toFixed(2),
-//     grandTotalSubExpenses.toFixed(2),
-//     grandTotalExpense.toFixed(2),
-//     "",
-//   ];
-//   const csvContent =
-//     "data:text/csv;charset=utf-8," +
-//     [
-//       headers.join(","),
-//       ...detailRows.map((e) => e.join(",")),
-//       totalRow.join(","),
-//     ].join("\n");
-//   return encodeURI(csvContent);
-// };
+// import CurrentBudgetPeriod from "./BudgetPeriod/page";
+// import InitialBudget from "./InitialBudget/page";
+// import FilterComponent from "./FilterComponet/page";
+// import { getMonthStart, INITIAL_ROWS, ROWS_PER_PAGE } from "./constFunctions";
 // interface EditExpenseFields {
 //   shop: string;
 //   description: string;
@@ -143,12 +57,6 @@ __turbopack_context__.n(__turbopack_context__.i("[project]/Documents/Expense/lp-
 //   const [initialAmountHistory, setInitialAmountHistory] = useState<
 //     InitialAmountHistoryEntry[]
 //   >([]);
-//   const initialAmount =
-//     initialAmountHistory[0]?.amount || INITIAL_AMOUNT_CONSTANT;
-//   const [isEditingInitialAmount, setIsEditingInitialAmount] = useState(false);
-//   const [initialAmountInput, setInitialAmountInput] = useState(
-//     initialAmount.toString()
-//   );
 //   const [showInitialAmountHistory, setShowInitialAmountHistory] = useState(false);
 //   const [budgetPeriodStart, setBudgetPeriodStart] = useState(() => {
 //     const now = new Date().toISOString().slice(0, 10);
@@ -280,29 +188,6 @@ __turbopack_context__.n(__turbopack_context__.i("[project]/Documents/Expense/lp-
 //     };
 //     fetchEmployees();
 //   }, []);
-//   const walletStats = useMemo(() => {
-//     let spent = 0;
-//     let pending = 0;
-//     const periodExpenses = expenses.filter(
-//       (e) => e.date >= budgetPeriodStart
-//     );
-//     periodExpenses.forEach((e) => {
-//       const base = e.amount;
-//       const subsTotal = (e.subtasks || []).reduce(
-//         (sum, s) => sum + (s.amount || 0),
-//         0
-//       );
-//       const full = base + subsTotal;
-//       const paid = isExpensePaid(e);
-//       if (paid) {
-//         spent += full;
-//       } else {
-//         pending += full;
-//       }
-//     });
-//     const remaining = initialAmount - spent;
-//     return { spent, pending, remaining };
-//   }, [expenses, initialAmount, budgetPeriodStart]);
 //   const shopSuggestions = useMemo(() => {
 //     const arr = expenses
 //       .map((e) => (e.shop || "").trim())
@@ -379,39 +264,6 @@ __turbopack_context__.n(__turbopack_context__.i("[project]/Documents/Expense/lp-
 //       }, 0),
 //     [employeeHistory]
 //   );
-//   const handleUpdateInitialAmount = async () => {
-//     const newAmount = Number(initialAmountInput);
-//     if (!Number.isNaN(newAmount) && newAmount >= 0) {
-//       const newEntry: InitialAmountHistoryEntry = {
-//         amount: newAmount,
-//         date: new Date().toISOString(),
-//       };
-//       if (newAmount !== initialAmountHistory[0]?.amount) {
-//         try {
-//           const res = await fetch("/api/initial-amount", {
-//             method: "POST",
-//             headers: { "Content-Type": "application/json" },
-//             body: JSON.stringify(newEntry),
-//           });
-//           const json = await res.json();
-//           if (!json.success) {
-//             toast.error(
-//               json.error || "Failed to save initial amount to database."
-//             );
-//             return;
-//           }
-//           const newHistory = [newEntry, ...initialAmountHistory];
-//           setInitialAmountHistory(newHistory);
-//           toast.success("Initial amount updated successfully!");
-//         } catch (err: any) {
-//           toast.error(err.message || "Failed to update initial amount.");
-//         }
-//       }
-//       setIsEditingInitialAmount(false);
-//     } else {
-//       toast.error("Please enter a valid amount.");
-//     }
-//   };
 //   const loadMoreRows = () => {
 //     setIsLoadingMore(true);
 //     setTimeout(() => {
@@ -725,10 +577,10 @@ __turbopack_context__.n(__turbopack_context__.i("[project]/Documents/Expense/lp-
 //   const handleSaveEditExpense = async () => {
 //     if (!editingExpense) return;
 //     const employeeIdFromModal = editExpenseFields.employeeId;
-//     const finalEmployeeId = employeeIdFromModal === "" 
-//       ? null 
+//     const finalEmployeeId = employeeIdFromModal === ""
+//       ? null
 //       : employeeIdFromModal;
-//     const newEmployeeName = finalEmployeeId 
+//     const newEmployeeName = finalEmployeeId
 //       ? employees.find((e) => e._id === finalEmployeeId)?.name
 //       : null;
 //     const updates: any = {
@@ -741,8 +593,8 @@ __turbopack_context__.n(__turbopack_context__.i("[project]/Documents/Expense/lp-
 //       employeeName: newEmployeeName,
 //     };
 //     if (updates.role === "manager" && !updates.employeeId) {
-//         toast.warn("Employee ID is required for Manager role.");
-//         return;
+//       toast.warn("Employee ID is required for Manager role.");
+//       return;
 //     }
 //     try {
 //       const res = await fetch("/api/expenses", {
@@ -783,22 +635,22 @@ __turbopack_context__.n(__turbopack_context__.i("[project]/Documents/Expense/lp-
 //       return;
 //     }
 //     const subEmployeeIdFromModal = editingSubtask.employeeId;
-//     const finalSubEmployeeId = subEmployeeIdFromModal === "" 
-//         ? undefined
-//         : subEmployeeIdFromModal;
-//     const newSubEmployeeName = finalSubEmployeeId 
-//         ? employees.find((e) => e._id === finalSubEmployeeId)?.name
-//         : undefined;
+//     const finalSubEmployeeId = subEmployeeIdFromModal === ""
+//       ? undefined
+//       : subEmployeeIdFromModal;
+//     const newSubEmployeeName = finalSubEmployeeId
+//       ? employees.find((e) => e._id === finalSubEmployeeId)?.name
+//       : undefined;
 //     const updatedSubtasks = (parent.subtasks || []).map((s) =>
 //       s.id === editingSubtask.subId
 //         ? {
-//             ...s,
-//             title: editingSubtask.title,
-//             amount: Number(editingSubtask.amount),
-//             date: editingSubtask.date,
-//             employeeId: finalSubEmployeeId,
-//             employeeName: newSubEmployeeName,
-//           }
+//           ...s,
+//           title: editingSubtask.title,
+//           amount: Number(editingSubtask.amount),
+//           date: editingSubtask.date,
+//           employeeId: finalSubEmployeeId,
+//           employeeName: newSubEmployeeName,
+//         }
 //         : s
 //     );
 //     try {
@@ -829,23 +681,6 @@ __turbopack_context__.n(__turbopack_context__.i("[project]/Documents/Expense/lp-
 //   const cancelEditExpense = () => setEditingExpense(null);
 //   const cancelEditSubtask = () => setEditingSubtask(null);
 //   const cancelAddForm = () => setShowAddForm(false);
-//   const handleDownloadCSV = () => {
-//     if (filteredExpenses.length === 0) {
-//       toast.warn("No expenses match the current filters to download.");
-//       return;
-//     }
-//     const csvUri = convertToCSV(filteredExpenses, employees);
-//     const link = document.createElement("a");
-//     link.setAttribute("href", csvUri);
-//     link.setAttribute(
-//       "download",
-//       `expenses_report_${new Date().toISOString().slice(0, 10)}.csv`
-//     );
-//     document.body.appendChild(link);
-//     link.click();
-//     document.body.removeChild(link);
-//     toast.success(`${filteredExpenses.length} expenses downloaded!`);
-//   };
 //   const InitialAmountHistoryView: React.FC<{
 //     history: InitialAmountHistoryEntry[];
 //     onClose: () => void;
@@ -884,17 +719,15 @@ __turbopack_context__.n(__turbopack_context__.i("[project]/Documents/Expense/lp-
 //             {history.map((entry, index) => (
 //               <div
 //                 key={index}
-//                 className={`flex justify-between p-4 rounded-xl ${
-//                   index === 0
-//                     ? "bg-blue-50 border-2 border-blue-300 shadow-md"
-//                     : "bg-gray-50 border border-gray-200"
-//                 }`}
+//                 className={`flex justify-between p-4 rounded-xl ${index === 0
+//                   ? "bg-blue-50 border-2 border-blue-300 shadow-md"
+//                   : "bg-gray-50 border border-gray-200"
+//                   }`}
 //               >
 //                 <div>
 //                   <div
-//                     className={`font-bold ${
-//                       index === 0 ? "text-blue-700 text-lg" : "text-gray-900"
-//                     }`}
+//                     className={`font-bold ${index === 0 ? "text-blue-700 text-lg" : "text-gray-900"
+//                       }`}
 //                   >
 //                     ₹{entry.amount.toLocaleString()}
 //                     {index === 0 && (
@@ -920,9 +753,9 @@ __turbopack_context__.n(__turbopack_context__.i("[project]/Documents/Expense/lp-
 //     );
 //   };
 //   return (
-//     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50 p-8">
+//     <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-teal-50 p-8">
 //       <ToastContainer position="bottom-right" autoClose={3000} />
-//       <div className="max-w-[1600px] mx-auto space-y-8">
+//       <div className="max-w-400 mx-auto space-y-8">
 //         <div className="text-center mb-12 mt-16">
 //           <h1 className="text-5xl font-black text-gray-900 mb-3 tracking-tight">
 //             Expense Tracker
@@ -931,121 +764,16 @@ __turbopack_context__.n(__turbopack_context__.i("[project]/Documents/Expense/lp-
 //             Manage your business finances with ease
 //           </p>
 //         </div>
-//         <div className="bg-white rounded-2xl p-6 shadow-xl border-2 border-gray-100">
-//             <h3 className="text-xl font-black text-gray-900 mb-4">
-//                 Current Budget Period
-//             </h3>
-//             <div className="flex flex-col md:flex-row items-end gap-4">
-//                 <div className="flex-1 w-full">
-//                     <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
-//                         Period Start Date (Resets Wallet Stats)
-//                     </label>
-//                     <input
-//                         type="date"
-//                         value={budgetPeriodStart}
-//                         onChange={(e) => setBudgetPeriodStart(e.target.value)}
-//                         className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-all bg-white"
-//                     />
-//                 </div>
-//                 <button 
-//                     onClick={() => {
-//                         const now = new Date().toISOString().slice(0, 10);
-//                         setBudgetPeriodStart(getMonthStart(now));
-//                         toast.info("Budget period reset to the start of the current month.");
-//                     }}
-//                     className="w-full md:w-auto px-6 py-3 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-lg transition-all flex items-center justify-center text-sm"
-//                 >
-//                     Reset to Current Month
-//                 </button>
-//             </div>
-//         </div>
-//         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-//           <div className="bg-white rounded-2xl p-6 shadow-xl border-2 border-gray-100 hover:shadow-2xl transition-shadow">
-//             <div className="flex justify-between items-start mb-4">
-//               <div>
-//                 <div className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-1">
-//                   Initial Budget
-//                 </div>
-//                 {!isEditingInitialAmount && (
-//                   <div className="text-3xl font-black text-gray-900">
-//                     ₹{initialAmount.toLocaleString()}
-//                   </div>
-//                 )}
-//               </div>
-//               <div className="flex gap-2">
-//                 {!isEditingInitialAmount && (
-//                   <button
-//                     onClick={() => {
-//                       setIsEditingInitialAmount(true);
-//                       setInitialAmountInput(initialAmount.toString());
-//                     }}
-//                     className="px-3 py-1 rounded-lg text-xs font-bold text-blue-600 bg-blue-100 hover:bg-blue-200 transition-all"
-//                   >
-//                     Edit
-//                   </button>
-//                 )}
-//                 <button
-//                   onClick={() => setShowInitialAmountHistory(true)}
-//                   className="px-3 py-1 rounded-lg text-xs font-bold text-teal-600 bg-teal-100 hover:bg-teal-200 transition-all"
-//                 >
-//                   History
-//                 </button>
-//               </div>
-//             </div>
-//             {isEditingInitialAmount && (
-//               <div className="space-y-3">
-//                 <input
-//                   type="number"
-//                   value={initialAmountInput}
-//                   onChange={(e) => setInitialAmountInput(e.target.value)}
-//                   className="w-full border-2 border-gray-300 rounded-xl px-4 py-2 text-gray-900 outline-none focus:border-blue-500"
-//                   placeholder="Enter new amount"
-//                 />
-//                 <div className="flex gap-2">
-//                   <button
-//                     onClick={handleUpdateInitialAmount}
-//                     className="flex-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm font-bold transition-all"
-//                   >
-//                     Save
-//                   </button>
-//                   <button
-//                     onClick={() => {
-//                       setIsEditingInitialAmount(false);
-//                       setInitialAmountInput(initialAmount.toString());
-//                     }}
-//                     className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 rounded-lg text-sm font-bold transition-all"
-//                   >
-//                     Cancel
-//                   </button>
-//                 </div>
-//               </div>
-//             )}
-//           </div>
-//           <div className="bg-gradient-to-br from-white to-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all">
-//             <div className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-2">
-//               Total Spent (Current Period)
-//             </div>
-//             <div className="text-3xl font-black text-black">
-//               ₹{walletStats.spent.toLocaleString()}
-//             </div>
-//           </div>
-//           <div className="bg-gradient-to-br from-white to-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all">
-//             <div className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-2">
-//               Pending (Current Period)
-//             </div>
-//             <div className="text-3xl font-black text-black">
-//               ₹{walletStats.pending.toLocaleString()}
-//             </div>
-//           </div>
-//           <div className="bg-gradient-to-br from-white to-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all">
-//             <div className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-2">
-//               Remaining (Current Period)
-//             </div>
-//             <div className="text-3xl font-black text-black">
-//               ₹{walletStats.remaining.toLocaleString()}
-//             </div>
-//           </div>
-//         </div>
+//         <CurrentBudgetPeriod
+//           budgetPeriodStart={budgetPeriodStart}
+//         />
+//         <InitialBudget
+//           budgetPeriodStart={budgetPeriodStart}
+//           setShowInitialAmountHistory={setShowInitialAmountHistory}
+//           expenses={expenses}
+//           initialAmountHistory={initialAmountHistory}
+//           setInitialAmountHistory={setInitialAmountHistory}
+//         />
 //         {showAddForm && (
 //           <ExpenseForm
 //             shopName={shopName}
@@ -1068,139 +796,27 @@ __turbopack_context__.n(__turbopack_context__.i("[project]/Documents/Expense/lp-
 //         )}
 //         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
 //           <div className="lg:col-span-1">
-//             <div className="bg-white rounded-2xl p-6 shadow-xl border-2 border-gray-100 sticky top-6">
-//               <div className="flex items-center justify-between mb-6">
-//                 <h3 className="text-xl font-black text-gray-900">Filters</h3>
-//                 <button
-//                   type="button"
-//                   onClick={() => setShowHistory((s) => !s)}
-//                   className="px-4 py-2 rounded-lg text-xs font-bold text-teal-700 bg-teal-100 hover:bg-teal-200 transition-all"
-//                 >
-//                   {showHistory ? "Hide" : "History"}
-//                 </button>
-//               </div>
-//               <div className="space-y-4">
-//                 <div>
-//                   <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
-//                     Search
-//                   </label>
-//                   <input
-//                     value={filterSearch}
-//                     onChange={(e) => setFilterSearch(e.target.value)}
-//                     className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-all"
-//                     placeholder="Search..."
-//                   />
-//                 </div>
-//                 <div>
-//                   <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
-//                     Shop
-//                   </label>
-//                   <select
-//                     value={filterShop}
-//                     onChange={(e) => setFilterShop(e.target.value)}
-//                     className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-all bg-white"
-//                   >
-//                     <option value="all">All Shops</option>
-//                     {shopSuggestions.map((shop) => (
-//                       <option key={shop} value={shop}>
-//                         {shop}
-//                       </option>
-//                     ))}
-//                   </select>
-//                 </div>
-//                 <div>
-//                   <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
-//                     Role
-//                   </label>
-//                   <select
-//                     value={filterRole}
-//                     onChange={(e) => setFilterRole(e.target.value as any)}
-//                     className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-all bg-white"
-//                   >
-//                     <option value="all">All Roles</option>
-//                     <option value="founder">Founder</option>
-//                     <option value="manager">Manager</option>
-//                     <option value="other">Other</option>
-//                   </select>
-//                 </div>
-//                 <div>
-//                   <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
-//                     Status
-//                   </label>
-//                   <select
-//                     value={filterStatus}
-//                     onChange={(e) => setFilterStatus(e.target.value as any)}
-//                     className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-all bg-white"
-//                   >
-//                     <option value="all">All Status</option>
-//                     <option value="paid">Done/Paid</option>
-//                     <option value="unpaid">Pending</option>
-//                   </select>
-//                 </div>
-//                 <div>
-//                   <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
-//                     Employee
-//                   </label>
-//                   <select
-//                     value={filterEmployee}
-//                     onChange={(e) => setFilterEmployee(e.target.value)}
-//                     className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-all bg-white"
-//                   >
-//                     <option value="all">All Employees</option>
-//                     {employees.map((emp) => (
-//                       <option key={emp._id} value={emp._id}>
-//                         {emp.name}
-//                       </option>
-//                     ))}
-//                   </select>
-//                 </div>
-//                 <div>
-//                   <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
-//                     From Date
-//                   </label>
-//                   <input
-//                     type="date"
-//                     value={filterFrom}
-//                     onChange={(e) => setFilterFrom(e.target.value)}
-//                     className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-all bg-white"
-//                   />
-//                 </div>
-//                 <div>
-//                   <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
-//                     To Date
-//                   </label>
-//                   <input
-//                     type="date"
-//                     value={filterTo}
-//                     onChange={(e) => setFilterTo(e.target.value)}
-//                     className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-all bg-white"
-//                   />
-//                 </div>
-//                 <div className="pt-4">
-//                   <button
-//                     type="button"
-//                     onClick={handleDownloadCSV}
-//                     className="w-full px-6 py-3 rounded-xl font-bold text-white bg-green-600 hover:bg-green-700 shadow-lg transition-all flex items-center justify-center text-sm"
-//                   >
-//                     <svg
-//                       className="w-4 h-4 mr-2"
-//                       fill="none"
-//                       stroke="currentColor"
-//                       viewBox="0 0 24 24"
-//                       xmlns="http://www.w3.org/2000/svg"
-//                     >
-//                       <path
-//                         strokeLinecap="round"
-//                         strokeLinejoin="round"
-//                         strokeWidth="2"
-//                         d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-//                       ></path>
-//                     </svg>
-//                     Download Filtered ({filteredExpenses.length})
-//                   </button>
-//                 </div>
-//               </div>
-//             </div>
+//             <FilterComponent
+//               setShowHistory={setShowHistory}
+//               showHistory={showHistory}
+//               filterSearch={filterSearch}
+//               setFilterSearch={setFilterSearch}
+//               filterShop={filterShop}
+//               setFilterShop={setFilterShop}
+//               shopSuggestions={shopSuggestions}
+//               filterRole={filterRole}
+//               setFilterRole={setFilterRole}
+//               filterStatus={filterStatus}
+//               setFilterStatus={setFilterStatus}
+//               filterEmployee={filterEmployee}
+//               setFilterEmployee={setFilterEmployee}
+//               employees={employees}
+//               filterFrom={filterFrom}
+//               setFilterFrom={setFilterFrom}
+//               filterTo={filterTo}
+//               setFilterTo={setFilterTo}
+//               filteredExpenses={filteredExpenses}
+//             />
 //           </div>
 //           <div className="lg:col-span-3">
 //             <div className="bg-white rounded-2xl overflow-hidden shadow-xl border-2 border-gray-100">
@@ -1213,7 +829,7 @@ __turbopack_context__.n(__turbopack_context__.i("[project]/Documents/Expense/lp-
 //                 </div>
 //               ) : error ? (
 //                 <div className="p-16 text-center">
-//                   <div className="inline-block w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mb-4">
+//                   <div className="inline-block w-16 h-16 rounded-full bg-red-100 items-center justify-center mb-4">
 //                     <span className="text-3xl text-red-600">!</span>
 //                   </div>
 //                   <p className="text-red-600 font-bold">{error}</p>
@@ -1225,7 +841,7 @@ __turbopack_context__.n(__turbopack_context__.i("[project]/Documents/Expense/lp-
 //                   style={{ maxHeight: "70vh" }}
 //                 >
 //                   <table className="min-w-full">
-//                     <thead className="bg-gradient-to-r from-gray-900 to-gray-800 sticky top-0">
+//                     <thead className="bg-linear-to-r from-gray-900 to-gray-800 sticky top-0">
 //                       <tr>
 //                         <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
 //                           #
@@ -1261,7 +877,7 @@ __turbopack_context__.n(__turbopack_context__.i("[project]/Documents/Expense/lp-
 //                     </thead>
 //                     <tbody className="divide-y-2 divide-gray-100">
 //                       {visibleExpenses.length === 0 &&
-//                       filteredExpenses.length === 0 ? (
+//                         filteredExpenses.length === 0 ? (
 //                         <tr>
 //                           <td
 //                             className="p-16 text-center text-gray-500"
@@ -1317,11 +933,10 @@ __turbopack_context__.n(__turbopack_context__.i("[project]/Documents/Expense/lp-
 //                                         e.target.value === "paid";
 //                                       handleUpdatePaidStatus(exp, newStatus);
 //                                     }}
-//                                     className={`border-2 rounded-lg px-3 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500 bg-white cursor-pointer ${
-//                                       paid
-//                                         ? "border-green-300 bg-green-50 text-green-700"
-//                                         : "border-orange-300 bg-orange-50 text-orange-700"
-//                                     }`}
+//                                     className={`border-2 rounded-lg px-3 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500 bg-white cursor-pointer ${paid
+//                                       ? "border-green-300 bg-green-50 text-green-700"
+//                                       : "border-orange-300 bg-orange-50 text-orange-700"
+//                                       }`}
 //                                   >
 //                                     <option value="unpaid">Pending</option>
 //                                     <option value="paid">Done</option>
@@ -1429,32 +1044,31 @@ __turbopack_context__.n(__turbopack_context__.i("[project]/Documents/Expense/lp-
 //                     : "All Time Total"}
 //                 </label>
 //                 <div
-//                   className={`border-2 rounded-xl px-6 py-4 text-2xl font-black ${
-//                     historyEmployeeId
-//                       ? "border-blue-300 bg-blue-50 text-blue-700"
-//                       : "border-green-300 bg-green-50 text-green-700"
-//                   }`}
+//                   className={`border-2 rounded-xl px-6 py-4 text-2xl font-black ${historyEmployeeId
+//                     ? "border-blue-300 bg-blue-50 text-blue-700"
+//                     : "border-green-300 bg-green-50 text-green-700"
+//                     }`}
 //                 >
 //                   ₹
 //                   {(historyEmployeeId
 //                     ? employeeHistoryTotal
 //                     : historyExpenses.reduce(
-//                         (sum, e) =>
-//                           sum +
-//                           e.amount +
-//                           (e.subtasks || []).reduce(
-//                             (s, sub) => s + (sub.amount || 0),
-//                             0
-//                           ),
-//                         0
-//                       )
+//                       (sum, e) =>
+//                         sum +
+//                         e.amount +
+//                         (e.subtasks || []).reduce(
+//                           (s, sub) => s + (sub.amount || 0),
+//                           0
+//                         ),
+//                       0
+//                     )
 //                   ).toLocaleString()}
 //                 </div>
 //               </div>
 //             </div>
 //             <div className="overflow-x-auto rounded-xl border-2 border-gray-200">
 //               <table className="min-w-full">
-//                 <thead className="bg-gradient-to-r from-gray-900 to-gray-800">
+//                 <thead className="bg-linear-to-r from-gray-900 to-gray-800">
 //                   <tr>
 //                     <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
 //                       Date
@@ -1533,7 +1147,7 @@ __turbopack_context__.n(__turbopack_context__.i("[project]/Documents/Expense/lp-
 //       {!showAddForm && (
 //         <button
 //           onClick={() => setShowAddForm(true)}
-//           className="fixed bottom-8 right-8 bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 text-white w-16 h-16 rounded-full flex items-center justify-center text-4xl font-light shadow-2xl transition-all duration-300 transform hover:scale-110 z-50"
+//           className="fixed bottom-8 right-8 bg-linear-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 text-white w-16 h-16 rounded-full flex items-center justify-center text-4xl font-light shadow-2xl transition-all duration-300 transform hover:scale-110 z-50"
 //           aria-label="Add New Expense"
 //         >
 //           +
