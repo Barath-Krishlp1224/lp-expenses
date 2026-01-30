@@ -25,6 +25,8 @@ export interface IExpense extends Document {
   role: Role;
   employeeId?: string;
   employeeName?: string;
+  paymentMode: string;
+  paymentType?: string;
 }
 
 const SubExpenseSchema = new Schema<SubExpense>(
@@ -56,6 +58,8 @@ const ExpenseSchema = new Schema<IExpense>(
     },
     employeeId: { type: String, required: false },
     employeeName: { type: String, required: false, trim: true },
+    paymentMode: { type: String, required: true },
+    paymentType: { type: String, required: false },
   },
   { timestamps: true }
 );

@@ -4,6 +4,9 @@
 import React from "react";
 import { type Role, type Employee } from "./types";
 import { EMPLOYEES } from "../InitialBudget/EmployeesList";
+type PaymentMode = "cash" | "upi";
+type PaymentType = "prepaid" | "postpaid" | "";
+
 
 interface ExpenseFormProps {
   shopName: string;
@@ -18,6 +21,10 @@ interface ExpenseFormProps {
   setRole: (r: Role) => void;
   selectedEmployeeId: string;
   setSelectedEmployeeId: (id: string) => void;
+  paymentMode: PaymentMode;
+  setPaymentMode: (v: PaymentMode) => void;
+  paymentType: PaymentType;
+  setPaymentType: (v: PaymentType) => void;
   employees: Employee[];
   onSubmit: (e: React.FormEvent) => void;
   shops: string[];
@@ -38,6 +45,10 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   selectedEmployeeId,
   setSelectedEmployeeId,
   employees,
+  paymentMode,
+  setPaymentMode,
+  paymentType,
+  setPaymentType,
   onSubmit,
   shops,
   onCancel,
@@ -123,6 +134,45 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             </select>
           </div>
         </div>
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Mode of Payment
+          </label>
+          <select
+            value={paymentMode}
+            onChange={(e) => {
+              const mode = e.target.value as PaymentMode;
+              setPaymentMode(mode);
+
+              // HARD RULE: paymentType is invalid unless UPI
+              if (mode !== "upi") {
+                setPaymentType("");
+              }
+            }}
+            className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 outline-none focus:border-blue-500 transition-all bg-white cursor-pointer"
+          >
+            <option value="cash">Cash</option>
+            <option value="upi">UPI</option>
+          </select>
+        </div>
+        {paymentMode === "upi" && (
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Payment Type
+            </label>
+            <select
+              value={paymentType}
+              onChange={(e) =>
+                setPaymentType(e.target.value as PaymentType)
+              }
+              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 outline-none focus:border-blue-500 transition-all bg-white cursor-pointer"
+            >
+              <option value="">Select type</option>
+              <option value="prepaid">Prepaid</option>
+              <option value="postpaid">Postpaid</option>
+            </select>
+          </div>
+        )}
 
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">

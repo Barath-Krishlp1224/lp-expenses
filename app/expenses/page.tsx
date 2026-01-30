@@ -42,6 +42,9 @@ interface EditExpenseFields {
   employeeName: string;
 }
 
+type PaymentMode = "cash" | "upi";
+type PaymentType = "prepaid" | "postpaid" | "";
+
 const ExpensesContent: React.FC = () => {
   // State declarations (keep the same)
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -64,6 +67,8 @@ const ExpensesContent: React.FC = () => {
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [role, setRole] = useState<Role>("founder");
   const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
+  const [paymentMode, setPaymentMode] = useState<PaymentMode>("cash");
+  const [paymentType, setPaymentType] = useState<PaymentType>("");
 
   // UI states (keep the same)
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -369,6 +374,11 @@ const ExpensesContent: React.FC = () => {
       toast.warn("Select employee for Manager role.");
       return;
     }
+    if (paymentMode === "upi" && !paymentType) {
+      toast.warn("Select payment type for UPI payments.");
+      return;
+    }
+
 
     const payload = {
       description: description.trim(),
@@ -381,6 +391,10 @@ const ExpensesContent: React.FC = () => {
       employeeName:
         selectedEmployeeId &&
         EMPLOYEES.find((e) => e._id === selectedEmployeeId)?.name,
+
+      paymentMode,
+      paymentType: paymentMode === "upi" ? paymentType : null,
+
       subtasks: [],
     };
 
@@ -417,6 +431,9 @@ const ExpensesContent: React.FC = () => {
       setDate(new Date().toISOString().slice(0, 10));
       setRole("founder");
       setSelectedEmployeeId("");
+      setPaymentMode("cash"),
+        setPaymentType("")
+
       setShowAddForm(false);
       toast.success("Expense added successfully!");
     } catch (err: any) {
@@ -790,7 +807,13 @@ const ExpensesContent: React.FC = () => {
             role={role}
             setRole={setRole}
             selectedEmployeeId={selectedEmployeeId}
+            paymentMode={paymentMode}
+            paymentType={paymentType}
+
             setSelectedEmployeeId={setSelectedEmployeeId}
+
+            setPaymentMode={setPaymentMode}
+            setPaymentType={setPaymentType}
             employees={employees}
             onSubmit={handleAddExpense}
             shops={shopSuggestions}
@@ -824,6 +847,7 @@ const ExpensesContent: React.FC = () => {
           </div>
 
           <div className="lg:col-span-3">
+
             <div className="bg-white rounded-2xl overflow-hidden shadow-xl border-2 border-gray-100">
               {loading ? (
                 <LoadingState />

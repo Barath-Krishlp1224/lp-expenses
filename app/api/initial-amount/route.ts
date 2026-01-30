@@ -68,7 +68,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       { success: true, data: created.toObject() },
-      { status: 201 }
+      { status: 200 }
     );
   } catch (err: any) {
     console.error("POST Initial Amount Error:", err);

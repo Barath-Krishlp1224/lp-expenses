@@ -22,6 +22,8 @@ export interface Expense {
   role: Role;
   employeeId?: string | null;
   employeeName?: string;
+  paymentMode:string;
+  paymentType?:string;
   paid: boolean;
   subtasks?: Subtask[];
   createdAt: string;

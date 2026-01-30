@@ -41,15 +41,15 @@ function normalizeSubExpense(raw: RawSubExpense): SubExpense | null {
     raw.amount === undefined || raw.amount === null
       ? undefined
       : typeof raw.amount === "number" && !Number.isNaN(raw.amount)
-      ? raw.amount
-      : Number(raw.amount);
+        ? raw.amount
+        : Number(raw.amount);
 
   const date =
     typeof raw.date === "string"
       ? raw.date
       : raw.date
-      ? String(raw.date)
-      : undefined;
+        ? String(raw.date)
+        : undefined;
 
   const employeeId =
     raw.employeeId === undefined || raw.employeeId === null
@@ -162,6 +162,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as Record<string, unknown>;
+    console.log('body:>>>>>> ', body);
 
     const description =
       typeof body.description === "string" ? body.description.trim() : "";
@@ -190,34 +191,45 @@ export async function POST(request: Request) {
       typeof body.employeeName === "string"
         ? body.employeeName.trim()
         : undefined;
+    const paymentMode =
+      typeof body.paymentMode === "string"
+        ? body.paymentMode.trim()
+        : undefined;
+    console.log("paymentModepaymentMode", typeof(paymentMode));
+    const paymentType =
+      typeof body.paymentType === "string"
+        ? body.paymentType.trim()
+        : undefined;
+    console.log('paymentType: ', typeof(paymentType));
+
 
     const subtasks = normalizeSubExpenses(body.subtasks);
 
-    if (
-      !description ||
-      !date ||
-      !weekStart ||
-      !(typeof amount === "number" && !Number.isNaN(amount) && amount >= 0)
-    ) {
-      return NextResponse.json(
-        {
-          success: false,
-          error:
-            "Missing or invalid fields. Required: description (string), amount (number >= 0), date (string), weekStart (string)",
-        },
-        { status: 400 }
-      );
-    }
+    // if (
+    //   !description ||
+    //   !date ||
+    //   !weekStart ||
+    //   !(typeof amount === "number" && !Number.isNaN(amount) && amount >= 0)
+    // ) {
+    //   return NextResponse.json(
+    //     {
+    //       success: false,
+    //       error:
+    //         "Missing or invalid fields. Required: description (string), amount (number >= 0), date (string), weekStart (string)",
+    //     },
+    //     { status: 400 }
+    //   );
+    // }
 
-    if (role === "manager" && (!employeeId || !employeeName)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Employee ID and Name are required for Manager role.",
-        },
-        { status: 400 }
-      );
-    }
+    // if (role === "manager" && (!employeeId || !employeeName)) {
+    //   return NextResponse.json(
+    //     {
+    //       success: false,
+    //       error: "Employee ID and Name are required for Manager role.",
+    //     },
+    //     { status: 400 }
+    //   );
+    // }
 
     await ensureConnected();
 
@@ -231,8 +243,11 @@ export async function POST(request: Request) {
       role,
       employeeId,
       employeeName,
+      paymentMode,
+      paymentType,
       subtasks,
     });
+    console.log("createdcreated", created);
 
     await created.save();
 
