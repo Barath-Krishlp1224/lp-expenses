@@ -71,7 +71,7 @@ const ExpensesContent: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [initialAmountHistory, setInitialAmountHistory] = useState<any
   >([]);
-  console.log("initialAmountHistoryinitialAmountHistory",initialAmountHistory);
+  console.log("initialAmountHistoryinitialAmountHistory", initialAmountHistory);
   const [activeWallet, setActiveWallet] = useState<WalletKey | null>(null);
   console.log('activeWallet: ', activeWallet);
   const [showEditInitialAmount, setShowEditInitialAmount] = useState(false);
@@ -140,14 +140,14 @@ const ExpensesContent: React.FC = () => {
   } | null>(null);
 
   const filteredHistory = useMemo(() => {
-  if (!activeWallet) return [];
-  console.log('activeWallet: ', activeWallet);
+    if (!activeWallet) return [];
+    console.log('activeWallet: ', activeWallet);
 
-  return initialAmountHistory.filter(
-    (h: any) => h.wallet === activeWallet
-  );
-}, [initialAmountHistory, activeWallet]);
-console.log("filteredHistoryfilteredHistory",filteredHistory);
+    return initialAmountHistory.filter(
+      (h: any) => h.wallet === activeWallet
+    );
+  }, [initialAmountHistory, activeWallet]);
+  console.log("filteredHistoryfilteredHistory", filteredHistory);
 
 
 
@@ -468,14 +468,23 @@ console.log("filteredHistoryfilteredHistory",filteredHistory);
     }
 
     // get remaining amount for that wallet
-    const remaining = walletStats[wallet]?.remaining ?? INITIAL_AMOUNT_CONSTANT;
+    const remaining = walletStats[wallet]?.remaining ?? "0";
+    const pending = walletStats[wallet]?.pending ?? "0"
+    const orgRemaining = remaining - pending;
 
-    if (wallet !== "upi_postpaid" && expenseAmount > remaining) {
+    if (wallet !== "upi_postpaid" && expenseAmount > (remaining - pending)) {
       toast.error(
-        `Cannot add expense. ${wallet} wallet remaining balance is ₹${remaining.toLocaleString()}`
+        `Cannot add expense ${wallet} wallet remaining balance is ₹${orgRemaining.toLocaleString()}`
       );
       return;
     }
+
+    // 🔒 Postpaid expenses must be Manager-only
+    if (wallet === "upi_postpaid" && role !== "manager") {
+      toast.error("Postpaid expenses can only be added under Manager role.");
+      return;
+    }
+
 
     // validation for description, date, role etc
     if (!description.trim() || !date) {
