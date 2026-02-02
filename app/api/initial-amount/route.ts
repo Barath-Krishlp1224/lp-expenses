@@ -37,32 +37,42 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as { amount: unknown; date: unknown };
+    const body = (await request.json()) as { amount: unknown; date: unknown, wallet: unknown };
+    console.log('body: ', body);
+    const wallet: any = body.wallet;
 
     const amount =
       typeof body.amount === "number" ? body.amount : Number(body.amount);
     const date = typeof body.date === "string" ? body.date : "";
 
-    if (!(typeof amount === "number" && !Number.isNaN(amount) && amount >= 0)) {
-      return NextResponse.json(
-        { success: false, error: "Invalid amount provided." },
-        { status: 400 }
-      );
-    }
+    // if (!(typeof amount === "number" && !Number.isNaN(amount) && amount >= 0)) {
+    //   return NextResponse.json(
+    //     { success: false, error: "Invalid amount provided." },
+    //     { status: 400 }
+    //   );
+    // }
 
-    if (!date) {
-        return NextResponse.json(
-            { success: false, error: "Date is required." },
-            { status: 400 }
-          );
-    }
+    // if (!date) {
+    //   return NextResponse.json(
+    //     { success: false, error: "Date is required." },
+    //     { status: 400 }
+    //   );
+    // }
+    // if (!wallet) {
+    //   return NextResponse.json(
+    //     { success: false, error: "Wallet is required." },
+    //     { status: 400 }
+    //   );
+    // }
 
     await ensureConnected();
 
     const created = new InitialAmountHistory({
       amount,
       date,
+      wallet
     });
+    console.log("createdcreatedcreated", created);
 
     await created.save();
 

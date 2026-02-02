@@ -195,12 +195,12 @@ export async function POST(request: Request) {
       typeof body.paymentMode === "string"
         ? body.paymentMode.trim()
         : undefined;
-    console.log("paymentModepaymentMode", typeof(paymentMode));
+    console.log("paymentModepaymentMode", typeof (paymentMode));
     const paymentType =
       typeof body.paymentType === "string"
         ? body.paymentType.trim()
         : undefined;
-    console.log('paymentType: ', typeof(paymentType));
+    console.log('paymentType: ', typeof (paymentType));
 
 
     const subtasks = normalizeSubExpenses(body.subtasks);

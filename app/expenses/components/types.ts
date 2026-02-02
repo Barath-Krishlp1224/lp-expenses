@@ -36,6 +36,7 @@ export interface Employee {
 }
 
 export interface InitialAmountHistoryEntry {
+  walletType: "cash" | "upi_prepaid" | "upi_postpaid";
   amount: number;
   date: string;
 }

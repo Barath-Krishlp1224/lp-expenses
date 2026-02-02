@@ -31,6 +31,7 @@ import HeaderSection from "./HeaderSection";
 import InitialAmountHistoryModal from "./InitilAmountHistoryModal";
 import AddExpenseButton from "./AddExpenseButtonState";
 import { EMPLOYEES } from "./InitialBudget/EmployeesList";
+import { WalletKey, WALLETS } from "./InitialBudget/walletType";
 
 interface EditExpenseFields {
   shop: string;
@@ -45,15 +46,36 @@ interface EditExpenseFields {
 type PaymentMode = "cash" | "upi";
 type PaymentType = "prepaid" | "postpaid" | "";
 
+export function expenseBelongsToWallet(exp: Expense, wallet: WalletKey) {
+  if (wallet === "cash") {
+    return exp.paymentMode === "cash";
+  }
+
+  if (wallet === "upi_prepaid") {
+    return exp.paymentMode === "upi" && exp.paymentType === "prepaid";
+  }
+
+  if (wallet === "upi_postpaid") {
+    return exp.paymentMode === "upi" && exp.paymentType === "postpaid";
+  }
+
+  return false;
+}
+
+
 const ExpensesContent: React.FC = () => {
   // State declarations (keep the same)
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [initialAmountHistory, setInitialAmountHistory] = useState<
-    InitialAmountHistoryEntry[]
+  const [initialAmountHistory, setInitialAmountHistory] = useState<any
   >([]);
+  console.log("initialAmountHistoryinitialAmountHistory",initialAmountHistory);
+  const [activeWallet, setActiveWallet] = useState<WalletKey | null>(null);
+  console.log('activeWallet: ', activeWallet);
+  const [showEditInitialAmount, setShowEditInitialAmount] = useState(false);
+
   const [showInitialAmountHistory, setShowInitialAmountHistory] = useState(false);
   const [budgetPeriodStart, setBudgetPeriodStart] = useState(() => {
     const now = new Date().toISOString().slice(0, 10);
@@ -117,6 +139,18 @@ const ExpensesContent: React.FC = () => {
     employeeId?: string;
   } | null>(null);
 
+  const filteredHistory = useMemo(() => {
+  if (!activeWallet) return [];
+  console.log('activeWallet: ', activeWallet);
+
+  return initialAmountHistory.filter(
+    (h: any) => h.wallet === activeWallet
+  );
+}, [initialAmountHistory, activeWallet]);
+console.log("filteredHistoryfilteredHistory",filteredHistory);
+
+
+
   // Effects (keep the same)
   useEffect(() => {
     const fetchInitialAmount = async () => {
@@ -130,6 +164,7 @@ const ExpensesContent: React.FC = () => {
             {
               amount: INITIAL_AMOUNT_CONSTANT,
               date: new Date().toISOString(),
+              walletType: "cash",
             },
           ]);
         }
@@ -139,6 +174,7 @@ const ExpensesContent: React.FC = () => {
           {
             amount: INITIAL_AMOUNT_CONSTANT,
             date: new Date().toISOString(),
+            walletType: "cash",
           },
         ]);
       }
@@ -363,38 +399,106 @@ const ExpensesContent: React.FC = () => {
     }
   };
 
+  const walletStats = useMemo(() => {
+    const map: Record<WalletKey, {
+      spent: number;
+      pending: number;
+      remaining: number;
+      initialAmount: number;
+    }> = {} as any;
+
+    WALLETS.forEach(({ key }) => {
+      const walletHistory = initialAmountHistory
+        .filter((h: any) => h.wallet === key)
+        .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+      const initialAmount =
+        walletHistory[0]?.amount ?? INITIAL_AMOUNT_CONSTANT;
+
+      let spent = 0;
+      let pending = 0;
+
+      expenses
+        .filter((e: any) => e.date >= budgetPeriodStart)
+        .filter((e: any) => expenseBelongsToWallet(e, key))
+        .forEach((e: any) => {
+          const base = e.amount;
+          const subs = (e.subtasks || []).reduce(
+            (s: any, sub: any) => s + (sub.amount || 0),
+            0
+          );
+          const total = base + subs;
+
+          if (isExpensePaid(e)) {
+            spent += total;
+          } else {
+            pending += total;
+          }
+        });
+
+      map[key] = {
+        spent,
+        pending,
+        remaining: initialAmount - spent,
+        initialAmount,
+      };
+    });
+
+    return map;
+  }, [expenses, initialAmountHistory, budgetPeriodStart]);
+
   const handleAddExpense = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!description.trim() || !amount || !date) {
-      toast.warn("Description, amount, date are required.");
+
+    // convert amount to number first
+    const expenseAmount = Number(amount);
+    if (isNaN(expenseAmount) || expenseAmount <= 0) {
+      toast.error("Enter a valid amount");
       return;
     }
 
+    // determine wallet key
+    let wallet: WalletKey;
+    if (paymentMode === "cash") wallet = "cash";
+    else if (paymentMode === "upi" && paymentType === "prepaid") wallet = "upi_prepaid";
+    else if (paymentMode === "upi" && paymentType === "postpaid") wallet = "upi_postpaid";
+    else {
+      toast.error("Invalid wallet selected");
+      return;
+    }
+
+    // get remaining amount for that wallet
+    const remaining = walletStats[wallet]?.remaining ?? INITIAL_AMOUNT_CONSTANT;
+
+    if (wallet !== "upi_postpaid" && expenseAmount > remaining) {
+      toast.error(
+        `Cannot add expense. ${wallet} wallet remaining balance is ₹${remaining.toLocaleString()}`
+      );
+      return;
+    }
+
+    // validation for description, date, role etc
+    if (!description.trim() || !date) {
+      toast.warn("Description and date are required.");
+      return;
+    }
     if (role === "manager" && !selectedEmployeeId) {
       toast.warn("Select employee for Manager role.");
       return;
     }
-    if (paymentMode === "upi" && !paymentType) {
-      toast.warn("Select payment type for UPI payments.");
-      return;
-    }
-
 
     const payload = {
       description: description.trim(),
-      amount: Number(amount),
+      amount: expenseAmount,
       date,
       weekStart: getWeekStart(date),
       shop: shopName.trim(),
       role,
       employeeId: selectedEmployeeId || null,
       employeeName:
-        selectedEmployeeId &&
-        EMPLOYEES.find((e) => e._id === selectedEmployeeId)?.name,
-
+        selectedEmployeeId && EMPLOYEES.find((e) => e._id === selectedEmployeeId)?.name,
       paymentMode,
       paymentType: paymentMode === "upi" ? paymentType : null,
-
       subtasks: [],
     };
 
@@ -416,30 +520,25 @@ const ExpensesContent: React.FC = () => {
         subtasks: Array.isArray(json.data.subtasks) ? json.data.subtasks : [],
       };
 
-      setExpenses((prev) => {
-        const newExpenses = [...prev, created];
-        return newExpenses.sort((a, b) => {
-          if (a.date > b.date) return 1;
-          if (a.date < b.date) return -1;
-          return 0;
-        });
-      });
+      setExpenses((prev) => [...prev, created].sort((a, b) => a.date.localeCompare(b.date)));
 
+      // reset form
       setShopName("");
       setDescription("");
       setAmount("");
       setDate(new Date().toISOString().slice(0, 10));
       setRole("founder");
       setSelectedEmployeeId("");
-      setPaymentMode("cash"),
-        setPaymentType("")
-
+      setPaymentMode("cash");
+      setPaymentType("");
       setShowAddForm(false);
+
       toast.success("Expense added successfully!");
     } catch (err: any) {
       toast.error(err.message || "Failed to add expense.");
     }
   };
+
 
   const toggleExpand = (id: string) => {
     setExpandedId((prev) => (prev === id ? null : id));
@@ -789,6 +888,15 @@ const ExpensesContent: React.FC = () => {
         <InitialBudget
           budgetPeriodStart={budgetPeriodStart}
           setShowInitialAmountHistory={setShowInitialAmountHistory}
+          onOpenHistory={(wallet: any) => {
+            setActiveWallet(wallet);
+            setShowInitialAmountHistory(true);
+          }}
+          activeWallet={activeWallet}
+          onEditWallet={(wallet: any) => {
+            setActiveWallet(wallet);
+            setShowEditInitialAmount(true);
+          }}
           expenses={expenses}
           initialAmountHistory={initialAmountHistory}
           setInitialAmountHistory={setInitialAmountHistory}

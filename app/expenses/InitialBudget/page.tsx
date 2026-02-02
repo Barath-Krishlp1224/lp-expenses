@@ -2,6 +2,10 @@ import React, { useMemo, useState } from 'react'
 import { INITIAL_AMOUNT_CONSTANT, InitialAmountHistoryEntry } from '../components/types';
 import { Expense, isExpensePaid } from '../types';
 import { toast } from 'react-toastify';
+import { WalletKey, WALLETS } from './walletType';
+import { expenseBelongsToWallet } from '../page';
+import WalletCard from './walletCard';
+import EditInitialAmountModal from './EditInitialAmountModal';
 
 
 const getMonthStart = (dateString: string) => {
@@ -10,19 +14,77 @@ const getMonthStart = (dateString: string) => {
         .toISOString()
         .slice(0, 10);
 };
-function InitialBudget({ budgetPeriodStart, setShowInitialAmountHistory, expenses,initialAmountHistory, setInitialAmountHistory }: any) {
+
+
+
+function InitialBudget({ budgetPeriodStart, setShowInitialAmountHistory, expenses, initialAmountHistory, setInitialAmountHistory }: any) {
+    console.log('expenses: ', expenses);
     // const [expenses, setExpenses] = useState<Expense[]>([]);
     const [isEditingInitialAmount, setIsEditingInitialAmount] = useState(false);
     // const [initialAmountHistory, setInitialAmountHistory] = useState<
     //     InitialAmountHistoryEntry[]
     // >([]);
-    console.log("initialAmountHistoryinitialAmountHistory",initialAmountHistory);
+    const [activeWallet, setActiveWallet] = useState<WalletKey | null>(null);
+    console.log('activeWallet: ', activeWallet);
+    const [showEdit, setShowEdit] = useState(false);
+
+    console.log("initialAmountHistoryinitialAmountHistory", initialAmountHistory);
 
     const initialAmount =
         initialAmountHistory[0]?.amount || INITIAL_AMOUNT_CONSTANT;
     const [initialAmountInput, setInitialAmountInput] = useState(
         initialAmount.toString()
+
+
     );
+
+    const walletStats = useMemo(() => {
+        const map: Record<WalletKey, {
+            spent: number;
+            pending: number;
+            remaining: number;
+            initialAmount: number;
+        }> = {} as any;
+
+        WALLETS.forEach(({ key }) => {
+            const walletHistory = initialAmountHistory
+                .filter((h: any) => h.wallet === key)
+                .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+            const initialAmount =
+                walletHistory[0]?.amount ?? INITIAL_AMOUNT_CONSTANT;
+
+            let spent = 0;
+            let pending = 0;
+
+            expenses
+                .filter((e: any) => e.date >= budgetPeriodStart)
+                .filter((e: any) => expenseBelongsToWallet(e, key))
+                .forEach((e: any) => {
+                    const base = e.amount;
+                    const subs = (e.subtasks || []).reduce(
+                        (s: any, sub: any) => s + (sub.amount || 0),
+                        0
+                    );
+                    const total = base + subs;
+
+                    if (isExpensePaid(e)) {
+                        spent += total;
+                    } else {
+                        pending += total;
+                    }
+                });
+
+            map[key] = {
+                spent,
+                pending,
+                remaining: initialAmount - spent,
+                initialAmount,
+            };
+        });
+
+        return map;
+    }, [expenses, initialAmountHistory, budgetPeriodStart]);
     // const [budgetPeriodStart, setBudgetPeriodStart] = useState(() => {
     //     const now = new Date().toISOString().slice(0, 10);
     //     return getMonthStart(now);
@@ -30,34 +92,34 @@ function InitialBudget({ budgetPeriodStart, setShowInitialAmountHistory, expense
 
     // const [showInitialAmountHistory, setShowInitialAmountHistory] = useState(false);
 
-    const walletStats = useMemo(() => {
-        let spent = 0;
-        let pending = 0;
+    // const walletStats = useMemo(() => {
+    //     let spent = 0;
+    //     let pending = 0;
 
-        const periodExpenses = expenses.filter(
-            (e: any) => e.date >= budgetPeriodStart
-        );
+    //     const periodExpenses = expenses.filter(
+    //         (e: any) => e.date >= budgetPeriodStart
+    //     );
 
-        periodExpenses.forEach((e: any) => {
-            const base = e.amount;
-            const subsTotal = (e.subtasks || []).reduce(
-                (sum: any, s: any) => sum + (s.amount || 0),
-                0
-            );
-            const full = base + subsTotal;
+    //     periodExpenses.forEach((e: any) => {
+    //         const base = e.amount;
+    //         const subsTotal = (e.subtasks || []).reduce(
+    //             (sum: any, s: any) => sum + (s.amount || 0),
+    //             0
+    //         );
+    //         const full = base + subsTotal;
 
-            const paid = isExpensePaid(e);
+    //         const paid = isExpensePaid(e);
 
-            if (paid) {
-                spent += full;
-            } else {
-                pending += full;
-            }
-        });
+    //         if (paid) {
+    //             spent += full;
+    //         } else {
+    //             pending += full;
+    //         }
+    //     });
 
-        const remaining = initialAmount - spent;
-        return { spent, pending, remaining };
-    }, [expenses, initialAmount, budgetPeriodStart]);
+    //     const remaining = initialAmount - spent;
+    //     return { spent, pending, remaining };
+    // }, [expenses, initialAmount, budgetPeriodStart]);
 
     const handleUpdateInitialAmount = async () => {
         const newAmount = Number(initialAmountInput);
@@ -65,6 +127,7 @@ function InitialBudget({ budgetPeriodStart, setShowInitialAmountHistory, expense
             const newEntry: InitialAmountHistoryEntry = {
                 amount: newAmount,
                 date: new Date().toISOString(),
+                walletType: "cash"
             };
 
             if (newAmount !== initialAmountHistory[0]?.amount) {
@@ -74,7 +137,7 @@ function InitialBudget({ budgetPeriodStart, setShowInitialAmountHistory, expense
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(newEntry),
                     });
-                    console.log("resres",res);
+                    console.log("resres", res);
                     const json = await res.json();
                     if (!json.success) {
                         toast.error(
@@ -96,100 +159,58 @@ function InitialBudget({ budgetPeriodStart, setShowInitialAmountHistory, expense
         }
     };
 
-
-
-
     return (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <div className="bg-white rounded-2xl p-6 shadow-xl border-2 border-gray-100 hover:shadow-2xl transition-shadow">
-                <div className="flex justify-between items-start mb-4">
-                    <div>
-                        <div className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-1">
-                            Initial Budget
-                        </div>
-                        {!isEditingInitialAmount && (
-                            <div className="text-3xl font-black text-gray-900">
-                                ₹{initialAmount.toLocaleString()}
-                            </div>
-                        )}
-                    </div>
-                    <div className="flex gap-2">
-                        {!isEditingInitialAmount && (
-                            <button
-                                onClick={() => {
-                                    setIsEditingInitialAmount(true);
-                                    setInitialAmountInput(initialAmount.toString());
-                                }}
-                                className="px-3 py-1 rounded-lg text-xs font-bold text-blue-600 bg-blue-100 hover:bg-blue-200 transition-all"
-                            >
-                                Edit
-                            </button>
-                        )}
-                        <button
-                            onClick={() => setShowInitialAmountHistory(true)}
-                            className="px-3 py-1 rounded-lg text-xs font-bold text-teal-600 bg-teal-100 hover:bg-teal-200 transition-all"
-                        >
-                            History
-                        </button>
-                    </div>
-                </div>
-                {isEditingInitialAmount && (
-                    <div className="space-y-3">
-                        <input
-                            type="number"
-                            value={initialAmountInput}
-                            onChange={(e) => setInitialAmountInput(e.target.value)}
-                            className="w-full border-2 border-gray-300 rounded-xl px-4 py-2 text-gray-900 outline-none focus:border-blue-500"
-                            placeholder="Enter new amount"
-                        />
-                        <div className="flex gap-2">
-                            <button
-                                onClick={handleUpdateInitialAmount}
-                                className="flex-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm font-bold transition-all"
-                            >
-                                Save
-                            </button>
-                            <button
-                                onClick={() => {
-                                    setIsEditingInitialAmount(false);
-                                    setInitialAmountInput(initialAmount.toString());
-                                }}
-                                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 rounded-lg text-sm font-bold transition-all"
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    </div>
-                )}
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {WALLETS.map(w => (
+                <WalletCard
+                    key={w.key}
+                    walletKey={w.key}
+                    title={w.label}
+                    stats={walletStats[w.key]}
+                    onEdit={() => {
+                        setActiveWallet(w.key);
+                        setShowEdit(true);
+                    }}
+                    onHistory={() => {
+                        setActiveWallet(w.key);
+                        setShowInitialAmountHistory(true);
+                    }}
+                />
+            ))}
+            {showEdit && activeWallet && (
+                <EditInitialAmountModal
+                    wallet={activeWallet}
+                    currentAmount={walletStats[activeWallet].initialAmount}
+                    onClose={() => setShowEdit(false)}
+                    onSave={async (newEntry: any) => {
+                        // Update your backend and state
+                        //   if (newEntry.amount !== initialAmountHistory[0]?.amount) {
+                        try {
+                            const res = await fetch("/api/initial-amount", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify(newEntry),
+                            });
+                            const json = await res.json();
+                            if (!json.success) {
+                                toast.error(json.error || "Failed to save initial amount.");
+                                return;
+                            }
 
-            <div className="bg-linear-to-br from-white to-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all">
-                <div className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-2">
-                    Total Spent (Current Period)
-                </div>
-                <div className="text-3xl font-black text-black">
-                    ₹{walletStats.spent.toLocaleString()}
-                </div>
-            </div>
+                            setInitialAmountHistory((prev: any) => [newEntry, ...prev]);
+                            toast.success("Initial amount updated successfully!");
+                        } catch (err: any) {
+                            toast.error(err.message || "Failed to update initial amount.");
+                        }
+                    }
+                    }
+                />
+            )}
 
-            <div className="bg-linear-to-br from-white to-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all">
-                <div className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-2">
-                    Pending (Current Period)
-                </div>
-                <div className="text-3xl font-black text-black">
-                    ₹{walletStats.pending.toLocaleString()}
-                </div>
-            </div>
-
-            <div className="bg-linear-to-br from-white to-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all">
-                <div className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-2">
-                    Remaining (Current Period)
-                </div>
-                <div className="text-3xl font-black text-black">
-                    ₹{walletStats.remaining.toLocaleString()}
-                </div>
-            </div>
         </div>
+
+
+
     )
 }
 
