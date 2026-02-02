@@ -11,6 +11,8 @@ interface EditExpenseFields {
   amount: string; // String for input field
   date: string;
   role: Role;
+  paymentType: string;
+  paymentMode: string;
   employeeId: string; // ID of the selected employee
   employeeName: string; // Name of the selected employee
 }
@@ -34,6 +36,10 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
   onSave,
   onCancel,
 }) => {
+  const PAYMENT_MODES = ["cash", "upi"] as const;
+  const PAYMENT_TYPES = ["prepaid", "postpaid"] as const;
+
+  console.log("editExpenseFieldseditExpenseFields", editExpenseFields);
   const setField = (
     key: keyof EditExpenseFields,
     value: string
@@ -112,6 +118,52 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
                 onChange={(e) => setField("date", e.target.value)}
                 className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-gray-900 outline-none focus:border-blue-500"
               />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">
+                Payment Mode
+              </label>
+              <select
+                value={editExpenseFields.paymentMode}
+                onChange={(e) => {
+                  const mode = e.target.value;
+                  setEditExpenseFields((p) => ({
+                    ...p,
+                    paymentMode: mode,
+                    // reset paymentType if not UPI
+                    paymentType: mode === "upi" ? p.paymentType : "",
+                  }));
+                }}
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-2
+             text-gray-900 outline-none focus:border-blue-500 bg-white"
+              >
+                <option value="">Select mode</option>
+                <option value="cash">Cash</option>
+                <option value="upi">UPI</option>
+              </select>
+
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">
+                Payment Type
+              </label>
+              <select
+                value={editExpenseFields.paymentType}
+                disabled={editExpenseFields.paymentMode !== "upi"}
+                onChange={(e) => setField("paymentType", e.target.value)}
+                className={`w-full border-2 rounded-xl px-4 py-2 outline-none bg-white
+    ${editExpenseFields.paymentMode !== "upi"
+                    ? "border-gray-100 text-gray-400 cursor-not-allowed"
+                    : "border-gray-200 text-gray-900 focus:border-blue-500"
+                  }`}
+              >
+                <option value="">Select type</option>
+                <option value="prepaid">Prepaid</option>
+                <option value="postpaid">Postpaid</option>
+              </select>
+
             </div>
           </div>
 

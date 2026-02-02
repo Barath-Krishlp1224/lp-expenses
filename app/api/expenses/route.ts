@@ -321,6 +321,7 @@ export async function PATCH(request: Request) {
       updates?: Record<string, any>;
     };
     const { id, updates } = body;
+    console.log('updates:>>>>>> ', updates);
 
     console.log("PATCH Request - ID:", id, "Updates:", updates);
 
@@ -344,6 +345,8 @@ export async function PATCH(request: Request) {
     const allowed = [
       "description",
       "amount",
+      "paymentMode",
+      "paymentType",
       "date",
       "shop",
       "paid",
@@ -361,6 +364,12 @@ export async function PATCH(request: Request) {
 
       switch (key) {
         case "shop":
+          payload[key] = String(updates[key] || "").trim();
+          break;
+        case "paymentMode":
+          payload[key] = String(updates[key] || "").trim();
+          break;
+        case "paymnetType":
           payload[key] = String(updates[key] || "").trim();
           break;
         case "amount":

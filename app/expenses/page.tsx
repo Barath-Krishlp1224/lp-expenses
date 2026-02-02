@@ -39,6 +39,8 @@ interface EditExpenseFields {
   amount: string;
   date: string;
   role: Role;
+  paymentMode:string;
+  paymentType:string;
   employeeId: string;
   employeeName: string;
 }
@@ -127,6 +129,8 @@ const ExpensesContent: React.FC = () => {
     amount: "",
     date: "",
     role: "founder" as Role,
+    paymentMode,
+    paymentType,
     employeeId: "",
     employeeName: "",
   });
@@ -753,6 +757,8 @@ const ExpensesContent: React.FC = () => {
       amount: String(exp.amount || 0),
       date: exp.date || new Date().toISOString().slice(0, 10),
       role: exp.role || "founder",
+      paymentMode:exp.paymentMode || "",
+      paymentType:exp.paymentType || "",
       employeeId: exp.employeeId || "",
       employeeName: exp.employeeName || "",
     });
@@ -775,6 +781,8 @@ const ExpensesContent: React.FC = () => {
       shop: editExpenseFields.shop,
       description: editExpenseFields.description,
       amount: Number(editExpenseFields.amount),
+      paymentType:editExpenseFields?.paymentType,
+      paymentMode:editExpenseFields?.paymentMode,
       date: editExpenseFields.date,
       role: editExpenseFields.role,
       employeeId: finalEmployeeId,
