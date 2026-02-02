@@ -91,9 +91,9 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
             <th className="p-4 text-right font-black text-white uppercase tracking-wide text-xs">
               Amount
             </th>
-            <th className="p-4 text-right font-black text-white uppercase tracking-wide text-xs">
+            {/* <th className="p-4 text-right font-black text-white uppercase tracking-wide text-xs">
               Total
-            </th>
+            </th> */}
             <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
               Date
             </th>
@@ -102,6 +102,12 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
             </th>
             <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
               Employee
+            </th>
+            <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
+             Payment Mode
+            </th>
+            <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
+             Payment Type
             </th>
             <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
               Status
@@ -131,9 +137,9 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
                   <td className="p-4 text-right font-bold text-gray-900">
                     ₹{exp.amount.toLocaleString()}
                   </td>
-                  <td className="p-4 text-right font-black text-gray-900 text-lg">
+                  {/* <td className="p-4 text-right font-black text-gray-900 text-lg">
                     ₹{total.toLocaleString()}
-                  </td>
+                  </td> */}
                   <td className="p-4 text-gray-600 text-sm">
                     {formatDate(exp.date)}
                   </td>
@@ -142,6 +148,12 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
                   </td>
                   <td className="p-4 text-gray-600 text-sm">
                     {exp.employeeName || "-"}
+                  </td>
+                  <td className="p-4 text-gray-600 text-sm">
+                    {exp.paymentMode || "-"}
+                  </td>
+                  <td className="p-4 text-gray-600 text-sm">
+                    {exp.paymentType || "-"}
                   </td>
                   <td className="p-4">
                     <select
@@ -162,13 +174,13 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
                   </td>
                   <td className="p-4">
                     <div className="flex flex-wrap gap-2">
-                      <button
+                      {/* <button
                         type="button"
                         className="px-4 py-2 rounded-lg text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-all"
                         onClick={() => onToggleExpand(exp._id)}
                       >
                         {expandedId === exp._id ? "Hide" : "View"}
-                      </button>
+                      </button> */}
                       <button
                         type="button"
                         className="px-4 py-2 rounded-lg text-xs font-bold text-blue-700 bg-blue-100 hover:bg-blue-200 transition-all"

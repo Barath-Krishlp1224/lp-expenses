@@ -67,10 +67,13 @@ export default function WalletCard({
             {isPostpaid ? "Pending Payment" : "Remaining"}
           </div>
           <div className={`text-3xl font-extrabold ${topAmountColor}`}>
-            {isPostpaid
-              ? `₹-${topAmount.toLocaleString()}`
-              : `₹${topAmount.toLocaleString()}`
-            }
+            {topAmount > 0
+  ? isPostpaid
+    ? `₹-${topAmount.toLocaleString()}`
+    : `₹${topAmount.toLocaleString()}`
+  : `₹0` // or "" if you don’t want to display zero
+}
+
           </div>
         </div>
       </div>

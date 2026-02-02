@@ -56,11 +56,11 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   return (
     <form
       onSubmit={onSubmit}
-      className="bg-white rounded-2xl p-8 shadow-lg border-2 border-gray-100"
+      className="p-8 max-w-4xl mx-auto"
     >
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-2xl font-bold text-gray-900">New Expense</h3>
-        <div className="h-1 flex-1 mx-6 bg-linear-to-r from-blue-500 to-teal-500 rounded-full"></div>
+        <h3 className="text-2xl font-bold text-gray-900">Add Expense</h3>
+        {/* <div className="h-1 flex-1 mx-6 bg-linear-to-r from-blue-500 to-teal-500 rounded-full"></div> */}
       </div>
 
       <div className="space-y-6">
@@ -95,7 +95,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Amount (₹)
@@ -119,6 +119,8 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
               className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 outline-none focus:border-blue-500 transition-all"
             />
           </div>
+        </div>
+        <div className="grid gap-6 md:grid-cols-2">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Role
@@ -126,14 +128,37 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             <select
               value={role}
               onChange={(e) => setRole(e.target.value as Role)}
-              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 outline-none focus:border-blue-500 transition-all bg-white cursor-pointer"
+              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3
+                 text-gray-900 outline-none focus:border-blue-500 bg-white cursor-pointer"
             >
               <option value="founder">Founder</option>
               <option value="manager">Manager</option>
               <option value="other">Other</option>
             </select>
           </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Assign to Employee
+            </label>
+            <select
+              value={selectedEmployeeId}
+              onChange={(e) => setSelectedEmployeeId(e.target.value)}
+              disabled={role !== "manager"}
+              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3
+                 text-gray-900 outline-none focus:border-blue-500 bg-white cursor-pointer
+                 disabled:bg-gray-100 disabled:cursor-not-allowed"
+            >
+              <option value="">Select Employee</option>
+              {EMPLOYEES.map((emp) => (
+                <option key={emp._id} value={emp._id}>
+                  {emp.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
+
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">
             Mode of Payment
@@ -174,23 +199,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
           </div>
         )}
 
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Assign to Employee
-          </label>
-          <select
-            value={selectedEmployeeId}
-            onChange={(e) => setSelectedEmployeeId(e.target.value)}
-            className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 outline-none focus:border-blue-500 transition-all bg-white cursor-pointer"
-          >
-            <option value="">Select Employee</option>
-            {EMPLOYEES.map((emp) => (
-              <option key={emp._id} value={emp._id}>
-                {emp.name}
-              </option>
-            ))}
-          </select>
-        </div>
+
       </div>
 
       <div className="mt-8 flex justify-end gap-4">

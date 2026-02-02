@@ -1,30 +1,31 @@
-// components/EditExpenseModal.tsx
 "use client";
 
 import React from "react";
 import { type Expense, type Employee, type Role } from "./types";
 
-// NOTE: Added employeeName to the fields type
+type PaymentMode = "cash" | "upi";
+type PaymentType = "prepaid" | "postpaid" | "";
+
 interface EditExpenseFields {
-  shop: string;
+ shop: string;
   description: string;
-  amount: string; // String for input field
+  amount: string;
   date: string;
   role: Role;
-  paymentType: string;
   paymentMode: string;
-  employeeId: string; // ID of the selected employee
-  employeeName: string; // Name of the selected employee
+  paymentType: string;
+  employeeId: string;
+  employeeName: string;
 }
 
 interface EditExpenseModalProps {
-  editingExpense: Expense; // The original expense object
+  editingExpense: Expense;
   editExpenseFields: EditExpenseFields;
   setEditExpenseFields: React.Dispatch<
     React.SetStateAction<EditExpenseFields>
   >;
   employees: Employee[];
-  onSave: (expenseId: string) => Promise<void>; // Modified: Pass the ID to save function
+  onSave: (expenseId: string) => Promise<void>;
   onCancel: () => void;
 }
 
@@ -36,146 +37,81 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
   onSave,
   onCancel,
 }) => {
-  const PAYMENT_MODES = ["cash", "upi"] as const;
-  const PAYMENT_TYPES = ["prepaid", "postpaid"] as const;
-
-  console.log("editExpenseFieldseditExpenseFields", editExpenseFields);
-  const setField = (
-    key: keyof EditExpenseFields,
-    value: string
-  ) => {
+  const setField = (key: keyof EditExpenseFields, value: string) => {
     setEditExpenseFields((p) => ({ ...p, [key]: value }));
   };
 
   const handleEmployeeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newEmployeeId = e.target.value;
-    const selectedEmployee = employees.find(
-      (emp) => emp._id === newEmployeeId
-    );
-
+    const newId = e.target.value;
+    const selected = employees.find((emp) => emp._id === newId);
     setEditExpenseFields((p) => ({
       ...p,
-      employeeId: newEmployeeId,
-      // Update employeeName when employeeId changes
-      employeeName: selectedEmployee ? selectedEmployee.name : "",
+      employeeId: newId,
+      employeeName: selected ? selected.name : "",
     }));
   };
 
-  const handleSave = () => {
-    // Pass the expense ID to the parent's save handler
-    onSave(editingExpense._id);
-  };
+  const handleSave = () => onSave(editingExpense._id);
 
   return (
-    <div className="fixed inset-0 bg-white/90 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-8">
-        <h2 className="text-2xl font-black text-gray-900 mb-6">
-          Edit Expense
-        </h2>
+    <div className="fixed inset-0 bg-white/90 bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-lg max-w-4xl w-full p-8">
+        <h3 className="text-2xl font-bold text-gray-900 mb-6">Edit Expense</h3>
 
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-6">
+          {/* Shop & Description */}
+          <div className="grid gap-6 md:grid-cols-2">
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
-                Shop
-              </label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Shop / Vendor</label>
               <input
                 value={editExpenseFields.shop}
                 onChange={(e) => setField("shop", e.target.value)}
-                className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-gray-900 outline-none focus:border-blue-500"
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 outline-none focus:border-blue-500 transition-all"
+                placeholder="Enter shop name"
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
-                Description
-              </label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
               <input
                 value={editExpenseFields.description}
                 onChange={(e) => setField("description", e.target.value)}
-                className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-gray-900 outline-none focus:border-blue-500"
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 outline-none focus:border-blue-500 transition-all"
+                placeholder="What is this expense for?"
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+
+          {/* Amount & Date */}
+          <div className="grid gap-6 md:grid-cols-2">
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
-                Amount
-              </label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Amount (₹)</label>
               <input
                 type="number"
                 value={editExpenseFields.amount}
                 onChange={(e) => setField("amount", e.target.value)}
-                className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-gray-900 outline-none focus:border-blue-500"
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 outline-none focus:border-blue-500 transition-all"
+                placeholder="0.00"
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
-                Date
-              </label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Date</label>
               <input
                 type="date"
                 value={editExpenseFields.date}
                 onChange={(e) => setField("date", e.target.value)}
-                className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-gray-900 outline-none focus:border-blue-500"
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 outline-none focus:border-blue-500 transition-all"
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
-                Payment Mode
-              </label>
-              <select
-                value={editExpenseFields.paymentMode}
-                onChange={(e) => {
-                  const mode = e.target.value;
-                  setEditExpenseFields((p) => ({
-                    ...p,
-                    paymentMode: mode,
-                    // reset paymentType if not UPI
-                    paymentType: mode === "upi" ? p.paymentType : "",
-                  }));
-                }}
-                className="w-full border-2 border-gray-200 rounded-xl px-4 py-2
-             text-gray-900 outline-none focus:border-blue-500 bg-white"
-              >
-                <option value="">Select mode</option>
-                <option value="cash">Cash</option>
-                <option value="upi">UPI</option>
-              </select>
 
-            </div>
+          {/* Role & Employee */}
+          <div className="grid gap-6 md:grid-cols-2">
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
-                Payment Type
-              </label>
-              <select
-                value={editExpenseFields.paymentType}
-                disabled={editExpenseFields.paymentMode !== "upi"}
-                onChange={(e) => setField("paymentType", e.target.value)}
-                className={`w-full border-2 rounded-xl px-4 py-2 outline-none bg-white
-    ${editExpenseFields.paymentMode !== "upi"
-                    ? "border-gray-100 text-gray-400 cursor-not-allowed"
-                    : "border-gray-200 text-gray-900 focus:border-blue-500"
-                  }`}
-              >
-                <option value="">Select type</option>
-                <option value="prepaid">Prepaid</option>
-                <option value="postpaid">Postpaid</option>
-              </select>
-
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
-                Role
-              </label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Role</label>
               <select
                 value={editExpenseFields.role}
                 onChange={(e) => setField("role", e.target.value as Role)}
-                className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-gray-900 outline-none focus:border-blue-500 bg-white"
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 outline-none focus:border-blue-500 bg-white cursor-pointer"
               >
                 <option value="founder">Founder</option>
                 <option value="manager">Manager</option>
@@ -183,15 +119,14 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
               </select>
             </div>
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
-                Employee
-              </label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Assign to Employee</label>
               <select
                 value={editExpenseFields.employeeId}
-                onChange={handleEmployeeChange} // Use the new handler
-                className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-gray-900 outline-none focus:border-blue-500 bg-white"
+                onChange={handleEmployeeChange}
+                disabled={editExpenseFields.role !== "manager"}
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 outline-none focus:border-blue-500 bg-white cursor-pointer disabled:bg-gray-100 disabled:cursor-not-allowed"
               >
-                <option value="">None</option>
+                <option value="">Select Employee</option>
                 {employees.map((emp) => (
                   <option key={emp._id} value={emp._id}>
                     {emp.name}
@@ -200,18 +135,57 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
               </select>
             </div>
           </div>
+
+          {/* Payment Mode & Type */}
+          <div className="grid gap-6 md:grid-cols-2">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Mode of Payment</label>
+              <select
+                value={editExpenseFields.paymentMode}
+                onChange={(e) => {
+                  const mode = e.target.value as PaymentMode;
+                  setField("paymentMode", mode);
+                  if (mode !== "upi") setField("paymentType", "");
+                }}
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 outline-none focus:border-blue-500 bg-white cursor-pointer"
+              >
+                <option value="cash">Cash</option>
+                <option value="upi">UPI</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Payment Type</label>
+              <select
+                value={editExpenseFields.paymentType}
+                disabled={editExpenseFields.paymentMode !== "upi"}
+                onChange={(e) => setField("paymentType", e.target.value as PaymentType)}
+                className={`w-full border-2 rounded-xl px-4 py-3 outline-none bg-white transition-all ${
+                  editExpenseFields.paymentMode !== "upi"
+                    ? "border-gray-100 text-gray-400 cursor-not-allowed"
+                    : "border-gray-200 text-gray-900 focus:border-blue-500"
+                }`}
+              >
+                <option value="">Select type</option>
+                <option value="prepaid">Prepaid</option>
+                <option value="postpaid">Postpaid</option>
+              </select>
+            </div>
+          </div>
         </div>
 
-        <div className="flex justify-end gap-3 mt-8">
+        {/* Buttons */}
+        <div className="mt-8 flex justify-end gap-4">
           <button
-            className="px-6 py-3 rounded-xl font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-all"
+            type="button"
             onClick={onCancel}
+            className="px-6 py-3 rounded-xl font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-all"
           >
             Cancel
           </button>
           <button
-            className="px-8 py-3 rounded-xl font-bold text-white bg-linear-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 shadow-lg transition-all"
+            type="button"
             onClick={handleSave}
+            className="px-8 py-3 rounded-xl font-semibold text-white bg-linear-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 shadow-lg transition-all"
           >
             Save Changes
           </button>

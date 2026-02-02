@@ -32,6 +32,7 @@ import InitialAmountHistoryModal from "./InitilAmountHistoryModal";
 import AddExpenseButton from "./AddExpenseButtonState";
 import { EMPLOYEES } from "./InitialBudget/EmployeesList";
 import { WalletKey, WALLETS } from "./InitialBudget/walletType";
+import AddExpenseModal from "./components/AddExpenseModal";
 
 interface EditExpenseFields {
   shop: string;
@@ -39,8 +40,8 @@ interface EditExpenseFields {
   amount: string;
   date: string;
   role: Role;
-  paymentMode:string;
-  paymentType:string;
+  paymentMode: string;
+  paymentType: string;
   employeeId: string;
   employeeName: string;
 }
@@ -552,7 +553,6 @@ const ExpensesContent: React.FC = () => {
     }
   };
 
-
   const toggleExpand = (id: string) => {
     setExpandedId((prev) => (prev === id ? null : id));
     setSubTitle("");
@@ -757,8 +757,8 @@ const ExpensesContent: React.FC = () => {
       amount: String(exp.amount || 0),
       date: exp.date || new Date().toISOString().slice(0, 10),
       role: exp.role || "founder",
-      paymentMode:exp.paymentMode || "",
-      paymentType:exp.paymentType || "",
+      paymentMode: exp.paymentMode || "",
+      paymentType: exp.paymentType || "",
       employeeId: exp.employeeId || "",
       employeeName: exp.employeeName || "",
     });
@@ -781,8 +781,8 @@ const ExpensesContent: React.FC = () => {
       shop: editExpenseFields.shop,
       description: editExpenseFields.description,
       amount: Number(editExpenseFields.amount),
-      paymentType:editExpenseFields?.paymentType,
-      paymentMode:editExpenseFields?.paymentMode,
+      paymentType: editExpenseFields?.paymentType,
+      paymentMode: editExpenseFields?.paymentMode,
       date: editExpenseFields.date,
       role: editExpenseFields.role,
       employeeId: finalEmployeeId,
@@ -895,12 +895,10 @@ const ExpensesContent: React.FC = () => {
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-teal-50 p-8">
       <ToastContainer position="bottom-right" autoClose={3000} />
 
-      <div className="max-w-400 mx-auto space-y-8">
+      <div className="max-w-400 mx-auto space-y-4">
         <HeaderSection />
 
-        <CurrentBudgetPeriod
-          budgetPeriodStart={budgetPeriodStart}
-        />
+
 
         <InitialBudget
           budgetPeriodStart={budgetPeriodStart}
@@ -919,34 +917,31 @@ const ExpensesContent: React.FC = () => {
           setInitialAmountHistory={setInitialAmountHistory}
         />
 
-        {showAddForm && (
-          <ExpenseForm
-            shopName={shopName}
-            setShopName={setShopName}
-            date={date}
-            setDate={setDate}
-            description={description}
-            setDescription={setDescription}
-            amount={amount}
-            setAmount={setAmount}
-            role={role}
-            setRole={setRole}
-            selectedEmployeeId={selectedEmployeeId}
-            paymentMode={paymentMode}
-            paymentType={paymentType}
+        <AddExpenseModal
+          show={showAddForm}
+          onClose={() => setShowAddForm(false)}
+          shopName={shopName}
+          setShopName={setShopName}
+          date={date}
+          setDate={setDate}
+          description={description}
+          setDescription={setDescription}
+          amount={amount}
+          setAmount={setAmount}
+          role={role}
+          setRole={setRole}
+          selectedEmployeeId={selectedEmployeeId}
+          setSelectedEmployeeId={setSelectedEmployeeId}
+          paymentMode={paymentMode}
+          setPaymentMode={setPaymentMode}
+          paymentType={paymentType}
+          setPaymentType={setPaymentType}
+          employees={employees}
+          shops={shopSuggestions}
+          onSubmit={handleAddExpense}
+        />
+        <div className="bg-white rounded-2xl shadow-xl border-2 border-gray-100 p-5 space-y-6">
 
-            setSelectedEmployeeId={setSelectedEmployeeId}
-
-            setPaymentMode={setPaymentMode}
-            setPaymentType={setPaymentType}
-            employees={employees}
-            onSubmit={handleAddExpense}
-            shops={shopSuggestions}
-            onCancel={cancelAddForm}
-          />
-        )}
-
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className="lg:col-span-1">
             <FilterComponent
               setShowHistory={setShowHistory}
@@ -971,62 +966,67 @@ const ExpensesContent: React.FC = () => {
             />
           </div>
 
-          <div className="lg:col-span-3">
-
-            <div className="bg-white rounded-2xl overflow-hidden shadow-xl border-2 border-gray-100">
-              {loading ? (
-                <LoadingState />
-              ) : error ? (
-                <ErrorState error={error} />
-              ) : (
-                <ExpensesTable
-                  visibleExpenses={visibleExpenses}
-                  filteredExpenses={filteredExpenses}
-                  isLoadingMore={isLoadingMore}
-                  visibleRowCount={visibleRowCount}
-                  expandedId={expandedId}
-                  employees={employees}
-                  onToggleExpand={toggleExpand}
-                  onStartEditExpense={onStartEditExpense}
-                  onDeleteExpense={handleDeleteExpense}
-                  onUpdatePaidStatus={(exp: any, status: any) =>
-                    handleUpdatePaidStatus(exp, status)
-                  }
-                  onLoadMore={loadMoreRows}
-                >
-                  {expandedId && (
-                    <SubExpensesSection
-                      parent={expenses.find(e => e._id === expandedId)!}
-                      employees={employees}
-                      subTitle={subTitle}
-                      setSubTitle={setSubTitle}
-                      subAmount={subAmount}
-                      setSubAmount={setSubAmount}
-                      subDate={subDate}
-                      setSubDate={setSubDate}
-                      subEmployeeId={subEmployeeId}
-                      setSubEmployeeId={setSubEmployeeId}
-                      onAddSubtask={handleAddSubtask}
-                      onUpdateSubtaskStatus={handleUpdateSubtaskStatus}
-                      onDeleteSubtask={handleDeleteSubtask}
-                      onStartEditSubtask={onStartEditSubtask}
-                    />
-                  )}
-                </ExpensesTable>
-              )}
+          <div >
+            <div className="lg:col-span-3">
+              <div className="bg-white rounded-2xl overflow-hidden shadow-xl border-2 border-gray-100">
+                {loading ? (
+                  <LoadingState />
+                ) : error ? (
+                  <ErrorState error={error} />
+                ) : (
+                  <ExpensesTable
+                    visibleExpenses={visibleExpenses}
+                    filteredExpenses={filteredExpenses}
+                    isLoadingMore={isLoadingMore}
+                    visibleRowCount={visibleRowCount}
+                    expandedId={expandedId}
+                    employees={employees}
+                    onToggleExpand={toggleExpand}
+                    onStartEditExpense={onStartEditExpense}
+                    onDeleteExpense={handleDeleteExpense}
+                    onUpdatePaidStatus={(exp: any, status: any) =>
+                      handleUpdatePaidStatus(exp, status)
+                    }
+                    onLoadMore={loadMoreRows}
+                  >
+                    {expandedId && (
+                      <SubExpensesSection
+                        parent={expenses.find(e => e._id === expandedId)!}
+                        employees={employees}
+                        subTitle={subTitle}
+                        setSubTitle={setSubTitle}
+                        subAmount={subAmount}
+                        setSubAmount={setSubAmount}
+                        subDate={subDate}
+                        setSubDate={setSubDate}
+                        subEmployeeId={subEmployeeId}
+                        setSubEmployeeId={setSubEmployeeId}
+                        onAddSubtask={handleAddSubtask}
+                        onUpdateSubtaskStatus={handleUpdateSubtaskStatus}
+                        onDeleteSubtask={handleDeleteSubtask}
+                        onStartEditSubtask={onStartEditSubtask}
+                      />
+                    )}
+                  </ExpensesTable>
+                )}
+              </div>
             </div>
           </div>
-        </div>
 
-        <PaymentHistorySection
-          showHistory={showHistory}
-          historyEmployeeId={historyEmployeeId}
-          setHistoryEmployeeId={setHistoryEmployeeId}
-          employees={employees}
-          historyExpenses={historyExpenses}
-          employeeHistory={employeeHistory}
-          employeeHistoryTotal={employeeHistoryTotal}
+          <PaymentHistorySection
+            showHistory={showHistory}
+            historyEmployeeId={historyEmployeeId}
+            setHistoryEmployeeId={setHistoryEmployeeId}
+            employees={employees}
+            historyExpenses={historyExpenses}
+            employeeHistory={employeeHistory}
+            employeeHistoryTotal={employeeHistoryTotal}
+          />
+        </div>
+        <CurrentBudgetPeriod
+          budgetPeriodStart={budgetPeriodStart}
         />
+
       </div>
 
       <AddExpenseButton

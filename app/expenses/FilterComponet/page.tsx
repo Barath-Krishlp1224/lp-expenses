@@ -1,7 +1,8 @@
-import React from 'react'
-import { toast } from 'react-toastify';
-import { formatDate } from '../components/types';
-import { Employee, Expense, isExpensePaid } from '../types';
+import React, { useState } from "react";
+import { toast } from "react-toastify";
+import { formatDate } from "../components/types";
+import { Employee, Expense, isExpensePaid } from "../types";
+import { FiFilter, FiCalendar, FiSearch, FiDownload } from "react-icons/fi"; // small filter icons
 
 const convertToCSV = (data: Expense[], employees: Employee[]) => {
     const employeeMap = employees.reduce((map, emp) => {
@@ -25,55 +26,56 @@ const convertToCSV = (data: Expense[], employees: Employee[]) => {
     let grandTotalSubExpenses = 0;
     let grandTotalExpense = 0;
 
-    const detailRows = data.map((exp) => {
-        const subsTotal = (exp.subtasks || []).reduce(
-            (s: any, sub: any) => s + (sub.amount || 0),
-            0
-        );
-        const total = exp.amount + subsTotal;
-        const paid = isExpensePaid(exp) ? "Done" : "Pending";
-        const employeeName = exp.employeeId
-            ? employeeMap.get(exp.employeeId) || exp.employeeName || "-"
-            : "-";
-
-        grandTotalAmountBase += exp.amount;
-        grandTotalSubExpenses += subsTotal;
-        grandTotalExpense += total;
-
-        const mainRow = [
-            formatDate(exp.date),
-            (exp.shop || "-").replace(/,/g, ""),
-            exp.description.replace(/,/g, ""),
-            exp.role,
-            employeeName.replace(/,/g, ""),
-            exp.amount.toFixed(2),
-            subsTotal.toFixed(2),
-            total.toFixed(2),
-            paid,
-        ];
-
-        const subRows = (exp.subtasks || []).map((sub: any) => {
-            const subEmployeeName = sub.employeeId
-                ? employeeMap.get(sub.employeeId) || sub.employeeName || "-"
+    const detailRows = data
+        .map((exp) => {
+            const subsTotal = (exp.subtasks || []).reduce(
+                (s: any, sub: any) => s + (sub.amount || 0),
+                0
+            );
+            const total = exp.amount + subsTotal;
+            const paid = isExpensePaid(exp) ? "Done" : "Pending";
+            const employeeName = exp.employeeId
+                ? employeeMap.get(exp.employeeId) || exp.employeeName || "-"
                 : "-";
 
-            const subAmountValue = sub.amount ?? 0;
+            grandTotalAmountBase += exp.amount;
+            grandTotalSubExpenses += subsTotal;
+            grandTotalExpense += total;
 
-            return [
-                formatDate(sub.date),
-                "",
-                `  -> ${sub.title}`.replace(/,/g, ""),
+            const mainRow = [
+                formatDate(exp.date),
+                (exp.shop || "-").replace(/,/g, ""),
+                exp.description.replace(/,/g, ""),
                 exp.role,
-                subEmployeeName.replace(/,/g, ""),
-                "0.00",
-                subAmountValue.toFixed(2),
-                subAmountValue.toFixed(2),
-                sub.done ? "Done (Sub)" : "Pending (Sub)",
+                employeeName.replace(/,/g, ""),
+                exp.amount.toFixed(2),
+                subsTotal.toFixed(2),
+                total.toFixed(2),
+                paid,
             ];
-        });
 
-        return [mainRow, ...subRows];
-    }).flat();
+            const subRows = (exp.subtasks || []).map((sub: any) => {
+                const subEmployeeName = sub.employeeId
+                    ? employeeMap.get(sub.employeeId) || sub.employeeName || "-"
+                    : "-";
+                const subAmountValue = sub.amount ?? 0;
+
+                return [
+                    formatDate(sub.date),
+                    "",
+                    `  -> ${sub.title}`.replace(/,/g, ""),
+                    exp.role,
+                    subEmployeeName.replace(/,/g, ""),
+                    "0.00",
+                    subAmountValue.toFixed(2),
+                    subAmountValue.toFixed(2),
+                    sub.done ? "Done (Sub)" : "Pending (Sub)",
+                ];
+            });
+
+            return [mainRow, ...subRows];
+        })
+        .flat();
 
     const totalRow = [
         "",
@@ -87,175 +89,166 @@ const convertToCSV = (data: Expense[], employees: Employee[]) => {
         "",
     ];
 
-    const csvContent =
+    return encodeURI(
         "data:text/csv;charset=utf-8," +
-        [
-            headers.join(","),
-            ...detailRows.map((e) => e.join(",")),
-            totalRow.join(","),
-        ].join("\n");
-
-    return encodeURI(csvContent);
+        [headers.join(","), ...detailRows.map((e) => e.join(",")), totalRow.join(",")].join("\n")
+    );
 };
 
 function FilterComponent({
-    setShowHistory, showHistory, filterSearch, setFilterSearch, filterShop, setFilterShop, shopSuggestions, filterRole, setFilterRole,
-    filterStatus, setFilterStatus, filterEmployee, setFilterEmployee, employees, filterFrom, setFilterFrom, filterTo, setFilterTo, filteredExpenses
+    setShowHistory,
+    showHistory,
+    filterSearch,
+    setFilterSearch,
+    filterShop,
+    setFilterShop,
+    shopSuggestions,
+    filterRole,
+    setFilterRole,
+    filterStatus,
+    setFilterStatus,
+    filterEmployee,
+    setFilterEmployee,
+    employees,
+    filterFrom,
+    setFilterFrom,
+    filterTo,
+    setFilterTo,
+    filteredExpenses,
 }: any) {
+    const [showFilters, setShowFilters] = useState(false);
+    const [showDate, setShowDate] = useState(false);
+
+    const inputClass =
+        "border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 w-full";
+
+    const FilterItem = ({ label, children }: { label: string; children: React.ReactNode }) => (
+        <div className="flex flex-col">
+            <span className="text-xs font-semibold text-gray-600 mb-1">{label}</span>
+            {children}
+        </div>
+    );
+
     const handleDownloadCSV = () => {
         if (filteredExpenses.length === 0) {
             toast.warn("No expenses match the current filters to download.");
             return;
         }
-
         const csvUri = convertToCSV(filteredExpenses, employees);
         const link = document.createElement("a");
         link.setAttribute("href", csvUri);
-        link.setAttribute(
-            "download",
-            `expenses_report_${new Date().toISOString().slice(0, 10)}.csv`
-        );
+        link.setAttribute("download", `expenses_report_${new Date().toISOString().slice(0, 10)}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         toast.success(`${filteredExpenses.length} expenses downloaded!`);
     };
+
     return (
-        <div className="bg-white rounded-2xl p-6 shadow-xl border-2 border-gray-100 sticky top-6">
-            <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-black text-gray-900">Filters</h3>
-                <button
-                    type="button"
-                    onClick={() => setShowHistory((s: any) => !s)}
-                    className="px-4 py-2 rounded-lg text-xs font-bold text-teal-700 bg-teal-100 hover:bg-teal-200 transition-all"
-                >
-                    {showHistory ? "Hide" : "History"}
-                </button>
-            </div>
-            <div className="space-y-4">
-                <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
-                        Search
-                    </label>
-                    <input
-                        value={filterSearch}
-                        onChange={(e) => setFilterSearch(e.target.value)}
-                        className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-all"
-                        placeholder="Search..."
-                    />
-                </div>
-                <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
-                        Shop
-                    </label>
-                    <select
-                        value={filterShop}
-                        onChange={(e) => setFilterShop(e.target.value)}
-                        className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-all bg-white"
+        <div className=" rounded-2xl sticky top-6">
+            {/* Header Bar */}
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 mb-4">
+                {/* Left side: Search + Filter + Date */}
+                <div className="flex items-center gap-3 flex-wrap md:flex-nowrap">
+                    {/* Search Input */}
+                    <div className="relative flex items-center">
+                        <FiSearch className="absolute left-3 text-gray-400 w-4 h-4" />
+                        <input
+                            type="text"
+                            value={filterSearch}
+                            onChange={(e) => setFilterSearch(e.target.value)}
+                            placeholder="Search..."
+                            className="border border-gray-300 rounded-md pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 w-60"
+                        />
+                    </div>
+
+                    {/* Filter Button */}
+                    <button
+                        onClick={() => setShowFilters(!showFilters)}
+                        className="p-2 rounded-md hover:bg-gray-100 transition"
+                        title="Show Filters"
                     >
-                        <option value="all">All Shops</option>
-                        {shopSuggestions.map((shop: any) => (
-                            <option key={shop} value={shop}>
-                                {shop}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
-                        Role
-                    </label>
-                    <select
-                        value={filterRole}
-                        onChange={(e) => setFilterRole(e.target.value as any)}
-                        className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-all bg-white"
+                        <FiFilter size={18} />
+                    </button>
+
+                    {/* Date Button */}
+                    <button
+                        onClick={() => setShowDate(!showDate)}
+                        className="p-2 rounded-md hover:bg-gray-100 transition"
+                        title="Date Range"
                     >
-                        <option value="all">All Roles</option>
-                        <option value="founder">Founder</option>
-                        <option value="manager">Manager</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
-                <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
-                        Status
-                    </label>
-                    <select
-                        value={filterStatus}
-                        onChange={(e) => setFilterStatus(e.target.value as any)}
-                        className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-all bg-white"
-                    >
-                        <option value="all">All Status</option>
-                        <option value="paid">Done/Paid</option>
-                        <option value="unpaid">Pending</option>
-                    </select>
-                </div>
-                <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
-                        Employee
-                    </label>
-                    <select
-                        value={filterEmployee}
-                        onChange={(e) => setFilterEmployee(e.target.value)}
-                        className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-all bg-white"
-                    >
-                        <option value="all">All Employees</option>
-                        {employees.map((emp: any) => (
-                            <option key={emp._id} value={emp._id}>
-                                {emp.name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
-                        From Date
-                    </label>
-                    <input
-                        type="date"
-                        value={filterFrom}
-                        onChange={(e) => setFilterFrom(e.target.value)}
-                        className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-all bg-white"
-                    />
-                </div>
-                <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
-                        To Date
-                    </label>
-                    <input
-                        type="date"
-                        value={filterTo}
-                        onChange={(e) => setFilterTo(e.target.value)}
-                        className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 transition-all bg-white"
-                    />
+                        <FiCalendar size={18} />
+                    </button>
                 </div>
 
-                <div className="pt-4">
+                {/* Right side: Download Button */}
+                <div className="mt-2 md:mt-0">
                     <button
-                        type="button"
                         onClick={handleDownloadCSV}
-                        className="w-full px-6 py-3 rounded-xl font-bold text-white bg-green-600 hover:bg-green-700 shadow-lg transition-all flex items-center justify-center text-sm"
+                        className="flex items-center gap-2 px-5 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md shadow"
                     >
-                        <svg
-                            className="w-4 h-4 mr-2"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                            ></path>
-                        </svg>
-                        Download Filtered ({filteredExpenses.length})
+                        <FiDownload /> Download ({filteredExpenses.length})
                     </button>
                 </div>
             </div>
-        </div>
-    )
-}
 
-export default FilterComponent
+            {/* Filters Grid */}
+            {showFilters && (
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                    <FilterItem label="Shop">
+                        <select value={filterShop} onChange={(e) => setFilterShop(e.target.value)} className={inputClass}>
+                            <option value="all">All Shops</option>
+                            {shopSuggestions.map((s: any) => (
+                                <option key={s} value={s}>
+                                    {s}
+                                </option>
+                            ))}
+                        </select>
+                    </FilterItem>
+
+                    <FilterItem label="Role">
+                        <select value={filterRole} onChange={(e) => setFilterRole(e.target.value)} className={inputClass}>
+                            <option value="all">All Roles</option>
+                            <option value="founder">Founder</option>
+                            <option value="manager">Manager</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </FilterItem>
+
+                    <FilterItem label="Status">
+                        <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className={inputClass}>
+                            <option value="all">All Status</option>
+                            <option value="paid">Done/Paid</option>
+                            <option value="unpaid">Pending</option>
+                        </select>
+                    </FilterItem>
+
+                    <FilterItem label="Employee">
+                        <select value={filterEmployee} onChange={(e) => setFilterEmployee(e.target.value)} className={inputClass}>
+                            <option value="all">All Employees</option>
+                            {employees.map((emp: any) => (
+                                <option key={emp._id} value={emp._id}>
+                                    {emp.name}
+                                </option>
+                            ))}
+                        </select>
+                    </FilterItem>
+                </div>
+            )}
+
+            {/* Date Grid */}
+            {showDate && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <FilterItem label="From">
+                        <input type="date" value={filterFrom} onChange={(e) => setFilterFrom(e.target.value)} className={inputClass} />
+                    </FilterItem>
+                    <FilterItem label="To">
+                        <input type="date" value={filterTo} onChange={(e) => setFilterTo(e.target.value)} className={inputClass} />
+                    </FilterItem>
+                </div>
+            )}
+
+        </div>
+    );
+}
+export default FilterComponent;
