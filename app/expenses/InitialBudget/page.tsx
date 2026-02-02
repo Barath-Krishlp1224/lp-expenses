@@ -8,23 +8,26 @@ import WalletCard from './walletCard';
 import EditInitialAmountModal from './EditInitialAmountModal';
 
 
-const getMonthStart = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Date(date.getFullYear(), date.getMonth(), 1)
-        .toISOString()
-        .slice(0, 10);
-};
+interface InitialBudgetProps {
+    budgetPeriodStart: string;
+    setShowInitialAmountHistory: (show: boolean) => void;
+    expenses: any;
+    initialAmountHistory: InitialAmountHistoryEntry[];
+    setInitialAmountHistory: any;
+    onOpenHistory: (wallet: WalletKey) => void;
+    activeWallet: WalletKey | null;
+    onEditWallet: (wallet: WalletKey) => void;
+}
 
-
-
-function InitialBudget({ budgetPeriodStart, setShowInitialAmountHistory, expenses, initialAmountHistory, setInitialAmountHistory }: any) {
-    console.log('expenses: ', expenses);
+function InitialBudget({ budgetPeriodStart, setShowInitialAmountHistory, expenses, initialAmountHistory, setInitialAmountHistory, onOpenHistory,
+    activeWallet,
+    onEditWallet }: InitialBudgetProps) {
     // const [expenses, setExpenses] = useState<Expense[]>([]);
     const [isEditingInitialAmount, setIsEditingInitialAmount] = useState(false);
     // const [initialAmountHistory, setInitialAmountHistory] = useState<
     //     InitialAmountHistoryEntry[]
     // >([]);
-    const [activeWallet, setActiveWallet] = useState<WalletKey | null>(null);
+    const [, setActiveWallet] = useState<WalletKey | null>(null);
     console.log('activeWallet: ', activeWallet);
     const [showEdit, setShowEdit] = useState(false);
 
@@ -168,12 +171,11 @@ function InitialBudget({ budgetPeriodStart, setShowInitialAmountHistory, expense
                     title={w.label}
                     stats={walletStats[w.key]}
                     onEdit={() => {
-                        setActiveWallet(w.key);
+                        onEditWallet(w.key);
                         setShowEdit(true);
                     }}
                     onHistory={() => {
-                        setActiveWallet(w.key);
-                        setShowInitialAmountHistory(true);
+                        onOpenHistory(w.key);  // Make sure this calls onOpenHistory
                     }}
                 />
             ))}

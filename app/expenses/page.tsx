@@ -1040,7 +1040,7 @@ console.log("filteredHistoryfilteredHistory",filteredHistory);
 
       {showInitialAmountHistory && (
         <InitialAmountHistoryModal
-          history={initialAmountHistory}
+          history={filteredHistory}
           onClose={() => setShowInitialAmountHistory(false)}
         />
       )}
