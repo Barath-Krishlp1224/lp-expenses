@@ -163,36 +163,40 @@ function InitialBudget({ budgetPeriodStart, setShowInitialAmountHistory, expense
     };
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {WALLETS.map(w => (
-                <WalletCard
-                    key={w.key}
-                    walletKey={w.key}
-                    title={w.label}
-                    stats={walletStats[w.key]}
-                    onEdit={() => {
-                        onEditWallet(w.key);
-                        setShowEdit(true);
-                    }}
-                    onHistory={() => {
-                        onOpenHistory(w.key);  // Make sure this calls onOpenHistory
-                    }}
-                />
-            ))}
+        <>
+            <div className="w-full">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {WALLETS.map(w => (
+                        <WalletCard
+                            key={w.key}
+                            walletKey={w.key}
+                            title={w.label}
+                            stats={walletStats[w.key]}
+                            onEdit={() => {
+                                onEditWallet(w.key);
+                                setShowEdit(true);
+                            }}
+                            onHistory={() => {
+                                onOpenHistory(w.key);
+                            }}
+                        />
+                    ))}
+                </div>
+            </div>
+
             {showEdit && activeWallet && (
                 <EditInitialAmountModal
                     wallet={activeWallet}
                     currentAmount={walletStats[activeWallet].initialAmount}
                     onClose={() => setShowEdit(false)}
                     onSave={async (newEntry: any) => {
-                        // Update your backend and state
-                        //   if (newEntry.amount !== initialAmountHistory[0]?.amount) {
                         try {
                             const res = await fetch("/api/initial-amount", {
                                 method: "POST",
                                 headers: { "Content-Type": "application/json" },
                                 body: JSON.stringify(newEntry),
                             });
+
                             const json = await res.json();
                             if (!json.success) {
                                 toast.error(json.error || "Failed to save initial amount.");
@@ -204,14 +208,12 @@ function InitialBudget({ budgetPeriodStart, setShowInitialAmountHistory, expense
                         } catch (err: any) {
                             toast.error(err.message || "Failed to update initial amount.");
                         }
-                    }
-                    }
+                    }}
                 />
             )}
 
-        </div>
 
-
+        </>
 
     )
 }

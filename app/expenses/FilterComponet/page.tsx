@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { formatDate } from "../components/types";
 import { Employee, Expense, isExpensePaid } from "../types";
 import { FiFilter, FiCalendar, FiSearch, FiDownload } from "react-icons/fi"; // small filter icons
+import { EMPLOYEES } from "../InitialBudget/EmployeesList";
 
 const convertToCSV = (data: Expense[], employees: Employee[]) => {
     const employeeMap = employees.reduce((map, emp) => {
@@ -116,6 +117,7 @@ function FilterComponent({
     setFilterTo,
     filteredExpenses,
 }: any) {
+    console.log("employeesemployees", employees);
     const [showFilters, setShowFilters] = useState(false);
     const [showDate, setShowDate] = useState(false);
 
@@ -179,17 +181,18 @@ function FilterComponent({
                     >
                         <FiCalendar size={18} />
                     </button>
+                    <div className="mt-2 md:mt-0">
+                        <button
+                            onClick={handleDownloadCSV}
+                            className="flex items-center gap-2 px-2 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md "
+                        >
+                            <FiDownload />
+                            {/* <FiDownload />({filteredExpenses.length}) */}
+                        </button>
+                    </div>
                 </div>
-
                 {/* Right side: Download Button */}
-                <div className="mt-2 md:mt-0">
-                    <button
-                        onClick={handleDownloadCSV}
-                        className="flex items-center gap-2 px-5 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md shadow"
-                    >
-                        <FiDownload /> Download ({filteredExpenses.length})
-                    </button>
-                </div>
+
             </div>
 
             {/* Filters Grid */}
@@ -226,7 +229,7 @@ function FilterComponent({
                     <FilterItem label="Employee">
                         <select value={filterEmployee} onChange={(e) => setFilterEmployee(e.target.value)} className={inputClass}>
                             <option value="all">All Employees</option>
-                            {employees.map((emp: any) => (
+                            {EMPLOYEES.map((emp: any) => (
                                 <option key={emp._id} value={emp._id}>
                                     {emp.name}
                                 </option>

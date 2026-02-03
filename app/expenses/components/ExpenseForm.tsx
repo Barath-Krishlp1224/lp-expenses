@@ -1,11 +1,11 @@
 // components/ExpenseForm.tsx
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { type Role, type Employee } from "./types";
 import { EMPLOYEES } from "../InitialBudget/EmployeesList";
 type PaymentMode = "cash" | "upi";
-type PaymentType = "prepaid" | "postpaid" | "";
+type PaymentType =  "postpaid" | "";
 
 
 interface ExpenseFormProps {
@@ -53,6 +53,12 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   shops,
   onCancel,
 }) => {
+  useEffect(() => {
+  if (paymentMode === "upi") {
+    setPaymentType("postpaid");
+  }
+}, [paymentMode]);
+
   return (
     <form
       onSubmit={onSubmit}
@@ -193,7 +199,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
               className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 outline-none focus:border-blue-500 transition-all bg-white cursor-pointer"
             >
               <option value="">Select type</option>
-              <option value="prepaid">Prepaid</option>
+              {/* <option value="prepaid">Prepaid</option> */}
               <option value="postpaid">Postpaid</option>
             </select>
           </div>

@@ -21,8 +21,8 @@ interface AddExpenseModalProps {
   setSelectedEmployeeId: (id: string) => void;
   paymentMode: "cash" | "upi";
   setPaymentMode: (v: "cash" | "upi") => void;
-  paymentType: "prepaid" | "postpaid" | "";
-  setPaymentType: (v: "prepaid" | "postpaid" | "") => void;
+  paymentType: "postpaid" | "";
+  setPaymentType: (v:  "postpaid" | "") => void;
   employees: Employee[];
   shops: string[];
   onSubmit: (e: React.FormEvent) => void;

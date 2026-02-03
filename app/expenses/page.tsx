@@ -47,16 +47,16 @@ interface EditExpenseFields {
 }
 
 type PaymentMode = "cash" | "upi";
-type PaymentType = "prepaid" | "postpaid" | "";
+type PaymentType = "postpaid" | "";
 
 export function expenseBelongsToWallet(exp: Expense, wallet: WalletKey) {
   if (wallet === "cash") {
     return exp.paymentMode === "cash";
   }
 
-  if (wallet === "upi_prepaid") {
-    return exp.paymentMode === "upi" && exp.paymentType === "prepaid";
-  }
+  // if (wallet === "upi_prepaid") {
+  //   return exp.paymentMode === "upi" && exp.paymentType === "prepaid";
+  // }
 
   if (wallet === "upi_postpaid") {
     return exp.paymentMode === "upi" && exp.paymentType === "postpaid";
@@ -465,7 +465,7 @@ const ExpensesContent: React.FC = () => {
     // determine wallet key
     let wallet: WalletKey;
     if (paymentMode === "cash") wallet = "cash";
-    else if (paymentMode === "upi" && paymentType === "prepaid") wallet = "upi_prepaid";
+    // else if (paymentMode === "upi" && paymentType === "prepaid") wallet = "upi_prepaid";
     else if (paymentMode === "upi" && paymentType === "postpaid") wallet = "upi_postpaid";
     else {
       toast.error("Invalid wallet selected");
@@ -774,7 +774,7 @@ const ExpensesContent: React.FC = () => {
       : employeeIdFromModal;
 
     const newEmployeeName = finalEmployeeId
-      ? employees.find((e) => e._id === finalEmployeeId)?.name
+      ? EMPLOYEES.find((e) => e._id === finalEmployeeId)?.name
       : null;
 
     const updates: any = {
@@ -793,7 +793,10 @@ const ExpensesContent: React.FC = () => {
       toast.warn("Employee ID is required for Manager role.");
       return;
     }
-
+    if (updates.paymentMode === "upi" && !updates.paymentType) {
+      toast.warn("Payment Type is required for mode upi");
+      return;
+    }
 
     try {
       const res = await fetch("/api/expenses", {
@@ -941,6 +944,17 @@ const ExpensesContent: React.FC = () => {
           onSubmit={handleAddExpense}
         />
         <div className="bg-white rounded-2xl shadow-xl border-2 border-gray-100 p-5 space-y-6">
+          <div className="flex flex-col md:flex-row items-center justify-between mb-4">
+            <h3 className="flex items-center text-2xl md:text-3xl font-bold text-gray-900">
+              Expenses Table
+            </h3>
+            <button
+              onClick={() => setShowAddForm(true)}
+              className="mt-3 md:mt-0 inline-flex items-center px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition-all duration-300"
+            >
+              + Add Expense
+            </button>
+          </div>
 
           <div className="lg:col-span-1">
             <FilterComponent

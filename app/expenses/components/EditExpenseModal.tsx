@@ -2,12 +2,13 @@
 
 import React from "react";
 import { type Expense, type Employee, type Role } from "./types";
+import { EMPLOYEES } from "../InitialBudget/EmployeesList";
 
 type PaymentMode = "cash" | "upi";
-type PaymentType = "prepaid" | "postpaid" | "";
+type PaymentType = "postpaid" | "";
 
 interface EditExpenseFields {
- shop: string;
+  shop: string;
   description: string;
   amount: string;
   date: string;
@@ -127,7 +128,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
                 className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 outline-none focus:border-blue-500 bg-white cursor-pointer disabled:bg-gray-100 disabled:cursor-not-allowed"
               >
                 <option value="">Select Employee</option>
-                {employees.map((emp) => (
+                {EMPLOYEES.map((emp) => (
                   <option key={emp._id} value={emp._id}>
                     {emp.name}
                   </option>
@@ -159,14 +160,13 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
                 value={editExpenseFields.paymentType}
                 disabled={editExpenseFields.paymentMode !== "upi"}
                 onChange={(e) => setField("paymentType", e.target.value as PaymentType)}
-                className={`w-full border-2 rounded-xl px-4 py-3 outline-none bg-white transition-all ${
-                  editExpenseFields.paymentMode !== "upi"
+                className={`w-full border-2 rounded-xl px-4 py-3 outline-none bg-white transition-all ${editExpenseFields.paymentMode !== "upi"
                     ? "border-gray-100 text-gray-400 cursor-not-allowed"
                     : "border-gray-200 text-gray-900 focus:border-blue-500"
-                }`}
+                  }`}
               >
                 <option value="">Select type</option>
-                <option value="prepaid">Prepaid</option>
+                {/* n   <optiovalue="prepaid">Prepaid</option> */}
                 <option value="postpaid">Postpaid</option>
               </select>
             </div>
