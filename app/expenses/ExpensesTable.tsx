@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from "react";
-import {  isExpensePaid } from "./types";
+import { isExpensePaid } from "./types";
 import { Expense, formatDate } from "./components/types";
 
 interface ExpensesTableProps {
@@ -15,6 +15,8 @@ interface ExpensesTableProps {
   onUpdatePaidStatus: (exp: Expense, status: boolean) => void;
   onLoadMore: () => void;
   children?: React.ReactNode;
+  selectedExpenseIds: string[];
+  onRowToggle: (id: string) => void;
 }
 
 const ExpensesTable: React.FC<ExpensesTableProps> = ({
@@ -30,6 +32,8 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
   onUpdatePaidStatus,
   onLoadMore,
   children,
+  selectedExpenseIds,
+  onRowToggle
 }) => {
   const tableRef = useRef<HTMLDivElement>(null);
   const hasMoreExpenses = visibleRowCount < filteredExpenses.length;
@@ -79,6 +83,10 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
       <table className="min-w-full">
         <thead className="bg-linear-to-r from-gray-900 to-gray-800 sticky top-0">
           <tr>
+            <th className="p-4 text-left font-black text-white text-xs">
+              Select
+            </th>
+
             <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
               #
             </th>
@@ -104,10 +112,10 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
               Employee
             </th>
             <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
-             Payment Mode
+              Payment Mode
             </th>
             <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
-             Payment Type
+              Payment Type
             </th>
             <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
               Status
@@ -128,7 +136,23 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
 
             return (
               <React.Fragment key={exp._id}>
-                <tr className="hover:bg-blue-50 transition-colors">
+                <tr
+                  className={`transition-colors ${selectedExpenseIds.includes(exp._id)
+                    ? "bg-blue-100 ring-2 ring-blue-400"
+                    : "hover:bg-blue-50"
+                    }`}
+                >
+
+                  <td className="p-4">
+                    <input
+                      type="checkbox"
+                      checked={selectedExpenseIds.includes(exp._id)}
+                      onChange={() => onRowToggle(exp._id)}
+                      className="cursor-pointer"
+                    />
+                  </td>
+
+
                   <td className="p-4 text-gray-600 font-bold">{idx + 1}</td>
                   <td className="p-4 text-gray-900 font-bold">
                     {exp.shop || "-"}
@@ -162,11 +186,10 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
                         const newStatus = e.target.value === "paid";
                         onUpdatePaidStatus(exp, newStatus);
                       }}
-                      className={`border-2 rounded-lg px-3 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500 bg-white cursor-pointer ${
-                        paid
-                          ? "border-green-300 bg-green-50 text-green-700"
-                          : "border-orange-300 bg-orange-50 text-orange-700"
-                      }`}
+                      className={`border-2 rounded-lg px-3 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500 bg-white cursor-pointer ${paid
+                        ? "border-green-300 bg-green-50 text-green-700"
+                        : "border-orange-300 bg-orange-50 text-orange-700"
+                        }`}
                     >
                       <option value="unpaid">Pending</option>
                       <option value="paid">Done</option>

@@ -1,15 +1,15 @@
 import React from "react";
 
 interface AddExpenseButtonProps {
-  showAddForm: boolean;
+  // showAddForm: boolean;
   onClick: () => void;
 }
 
 const AddExpenseButton: React.FC<AddExpenseButtonProps> = ({
-  showAddForm,
+  // showAddForm,
   onClick,
 }) => {
-  if (showAddForm) return null;
+  // if (showAddForm) return null;
 
   return (
     <button

@@ -33,6 +33,8 @@ import AddExpenseButton from "./AddExpenseButtonState";
 import { EMPLOYEES } from "./InitialBudget/EmployeesList";
 import { WalletKey, WALLETS } from "./InitialBudget/walletType";
 import AddExpenseModal from "./components/AddExpenseModal";
+import { CumulativeModal } from "./components/cumulative/page";
+import CumulativePaymentsTable from "./components/cumulative/PaymentTable";
 
 interface EditExpenseFields {
   shop: string;
@@ -74,10 +76,50 @@ const ExpensesContent: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [initialAmountHistory, setInitialAmountHistory] = useState<any
   >([]);
-  console.log("initialAmountHistoryinitialAmountHistory", initialAmountHistory);
   const [activeWallet, setActiveWallet] = useState<WalletKey | null>(null);
-  console.log('activeWallet: ', activeWallet);
   const [showEditInitialAmount, setShowEditInitialAmount] = useState(false);
+  const [selectedExpenseIds, setSelectedExpenseIds] = useState<string[]>([]);
+  const [cumulativeTotal, setCumulativeTotal] = useState(0);
+  const [showCumulativeModal, setShowCumulativeModal] = useState(false);
+const [modalSelectedIds, setModalSelectedIds] = useState<string[]>([]);
+
+
+  const handleRowToggle = (id: string) => {
+    setSelectedExpenseIds(prev => {
+      const next = prev.includes(id)
+        ? prev.filter(x => x !== id) // unselect if already selected
+        : [...prev, id];             // otherwise add
+
+      return next;
+    });
+  };
+  // Memoized calculation of selected expenses sum
+const handleAddToCumulativeTotal = () => {
+  if (selectedExpenseIds.length === 0) {
+    toast.warn("Select at least one expense");
+    return;
+  }
+
+  // calculate total of currently selected expenses
+  const totalToAdd = expenses
+    .filter(e => selectedExpenseIds.includes(e._id))
+    .reduce((sum, e) => {
+      const subTotal = (e.subtasks || []).reduce((s, sub) => s + (sub.amount || 0), 0);
+      return sum + e.amount + subTotal;
+    }, 0);
+
+  // lock the selection for the modal
+  setModalSelectedIds([...selectedExpenseIds]);
+
+  // update cumulative total
+  setCumulativeTotal(prev => prev + totalToAdd);
+
+  // clear main selection
+  setSelectedExpenseIds([]);
+  
+  // open modal
+  setShowCumulativeModal(true);
+};
 
   const [showInitialAmountHistory, setShowInitialAmountHistory] = useState(false);
   const [budgetPeriodStart, setBudgetPeriodStart] = useState(() => {
@@ -146,13 +188,11 @@ const ExpensesContent: React.FC = () => {
 
   const filteredHistory = useMemo(() => {
     if (!activeWallet) return [];
-    console.log('activeWallet: ', activeWallet);
 
     return initialAmountHistory.filter(
       (h: any) => h.wallet === activeWallet
     );
   }, [initialAmountHistory, activeWallet]);
-  console.log("filteredHistoryfilteredHistory", filteredHistory);
 
 
 
@@ -994,6 +1034,8 @@ const ExpensesContent: React.FC = () => {
                     isLoadingMore={isLoadingMore}
                     visibleRowCount={visibleRowCount}
                     expandedId={expandedId}
+                    selectedExpenseIds={selectedExpenseIds}
+                    onRowToggle={handleRowToggle}
                     employees={employees}
                     onToggleExpand={toggleExpand}
                     onStartEditExpense={onStartEditExpense}
@@ -1036,6 +1078,8 @@ const ExpensesContent: React.FC = () => {
             employeeHistory={employeeHistory}
             employeeHistoryTotal={employeeHistoryTotal}
           />
+
+          <CumulativePaymentsTable />
         </div>
         <CurrentBudgetPeriod
           budgetPeriodStart={budgetPeriodStart}
@@ -1044,9 +1088,21 @@ const ExpensesContent: React.FC = () => {
       </div>
 
       <AddExpenseButton
-        showAddForm={showAddForm}
-        onClick={() => setShowAddForm(true)}
+        onClick={() => {
+          handleAddToCumulativeTotal()
+          setShowCumulativeModal(true)
+        }
+        }
       />
+      {showCumulativeModal && (
+        <CumulativeModal
+          isOpen={showCumulativeModal}
+          onClose={() => setShowCumulativeModal(false)}
+          expenses={expenses.filter(e => modalSelectedIds.includes(e._id))}
+    selectedExpenseIds={modalSelectedIds}
+        />
+      )}
+
 
       {editingExpense && (
         <EditExpenseModal
