@@ -1,3 +1,4 @@
+"use client"
 import React, { useMemo, useState } from 'react'
 import { INITIAL_AMOUNT_CONSTANT, InitialAmountHistoryEntry } from '../components/types';
 import { Expense, isExpensePaid } from '../types';

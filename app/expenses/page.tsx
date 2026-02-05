@@ -18,7 +18,7 @@ import SubExpensesSection from "./components/SubExpensesSection";
 import EditExpenseModal from "./components/EditExpenseModal";
 import EditSubtaskModal from "./components/EditSubtaskModal";
 import CurrentBudgetPeriod from "./BudgetPeriod/page";
-import InitialBudget from "./InitialBudget/page";
+import InitialBudget from "./InitialBudget/InitialBudget";
 import FilterComponent from "./FilterComponet/page";
 import { getMonthStart, INITIAL_ROWS, ROWS_PER_PAGE } from "./constFunctions";
 
@@ -33,8 +33,8 @@ import AddExpenseButton from "./AddExpenseButtonState";
 import { EMPLOYEES } from "./InitialBudget/EmployeesList";
 import { WalletKey, WALLETS } from "./InitialBudget/walletType";
 import AddExpenseModal from "./components/AddExpenseModal";
-import { CumulativeModal } from "./components/cumulative/page";
-import CumulativePaymentsTable from "./components/cumulative/PaymentTable";
+import { CumulativeModal } from "./cumulative/CumulativeModal";
+import CumulativePaymentsTable from "./cumulative/PaymentTable";
 
 interface EditExpenseFields {
   shop: string;
