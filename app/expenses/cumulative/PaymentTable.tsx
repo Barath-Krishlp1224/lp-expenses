@@ -134,7 +134,7 @@ export default function CumulativePaymentsTable() {
         </thead>
         <tbody className="divide-y divide-gray-200">
           {payments.slice(0, visibleRowCount).map((p, idx) => (
-            <React.Fragment key={p.paymentId}>
+            <React.Fragment key={p.paymentId ?? `temp-${idx}`}>
               <tr
                 className="hover:bg-gray-50 transition-colors cursor-pointer"
                 onClick={() => handleRowClick(p)}
