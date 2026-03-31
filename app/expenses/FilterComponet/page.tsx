@@ -123,11 +123,11 @@ function FilterComponent({
     const [showDate, setShowDate] = useState(false);
 
     const inputClass =
-        "border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 w-full";
+        "border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 w-full bg-white text-gray-800 placeholder:text-gray-700";
 
     const FilterItem = ({ label, children }: { label: string; children: React.ReactNode }) => (
         <div className="flex flex-col">
-            <span className="text-xs font-semibold text-gray-600 mb-1">{label}</span>
+            <span className="text-xs font-semibold text-gray-800 mb-1">{label}</span>
             {children}
         </div>
     );
@@ -155,20 +155,20 @@ function FilterComponent({
                 <div className="flex items-center gap-3 flex-wrap md:flex-nowrap">
                     {/* Search Input */}
                     <div className="relative flex items-center">
-                        <FiSearch className="absolute left-3 text-gray-400 w-4 h-4" />
+                        <FiSearch className="absolute left-3 text-gray-800 w-4 h-4" />
                         <input
                             type="text"
                             value={filterSearch}
                             onChange={(e) => setFilterSearch(e.target.value)}
                             placeholder="Search..."
-                            className="border border-gray-300 rounded-md pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 w-60"
+                            className="border border-gray-300 rounded-md pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 w-60 bg-white text-gray-800 placeholder:text-gray-700"
                         />
                     </div>
 
                     {/* Filter Button */}
                     <button
                         onClick={() => setShowFilters(!showFilters)}
-                        className="p-2 rounded-md hover:bg-gray-100 transition"
+                        className="p-2 rounded-md bg-blue-600 hover:bg-blue-700 transition text-white shadow-sm"
                         title="Show Filters"
                     >
                         <FiFilter size={18} />
@@ -177,7 +177,7 @@ function FilterComponent({
                     {/* Date Button */}
                     <button
                         onClick={() => setShowDate(!showDate)}
-                        className="p-2 rounded-md hover:bg-gray-100 transition"
+                        className="p-2 rounded-md bg-blue-600 hover:bg-blue-700 transition text-white shadow-sm"
                         title="Date Range"
                     >
                         <FiCalendar size={18} />
@@ -185,10 +185,9 @@ function FilterComponent({
                     <div className="mt-2 md:mt-0">
                         <button
                             onClick={handleDownloadCSV}
-                            className="flex items-center gap-2 px-2 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md "
+                            className="flex items-center gap-2 px-3 py-2 bg-blue-600 border border-blue-700 text-white font-semibold rounded-md hover:bg-blue-700 transition-all shadow-md"
                         >
-                            <FiDownload />
-                            {/* <FiDownload />({filteredExpenses.length}) */}
+                            <FiDownload className="text-white" />
                         </button>
                     </div>
                 </div>

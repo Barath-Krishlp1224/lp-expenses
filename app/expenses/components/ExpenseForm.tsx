@@ -66,7 +66,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     >
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-2xl font-bold text-gray-900">Add Expense</h3>
-        {/* <div className="h-1 flex-1 mx-6 bg-linear-to-r from-blue-500 to-teal-500 rounded-full"></div> */}
       </div>
 
       <div className="space-y-6">
@@ -153,7 +152,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
               disabled={role !== "manager"}
               className="w-full border-2 border-gray-200 rounded-xl px-4 py-3
                  text-gray-900 outline-none focus:border-blue-500 bg-white cursor-pointer
-                 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                 disabled:bg-white disabled:cursor-not-allowed"
             >
               <option value="">Select Employee</option>
               {EMPLOYEES.map((emp) => (
@@ -218,7 +217,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
         </button>
         <button
           type="submit"
-          className="px-8 py-3 rounded-xl font-semibold text-white bg-linear-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 shadow-lg transition-all"
+          className="px-8 py-3 rounded-xl font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-lg transition-all"
         >
           Add Expense
         </button>

@@ -89,7 +89,7 @@ export function CumulativeModal({
                 {/* Payment Info */}
                 <div className="grid gap-6 md:grid-cols-3">
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        <label className="block text-sm font-semibold text-gray-800 mb-2">
                             Payment Date
                         </label>
                         <input
@@ -100,7 +100,7 @@ export function CumulativeModal({
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        <label className="block text-sm font-semibold text-gray-800 mb-2">
                             Payment Time
                         </label>
                         <input
@@ -111,7 +111,7 @@ export function CumulativeModal({
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        <label className="block text-sm font-semibold text-gray-800 mb-2">
                             Paid By (optional)
                         </label>
                         <input
@@ -127,7 +127,7 @@ export function CumulativeModal({
                 {/* Total Amount */}
                 <div className="flex justify-between items-center font-bold text-lg border-t pt-4">
                     <span>Total Amount</span>
-                    <span className="text-green-600">₹{totalAmount.toLocaleString()}</span>
+                    <span className="text-gray-900">₹{totalAmount.toLocaleString()}</span>
                 </div>
 
                 {/* View Expenses Toggle */}
@@ -143,8 +143,8 @@ export function CumulativeModal({
 
                 {/* Selected Expenses */}
                 {showExpenses && (
-                    <div className="border rounded-xl overflow-hidden max-h-72 overflow-y-auto mt-2">
-                        <div className="grid grid-cols-3 bg-gray-100 font-semibold text-gray-700 text-sm p-3 border-b">
+                    <div className="border rounded-xl overflow-hidden max-h-72 overflow-y-auto mt-2 bg-white">
+                        <div className="grid grid-cols-3 bg-white font-semibold text-gray-800 text-sm p-3 border-b">
                             <span>Shop</span>
                             <span>Role</span>
                             <span>Amount</span>
@@ -155,7 +155,7 @@ export function CumulativeModal({
                             return (
                                 <div
                                     key={e._id}
-                                    className="grid grid-cols-3 text-sm text-gray-700 p-3 border-b last:border-b-0"
+                                    className="grid grid-cols-3 text-sm text-gray-800 p-3 border-b last:border-b-0"
                                 >
                                     <span>{e.shop}</span>
                                     <span>{e.role}</span>
@@ -177,7 +177,7 @@ export function CumulativeModal({
                     </button>
                     <button
                         type="submit"
-                        className="px-8 py-3 rounded-xl font-semibold text-white bg-linear-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 shadow-lg transition-all"
+                        className="px-8 py-3 rounded-xl font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-lg transition-all"
                     >
                         Add Cumulative Payment
                     </button>

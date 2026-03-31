@@ -66,8 +66,8 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
 
   if (visibleExpenses.length === 0 && filteredExpenses.length === 0) {
     return (
-      <div className="p-16 text-center text-gray-500">
-        <div className="text-6xl mb-4">📊</div>
+      <div className="p-16 text-center text-gray-800">
+        <div className="text-4xl mb-4 text-gray-900">[ ]</div>
         <p className="font-bold text-lg">No expenses found</p>
         <p className="text-sm">Try adjusting your filters</p>
       </div>
@@ -81,46 +81,46 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
       style={{ maxHeight: "70vh" }}
     >
       <table className="min-w-full">
-        <thead className="bg-linear-to-r from-gray-900 to-gray-800 sticky top-0">
+        <thead className="bg-white sticky top-0 border-b border-gray-200">
           <tr>
-            <th className="p-4 text-left font-black text-white text-xs">
+            <th className="p-4 text-left font-black text-gray-900 text-xs">
               Select
             </th>
 
-            <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
+            <th className="p-4 text-left font-black text-gray-900 uppercase tracking-wide text-xs">
               #
             </th>
-            <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
+            <th className="p-4 text-left font-black text-gray-900 uppercase tracking-wide text-xs">
               Shop
             </th>
-            <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
+            <th className="p-4 text-left font-black text-gray-900 uppercase tracking-wide text-xs">
               Description
             </th>
-            <th className="p-4 text-right font-black text-white uppercase tracking-wide text-xs">
+            <th className="p-4 text-right font-black text-gray-900 uppercase tracking-wide text-xs">
               Amount
             </th>
             {/* <th className="p-4 text-right font-black text-white uppercase tracking-wide text-xs">
               Total
             </th> */}
-            <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
+            <th className="p-4 text-left font-black text-gray-900 uppercase tracking-wide text-xs">
               Date
             </th>
-            <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
+            <th className="p-4 text-left font-black text-gray-900 uppercase tracking-wide text-xs">
               Role
             </th>
-            <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
+            <th className="p-4 text-left font-black text-gray-900 uppercase tracking-wide text-xs">
               Employee
             </th>
-            <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
+            <th className="p-4 text-left font-black text-gray-900 uppercase tracking-wide text-xs">
               Payment Mode
             </th>
-            <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
+            <th className="p-4 text-left font-black text-gray-900 uppercase tracking-wide text-xs">
               Payment Type
             </th>
-            <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
+            <th className="p-4 text-left font-black text-gray-900 uppercase tracking-wide text-xs">
               Status
             </th>
-            <th className="p-4 text-left font-black text-white uppercase tracking-wide text-xs">
+            <th className="p-4 text-left font-black text-gray-900 uppercase tracking-wide text-xs">
               Actions
             </th>
           </tr>
@@ -138,8 +138,8 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
               <React.Fragment key={exp._id}>
                 <tr
                   className={`transition-colors ${selectedExpenseIds.includes(exp._id)
-                    ? "bg-blue-100 ring-2 ring-blue-400"
-                    : "hover:bg-blue-50"
+                    ? "bg-gray-100 ring-2 ring-gray-300"
+                    : "hover:bg-gray-50"
                     }`}
                 >
 
@@ -153,7 +153,7 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
                   </td>
 
 
-                  <td className="p-4 text-gray-600 font-bold">{idx + 1}</td>
+                  <td className="p-4 text-gray-800 font-bold">{idx + 1}</td>
                   <td className="p-4 text-gray-900 font-bold">
                     {exp.shop || "-"}
                   </td>
@@ -164,19 +164,19 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
                   {/* <td className="p-4 text-right font-black text-gray-900 text-lg">
                     ₹{total.toLocaleString()}
                   </td> */}
-                  <td className="p-4 text-gray-600 text-sm">
+                  <td className="p-4 text-gray-800 text-sm">
                     {formatDate(exp.date)}
                   </td>
-                  <td className="p-4 text-gray-600 capitalize text-sm">
+                  <td className="p-4 text-gray-800 capitalize text-sm">
                     {exp.role || "other"}
                   </td>
-                  <td className="p-4 text-gray-600 text-sm">
+                  <td className="p-4 text-gray-800 text-sm">
                     {exp.employeeName || "-"}
                   </td>
-                  <td className="p-4 text-gray-600 text-sm">
+                  <td className="p-4 text-gray-800 text-sm">
                     {exp.paymentMode || "-"}
                   </td>
-                  <td className="p-4 text-gray-600 text-sm">
+                  <td className="p-4 text-gray-800 text-sm">
                     {exp.paymentType || "-"}
                   </td>
                   <td className="p-4">
@@ -187,8 +187,8 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
                         onUpdatePaidStatus(exp, newStatus);
                       }}
                       className={`border-2 rounded-lg px-3 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500 bg-white cursor-pointer ${paid
-                        ? "border-green-300 bg-green-50 text-green-700"
-                        : "border-orange-300 bg-orange-50 text-orange-700"
+                        ? "border-gray-300 text-gray-800"
+                        : "border-gray-300 text-gray-800"
                         }`}
                     >
                       <option value="unpaid">Pending</option>
@@ -206,14 +206,14 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
                       </button> */}
                       <button
                         type="button"
-                        className="px-4 py-2 rounded-lg text-xs font-bold text-blue-700 bg-blue-100 hover:bg-blue-200 transition-all"
+                        className="px-4 py-2 rounded-lg text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-all"
                         onClick={() => onStartEditExpense(exp)}
                       >
                         Edit
                       </button>
                       <button
                         type="button"
-                        className="px-4 py-2 rounded-lg text-xs font-bold text-red-700 bg-red-100 hover:bg-red-200 transition-all"
+                        className="px-4 py-2 rounded-lg text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-all"
                         onClick={() => onDeleteExpense(exp)}
                       >
                         Delete
@@ -228,7 +228,7 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
         </tbody>
       </table>
 
-      <div className="text-center py-6 text-sm font-bold text-gray-600 bg-gray-50">
+      <div className="text-center py-6 text-sm font-bold text-gray-800 bg-white">
         {isLoadingMore && <p>Loading more expenses...</p>}
         {!hasMoreExpenses && filteredExpenses.length > 0 && (
           <p>All expenses loaded</p>
@@ -236,7 +236,7 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
         {hasMoreExpenses && !isLoadingMore && (
           <button
             onClick={onLoadMore}
-            className="text-blue-600 hover:text-blue-800 font-bold"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold transition-all shadow-md"
           >
             Load More ({filteredExpenses.length - visibleRowCount} remaining)
           </button>

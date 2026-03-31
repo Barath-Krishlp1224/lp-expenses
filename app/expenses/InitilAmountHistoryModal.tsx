@@ -19,7 +19,7 @@ const InitialAmountHistoryModal: React.FC<InitialAmountHistoryModalProps> = ({
           </h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-800 hover:text-gray-900 transition-colors"
           >
             <svg
               className="w-6 h-6"
@@ -37,35 +37,29 @@ const InitialAmountHistoryModal: React.FC<InitialAmountHistoryModalProps> = ({
             </svg>
           </button>
         </div>
-        <p className="text-sm text-gray-600 mb-4">
+        <p className="text-sm text-gray-800 mb-4">
           This log shows all changes made to the initial budget amount.
         </p>
         <div className="space-y-3">
           {history.map((entry, index) => (
             <div
               key={index}
-              className={`flex justify-between p-4 rounded-xl ${
-                index === 0
-                  ? "bg-blue-50 border-2 border-blue-300 shadow-md"
-                  : "bg-gray-50 border border-gray-200"
-              }`}
+              className="flex justify-between p-4 rounded-xl bg-white border border-gray-200"
             >
               <div>
                 <div
-                  className={`font-bold ${
-                    index === 0 ? "text-blue-700 text-lg" : "text-gray-900"
-                  }`}
+                  className="font-bold text-gray-900"
                 >
                   ₹{entry.amount.toLocaleString()}
                   {index === 0 && (
-                    <span className="ml-2 text-xs font-normal text-green-600 bg-green-100 px-2 py-0.5 rounded-full">
+                    <span className="ml-2 text-xs font-normal text-gray-800 border border-gray-300 px-2 py-0.5 rounded-full">
                       Current
                     </span>
                   )}
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-xs text-gray-500 font-medium">
+                <div className="text-xs text-gray-800 font-medium">
                   {new Date(entry.date).toLocaleString()}
                 </div>
               </div>
@@ -73,7 +67,7 @@ const InitialAmountHistoryModal: React.FC<InitialAmountHistoryModalProps> = ({
           ))}
         </div>
         {history.length === 0 && (
-          <p className="text-center text-gray-500 pt-4">No history found.</p>
+          <p className="text-center text-gray-800 pt-4">No history found.</p>
         )}
       </div>
     </div>

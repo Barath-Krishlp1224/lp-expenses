@@ -935,7 +935,7 @@ const handleAddToCumulativeTotal = () => {
 
   // Render
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-teal-50 p-8">
+    <div className="min-h-screen bg-white p-8 text-gray-800">
       <ToastContainer position="bottom-right" autoClose={3000} />
 
       <div className="max-w-400 mx-auto space-y-4">

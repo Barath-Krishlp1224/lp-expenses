@@ -121,15 +121,15 @@ export default function CumulativePaymentsTable() {
     >
       <h3 className="text-xl font-bold mb-4">Cumulative Payments</h3>
       <table className="min-w-full border-collapse">
-        <thead className="bg-gray-900 sticky top-0">
+        <thead className="bg-white sticky top-0 border-b border-gray-200">
           <tr>
-            <th className="p-3 text-left font-black text-white text-xs">#</th>
-            <th className="p-3 text-left font-black text-white text-xs">Date</th>
-            <th className="p-3 text-left font-black text-white text-xs">Time</th>
-            <th className="p-3 text-left font-black text-white text-xs">Paid By</th>
-            <th className="p-3 text-right font-black text-white text-xs">Total Amount</th>
-            <th className="p-3 text-left font-black text-white text-xs">Expense Count</th>
-            <th className="p-3 text-left font-black text-white text-xs">Actions</th>
+            <th className="p-3 text-left font-black text-gray-900 text-xs">#</th>
+            <th className="p-3 text-left font-black text-gray-900 text-xs">Date</th>
+            <th className="p-3 text-left font-black text-gray-900 text-xs">Time</th>
+            <th className="p-3 text-left font-black text-gray-900 text-xs">Paid By</th>
+            <th className="p-3 text-right font-black text-gray-900 text-xs">Total Amount</th>
+            <th className="p-3 text-left font-black text-gray-900 text-xs">Expense Count</th>
+            <th className="p-3 text-left font-black text-gray-900 text-xs">Actions</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
@@ -139,14 +139,14 @@ export default function CumulativePaymentsTable() {
                 className="hover:bg-gray-50 transition-colors cursor-pointer"
                 onClick={() => handleRowClick(p)}
               >
-                <td className="p-3 text-gray-600 font-bold">{idx + 1}</td>
-                <td className="p-3 text-gray-600">{p.paymentDate}</td>
-                <td className="p-3 text-gray-600">{p.paymentTime}</td>
-                <td className="p-3 text-gray-600">{p.paidBy || "-"}</td>
+                <td className="p-3 text-gray-800 font-bold">{idx + 1}</td>
+                <td className="p-3 text-gray-800">{p.paymentDate}</td>
+                <td className="p-3 text-gray-800">{p.paymentTime}</td>
+                <td className="p-3 text-gray-800">{p.paidBy || "-"}</td>
                 <td className="p-3 text-right font-bold text-gray-900">
                   ₹{p.totalAmount.toLocaleString()}
                 </td>
-                <td className="p-3 text-gray-600">{p.expenseIds.length}</td>
+                <td className="p-3 text-gray-800">{p.expenseIds.length}</td>
                 <td className="p-3 flex gap-2">
                   <button
                     className="px-3 py-1 text-xs font-bold text-red-700 bg-red-100 rounded hover:bg-red-200"
@@ -163,9 +163,9 @@ export default function CumulativePaymentsTable() {
               {/* Expanded Expenses */}
               {expandedPaymentId === p.paymentId && expensesMap[p.paymentId] && (
                 <tr>
-                  <td colSpan={7} className="p-3 bg-gray-50">
+                  <td colSpan={7} className="p-3 bg-white">
                     <table className="w-full border-collapse">
-                      <thead>
+                      <thead className="border-b border-gray-200">
                         <tr>
                           <th className="p-2 text-left text-xs font-bold">Shop</th>
                           <th className="p-2 text-left text-xs font-bold">Description</th>
@@ -177,7 +177,7 @@ export default function CumulativePaymentsTable() {
                       </thead>
                       <tbody>
                         {expensesMap[p.paymentId].map((exp) => (
-                          <tr key={exp._id} className="bg-white hover:bg-gray-100">
+                          <tr key={exp._id} className="bg-white hover:bg-gray-50">
                             <td className="p-2">{exp.shop || "-"}</td>
                             <td className="p-2">{exp.description}</td>
                             <td className="p-2 text-right font-bold">₹{exp.amount.toLocaleString()}</td>
@@ -197,10 +197,10 @@ export default function CumulativePaymentsTable() {
       </table>
 
       {visibleRowCount < payments.length && (
-        <div className="text-center py-4 text-sm font-bold text-gray-600">
+        <div className="text-center py-4 text-sm font-bold text-gray-800">
           <button
             onClick={() => setVisibleRowCount((prev) => Math.min(prev + 20, payments.length))}
-            className="text-blue-600 hover:text-blue-800 font-bold"
+            className="text-gray-800 hover:text-gray-900 font-bold"
           >
             Load More ({payments.length - visibleRowCount} remaining)
           </button>

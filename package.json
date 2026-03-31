@@ -10,7 +10,7 @@
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.2.3",
-    "framer-motion": "^12.29.2",
+    "framer-motion": "^12.38.0",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.562.0",
     "mongoose": "^9.0.2",

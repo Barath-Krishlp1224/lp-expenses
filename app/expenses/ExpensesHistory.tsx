@@ -57,7 +57,7 @@ const ExpensesHistory: React.FC<ExpensesHistoryProps> = ({
 
       <div className="overflow-x-auto">
         <table className="min-w-full text-xs">
-          <thead className="bg-gray-200">
+          <thead className="bg-white border-b border-gray-200">
             <tr>
               <th className="p-2 text-left">Date</th>
               <th className="p-2 text-left">Shop</th>

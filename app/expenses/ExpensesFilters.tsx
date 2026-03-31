@@ -124,7 +124,7 @@ const ExpensesFilters: React.FC<ExpensesFiltersProps> = ({
       <button
         type="button"
         onClick={() => setShowHistory((s) => !s)}
-        className="border px-3 py-2 rounded-md text-xs"
+        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-xs font-semibold transition-all"
       >
         {showHistory ? "Hide History" : "View History"}
       </button>

@@ -41,7 +41,7 @@ const SubExpensesSection: React.FC<SubExpensesSectionProps> = ({
   onUpdateSubtaskStatus,
 }) => {
   return (
-    <tr className="border-t bg-gray-100">
+    <tr className="border-t bg-white">
       <td className="p-3" colSpan={10}>
         <form
           onSubmit={(ev) => onAddSubtask(ev, parent)}
@@ -120,7 +120,7 @@ const SubExpensesSection: React.FC<SubExpensesSectionProps> = ({
 
         {(parent.subtasks || []).length > 0 ? (
           <table className="min-w-full text-xs border">
-            <thead className="bg-gray-200">
+            <thead className="bg-white border-b border-gray-200">
               <tr>
                 <th className="p-1 text-left">Description</th>
                 <th className="p-1 text-right">Amount</th>

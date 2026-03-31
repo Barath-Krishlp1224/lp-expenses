@@ -1,5 +1,17 @@
-// app/api/expenses/route.ts
 import { NextResponse } from "next/server";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 204,
+    headers: corsHeaders,
+  });
+}
 import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/mongoose";
 import Expense, { IExpense, Role, SubExpense } from "@/models/Expense";
@@ -135,7 +147,7 @@ export async function GET(request: Request) {
 
       return NextResponse.json(
         { success: true, data: wkItems, weekTotal, shops },
-        { status: 200 }
+        { status: 200, headers: corsHeaders }
       );
     }
 
@@ -148,13 +160,13 @@ export async function GET(request: Request) {
 
     return NextResponse.json(
       { success: true, data: expenses, shops },
-      { status: 200 }
+      { status: 200, headers: corsHeaders }
     );
   } catch (err: any) {
     console.error("GET Expense Error:", err);
     return NextResponse.json(
       { success: false, error: err?.message || "Internal Server Error" },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }
@@ -253,13 +265,13 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       { success: true, data: created.toObject() },
-      { status: 201 }
+      { status: 201, headers: corsHeaders }
     );
   } catch (err: any) {
     console.error("POST Expense Error:", err);
     return NextResponse.json(
       { success: false, error: err?.message || "Internal Server Error" },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }
@@ -275,7 +287,7 @@ export async function PUT(request: Request) {
     if (!weekStart && (!Array.isArray(ids) || ids.length === 0)) {
       return NextResponse.json(
         { success: false, error: "Provide weekStart or ids array" },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -297,13 +309,13 @@ export async function PUT(request: Request) {
     if (res) {
       return NextResponse.json(
         { success: true, modifiedCount: (res as any).modifiedCount ?? 0 },
-        { status: 200 }
+        { status: 200, headers: corsHeaders }
       );
     }
 
     return NextResponse.json(
       { success: false, error: "No valid update criteria provided" },
-      { status: 400 }
+      { status: 400, headers: corsHeaders }
     );
   } catch (err: any) {
     console.error("PUT Expense Error:", err);
@@ -328,7 +340,7 @@ export async function PATCH(request: Request) {
     if (!id || !updates || typeof updates !== "object") {
       return NextResponse.json(
         { success: false, error: "Provide id and updates object" },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -336,7 +348,7 @@ export async function PATCH(request: Request) {
       console.error(`PATCH Invalid ID format: ${id}`);
       return NextResponse.json(
         { success: false, error: "Invalid Expense ID format" },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -414,7 +426,7 @@ export async function PATCH(request: Request) {
     if (Object.keys(payload).length === 0) {
       return NextResponse.json(
         { success: false, error: "No valid fields to update" },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -430,7 +442,7 @@ export async function PATCH(request: Request) {
       console.error(`PATCH: Expense not found with ID: ${id}`);
       return NextResponse.json(
         { success: false, error: "Expense not found" },
-        { status: 404 }
+        { status: 404, headers: corsHeaders }
       );
     }
 
@@ -454,7 +466,7 @@ export async function PATCH(request: Request) {
             error:
               "Employee ID is required for Manager role update if not previously set.",
           },
-          { status: 400 }
+          { status: 400, headers: corsHeaders }
         );
       }
     }
@@ -484,7 +496,7 @@ export async function PATCH(request: Request) {
       console.error(`PATCH: Could not retrieve updated document`);
       return NextResponse.json(
         { success: false, error: "Failed to retrieve updated expense" },
-        { status: 500 }
+        { status: 500, headers: corsHeaders }
       );
     }
 
@@ -492,13 +504,13 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json(
       { success: true, data: updated as unknown as IExpense },
-      { status: 200 }
+      { status: 200, headers: corsHeaders }
     );
   } catch (err: any) {
     console.error("PATCH Expense Error:", err);
     return NextResponse.json(
       { success: false, error: err?.message || "Internal Server Error" },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }
@@ -528,14 +540,14 @@ export async function DELETE(request: Request) {
     if (!id) {
       return NextResponse.json(
         { success: false, error: "Missing id (in body or query param)" },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { success: false, error: "Invalid Expense ID format" },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -549,19 +561,19 @@ export async function DELETE(request: Request) {
     if (!deleted) {
       return NextResponse.json(
         { success: false, error: "Expense not found" },
-        { status: 404 }
+        { status: 404, headers: corsHeaders }
       );
     }
 
     return NextResponse.json(
       { success: true, data: deleted },
-      { status: 200 }
+      { status: 200, headers: corsHeaders }
     );
   } catch (err: any) {
     console.error("DELETE Expense Error:", err);
     return NextResponse.json(
       { success: false, error: err?.message || "Internal Server Error" },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }

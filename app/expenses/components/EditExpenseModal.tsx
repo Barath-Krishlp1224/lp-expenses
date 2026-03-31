@@ -63,7 +63,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
           {/* Shop & Description */}
           <div className="grid gap-6 md:grid-cols-2">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Shop / Vendor</label>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">Shop / Vendor</label>
               <input
                 value={editExpenseFields.shop}
                 onChange={(e) => setField("shop", e.target.value)}
@@ -72,7 +72,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">Description</label>
               <input
                 value={editExpenseFields.description}
                 onChange={(e) => setField("description", e.target.value)}
@@ -85,7 +85,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
           {/* Amount & Date */}
           <div className="grid gap-6 md:grid-cols-2">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Amount (₹)</label>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">Amount (₹)</label>
               <input
                 type="number"
                 value={editExpenseFields.amount}
@@ -95,7 +95,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Date</label>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">Date</label>
               <input
                 type="date"
                 value={editExpenseFields.date}
@@ -108,7 +108,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
           {/* Role & Employee */}
           <div className="grid gap-6 md:grid-cols-2">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Role</label>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">Role</label>
               <select
                 value={editExpenseFields.role}
                 onChange={(e) => setField("role", e.target.value as Role)}
@@ -120,12 +120,12 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
               </select>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Assign to Employee</label>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">Assign to Employee</label>
               <select
                 value={editExpenseFields.employeeId}
                 onChange={handleEmployeeChange}
                 disabled={editExpenseFields.role !== "manager"}
-                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 outline-none focus:border-blue-500 bg-white cursor-pointer disabled:bg-gray-100 disabled:cursor-not-allowed"
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 outline-none focus:border-blue-500 bg-white cursor-pointer disabled:bg-white disabled:cursor-not-allowed"
               >
                 <option value="">Select Employee</option>
                 {EMPLOYEES.map((emp) => (
@@ -140,7 +140,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
           {/* Payment Mode & Type */}
           <div className="grid gap-6 md:grid-cols-2">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Mode of Payment</label>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">Mode of Payment</label>
               <select
                 value={editExpenseFields.paymentMode}
                 onChange={(e) => {
@@ -155,13 +155,13 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
               </select>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Payment Type</label>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">Payment Type</label>
               <select
                 value={editExpenseFields.paymentType}
                 disabled={editExpenseFields.paymentMode !== "upi"}
                 onChange={(e) => setField("paymentType", e.target.value as PaymentType)}
                 className={`w-full border-2 rounded-xl px-4 py-3 outline-none bg-white transition-all ${editExpenseFields.paymentMode !== "upi"
-                    ? "border-gray-100 text-gray-400 cursor-not-allowed"
+                    ? "border-gray-200 text-gray-800 cursor-not-allowed"
                     : "border-gray-200 text-gray-900 focus:border-blue-500"
                   }`}
               >
@@ -185,7 +185,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
           <button
             type="button"
             onClick={handleSave}
-            className="px-8 py-3 rounded-xl font-semibold text-white bg-linear-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 shadow-lg transition-all"
+            className="px-8 py-3 rounded-xl font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-lg transition-all"
           >
             Save Changes
           </button>

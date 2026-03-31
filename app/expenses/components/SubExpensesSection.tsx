@@ -43,13 +43,13 @@ const SubExpensesSection: React.FC<SubExpensesSectionProps> = ({
   onStartEditSubtask,
 }) => {
   return (
-    <tr className="bg-linear-to-r from-blue-50 to-teal-50">
+    <tr className="bg-white">
       <td className="p-6" colSpan={10}>
-        <div className="bg-white rounded-2xl border-2 border-blue-200 p-6 shadow-lg">
-          <div className="mb-6 pb-4 border-b-2 border-gray-100">
+        <div className="bg-white rounded-2xl border-2 border-gray-200 p-6 shadow-sm">
+          <div className="mb-6 pb-4 border-b-2 border-gray-200">
             <h4 className="text-lg font-bold text-gray-900">
               Sub Expenses for:{" "}
-              <span className="text-blue-600">
+              <span className="text-gray-900">
                 {parent.shop || parent.description}
               </span>
             </h4>
@@ -57,11 +57,11 @@ const SubExpensesSection: React.FC<SubExpensesSectionProps> = ({
 
           <form
             onSubmit={(ev) => onAddSubtask(ev, parent)}
-            className="mb-6 p-6 bg-linear-to-br from-gray-50 to-blue-50 rounded-xl border border-gray-200"
+            className="mb-6 p-6 bg-white rounded-xl border border-gray-200"
           >
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-4">
               <div>
-                <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
+                <label className="block text-xs font-bold text-gray-800 mb-2 uppercase tracking-wide">
                   Description
                 </label>
                 <input
@@ -72,7 +72,7 @@ const SubExpensesSection: React.FC<SubExpensesSectionProps> = ({
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
+                <label className="block text-xs font-bold text-gray-800 mb-2 uppercase tracking-wide">
                   Amount (₹)
                 </label>
                 <input
@@ -84,7 +84,7 @@ const SubExpensesSection: React.FC<SubExpensesSectionProps> = ({
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
+                <label className="block text-xs font-bold text-gray-800 mb-2 uppercase tracking-wide">
                   Date
                 </label>
                 <input
@@ -95,7 +95,7 @@ const SubExpensesSection: React.FC<SubExpensesSectionProps> = ({
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
+                <label className="block text-xs font-bold text-gray-800 mb-2 uppercase tracking-wide">
                   Employee
                 </label>
                 <select
@@ -115,16 +115,16 @@ const SubExpensesSection: React.FC<SubExpensesSectionProps> = ({
 
             <button
               type="submit"
-              className="px-6 py-2 rounded-lg font-semibold text-white bg-linear-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 shadow-md transition-all text-sm"
+              className="px-6 py-2 rounded-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-md transition-all text-sm"
             >
               Add Sub Expense
             </button>
           </form>
 
           {(parent.subtasks || []).length > 0 ? (
-            <div className="overflow-x-auto rounded-xl border-2 border-gray-200">
+            <div className="overflow-x-auto rounded-xl border-2 border-gray-200 bg-white">
               <table className="min-w-full text-sm">
-                <thead className="bg-linear-to-r from-gray-100 to-gray-50">
+                <thead className="bg-white border-b border-gray-200">
                   <tr>
                     <th className="p-4 text-left font-bold text-gray-900 uppercase tracking-wide text-xs">
                       Description
@@ -150,7 +150,7 @@ const SubExpensesSection: React.FC<SubExpensesSectionProps> = ({
                   {parent.subtasks!.map((sub: Subtask) => (
                     <tr
                       key={sub.id}
-                      className="hover:bg-blue-50 transition-colors"
+                      className="hover:bg-gray-50 transition-colors"
                     >
                       <td className="p-4 text-gray-900 font-medium">
                         {sub.title}
@@ -158,10 +158,10 @@ const SubExpensesSection: React.FC<SubExpensesSectionProps> = ({
                       <td className="p-4 text-right font-bold text-gray-900">
                         ₹{(sub.amount || 0).toLocaleString()}
                       </td>
-                      <td className="p-4 text-gray-600">
+                      <td className="p-4 text-gray-800">
                         {formatDate(sub.date)}
                       </td>
-                      <td className="p-4 text-gray-600">
+                      <td className="p-4 text-gray-800">
                         {sub.employeeName || "-"}
                       </td>
                       <td className="p-4">
@@ -182,14 +182,14 @@ const SubExpensesSection: React.FC<SubExpensesSectionProps> = ({
                           <button
                             type="button"
                             onClick={() => onStartEditSubtask(parent, sub)}
-                            className="px-4 py-1.5 rounded-lg text-xs font-semibold text-blue-700 bg-blue-100 hover:bg-blue-200 transition-all"
+                            className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all"
                           >
                             Edit
                           </button>
                           <button
                             type="button"
                             onClick={() => onDeleteSubtask(parent, sub.id)}
-                            className="px-4 py-1.5 rounded-lg text-xs font-semibold text-red-700 bg-red-100 hover:bg-red-200 transition-all"
+                            className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all"
                           >
                             Delete
                           </button>
@@ -201,7 +201,7 @@ const SubExpensesSection: React.FC<SubExpensesSectionProps> = ({
               </table>
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
+            <div className="text-center py-8 text-gray-800 bg-white rounded-xl border-2 border-dashed border-gray-300">
               <p className="text-sm font-medium">No sub expenses added yet</p>
             </div>
           )}
