@@ -5,6 +5,19 @@ import InitialAmountHistory, {
   IInitialAmountHistoryEntry,
 } from "@/models/InitialAmount";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 204,
+    headers: corsHeaders,
+  });
+}
+
 async function ensureConnected() {
   await connectToDatabase();
   let tries = 0;
@@ -25,12 +38,15 @@ export async function GET() {
       .sort({ createdAt: -1 }) // Sort by creation date descending to get latest first
       .lean()) as unknown as IInitialAmountHistoryEntry[];
 
-    return NextResponse.json({ success: true, data: history }, { status: 200 });
+    return NextResponse.json(
+      { success: true, data: history },
+      { status: 200, headers: corsHeaders }
+    );
   } catch (err: any) {
     console.error("GET Initial Amount Error:", err);
     return NextResponse.json(
       { success: false, error: err?.message || "Internal Server Error" },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }
@@ -78,13 +94,13 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       { success: true, data: created.toObject() },
-      { status: 200 }
+      { status: 200, headers: corsHeaders }
     );
   } catch (err: any) {
     console.error("POST Initial Amount Error:", err);
     return NextResponse.json(
       { success: false, error: err?.message || "Internal Server Error" },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }

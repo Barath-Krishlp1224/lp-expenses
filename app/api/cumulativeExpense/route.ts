@@ -15,16 +15,32 @@ async function ensureConnected() {
         throw new Error("Failed to connect to MongoDB");
     }
 }
+
+const corsHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
+export async function OPTIONS() {
+    return new Response(null, {
+        status: 204,
+        headers: corsHeaders,
+    });
+}
 export async function GET() {
     try {
         await ensureConnected();
         const payments = await CumulativePayment.find().sort({ paymentDate: -1, paymentTime: -1 });
-        return NextResponse.json({ success: true, data: payments }, { status: 200 });
+        return NextResponse.json(
+            { success: true, data: payments },
+            { status: 200, headers: corsHeaders }
+        );
     } catch (err: any) {
         console.error("GET Cumulative Payments Error:", err);
         return NextResponse.json(
             { success: false, error: err.message || "Internal server error" },
-            { status: 500 }
+            { status: 500, headers: corsHeaders }
         );
     }
 }
@@ -40,7 +56,7 @@ export async function DELETE(request: Request) {
         if (!paymentId) {
             return NextResponse.json(
                 { success: false, error: "paymentId is required" },
-                { status: 400 }
+                { status: 400, headers: corsHeaders }
             );
         }
 
@@ -48,16 +64,19 @@ export async function DELETE(request: Request) {
         if (!deleted) {
             return NextResponse.json(
                 { success: false, error: "Payment not found" },
-                { status: 404 }
+                { status: 404, headers: corsHeaders }
             );
         }
 
-        return NextResponse.json({ success: true, data: deleted }, { status: 200 });
+        return NextResponse.json(
+            { success: true, data: deleted },
+            { status: 200, headers: corsHeaders }
+        );
     } catch (err: any) {
         console.error("DELETE Cumulative Payment Error:", err);
         return NextResponse.json(
             { success: false, error: err.message || "Internal server error" },
-            { status: 500 }
+            { status: 500, headers: corsHeaders }
         );
     }
 }
@@ -83,7 +102,7 @@ export async function POST(request: Request) {
         ) {
             return NextResponse.json(
                 { success: false, error: "Missing or invalid fields" },
-                { status: 400 }
+                { status: 400, headers: corsHeaders }
             );
         }
 
@@ -101,13 +120,13 @@ export async function POST(request: Request) {
 
         return NextResponse.json(
             { success: true, data: cumulativePayment },
-            { status: 201 }
+            { status: 201, headers: corsHeaders }
         );
     } catch (err: any) {
         console.error("POST Cumulative Payment Error:", err);
         return NextResponse.json(
             { success: false, error: err.message || "Internal server error" },
-            { status: 500 }
+            { status: 500, headers: corsHeaders }
         );
     }
 }

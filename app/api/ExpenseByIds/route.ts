@@ -15,6 +15,19 @@ async function ensureConnected() {
   }
 }
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 204,
+    headers: corsHeaders,
+  });
+}
+
 // POST: Fetch expenses by their IDs
 export async function POST(request: Request) {
   try {
@@ -26,7 +39,7 @@ export async function POST(request: Request) {
     if (!Array.isArray(ids) || ids.length === 0) {
       return NextResponse.json(
         { success: false, error: "ids array is required" },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -35,12 +48,15 @@ export async function POST(request: Request) {
 
     const expenses = await Expense.find({ _id: { $in: objectIds } }).sort({ date: -1 });
 
-    return NextResponse.json({ success: true, data: expenses }, { status: 200 });
+    return NextResponse.json(
+      { success: true, data: expenses },
+      { status: 200, headers: corsHeaders }
+    );
   } catch (err: any) {
     console.error("POST /expensesByIds Error:", err);
     return NextResponse.json(
       { success: false, error: err.message || "Internal server error" },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }
