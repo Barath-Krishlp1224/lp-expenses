@@ -1,6 +1,13 @@
 import React from "react";
-import { Employee } from "./types";
-import { Expense, formatDate } from "./components/types";
+import { Employee, Expense } from "./types";
+import {
+  formatDate,
+  getExpenseAmount,
+  getExpenseDisplayName,
+  getExpenseQuantity,
+  getExpenseUnitPrice,
+  getExpenseTotal,
+} from "./lib/expense-helpers";
 
 interface PaymentHistorySectionProps {
   showHistory: boolean;
@@ -29,13 +36,7 @@ const PaymentHistorySection: React.FC<PaymentHistorySectionProps> = ({
     : historyExpenses;
   const totalAmount = historyEmployeeId
     ? employeeHistoryTotal
-    : historyExpenses.reduce(
-        (sum, e) =>
-          sum +
-          e.amount +
-          (e.subtasks || []).reduce((s, sub) => s + (sub.amount || 0), 0),
-        0
-      );
+    : historyExpenses.reduce((sum, expense) => sum + getExpenseTotal(expense), 0);
 
   return (
     <div className="bg-white rounded-2xl p-8 shadow-xl border-2 border-gray-100">
@@ -82,10 +83,16 @@ const PaymentHistorySection: React.FC<PaymentHistorySectionProps> = ({
                 Date
               </th>
               <th className="p-4 text-left font-black text-gray-900 uppercase tracking-wide text-xs">
-                Description
+                Product
               </th>
               <th className="p-4 text-left font-black text-gray-900 uppercase tracking-wide text-xs">
                 Shop
+              </th>
+              <th className="p-4 text-right font-black text-gray-900 uppercase tracking-wide text-xs">
+                Qty
+              </th>
+              <th className="p-4 text-right font-black text-gray-900 uppercase tracking-wide text-xs">
+                Unit Price
               </th>
               <th className="p-4 text-right font-black text-gray-900 uppercase tracking-wide text-xs">
                 Amount
@@ -101,18 +108,13 @@ const PaymentHistorySection: React.FC<PaymentHistorySectionProps> = ({
           <tbody className="divide-y-2 divide-gray-100">
             {displayedExpenses.length === 0 ? (
               <tr>
-                <td colSpan={6} className="p-16 text-center text-gray-800">
+                <td colSpan={8} className="p-16 text-center text-gray-800">
                   <div className="text-4xl mb-4 text-gray-900">[ ]</div>
                   <p className="font-bold text-lg">No payment history</p>
                 </td>
               </tr>
             ) : (
               displayedExpenses.map((exp) => {
-                const subsTotal = (exp.subtasks || []).reduce(
-                  (s, sub) => s + (sub.amount || 0),
-                  0
-                );
-                const total = exp.amount + subsTotal;
                 return (
                   <tr
                     key={exp._id}
@@ -122,14 +124,29 @@ const PaymentHistorySection: React.FC<PaymentHistorySectionProps> = ({
                       {formatDate(exp.date)}
                     </td>
                     <td className="p-4 text-gray-900 font-bold">
-                      {exp.description}
+                      {getExpenseDisplayName(exp)}
                     </td>
                     <td className="p-4 text-gray-900">{exp.shop || "-"}</td>
                     <td className="p-4 text-right text-gray-800 font-bold">
-                      ₹{exp.amount.toLocaleString()}
+                      {getExpenseQuantity(exp).toLocaleString()}
+                    </td>
+                    <td className="p-4 text-right text-gray-800 font-bold">
+                      ₹{getExpenseUnitPrice(exp).toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </td>
+                    <td className="p-4 text-right text-gray-800 font-bold">
+                      ₹{getExpenseAmount(exp).toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
                     </td>
                     <td className="p-4 text-right font-black text-gray-900 text-lg">
-                      ₹{total.toLocaleString()}
+                      ₹{getExpenseTotal(exp).toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
                     </td>
                     <td className="p-4 text-gray-800">
                       {exp.employeeName || "-"}

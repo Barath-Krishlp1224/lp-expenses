@@ -94,6 +94,44 @@ function normalizeSubExpenses(arr: unknown): SubExpense[] {
     .filter((s): s is SubExpense => s !== null);
 }
 
+function roundCurrency(value: number) {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+function normalizeNonNegativeNumber(value: unknown, fallback = 0) {
+  const parsed =
+    typeof value === "number"
+      ? value
+      : value === undefined || value === null
+        ? fallback
+        : Number(value);
+
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    return fallback;
+  }
+
+  return parsed;
+}
+
+function resolveExpenseQuantity(rawQuantity: unknown) {
+  const quantity = normalizeNonNegativeNumber(rawQuantity, 1);
+  return quantity > 0 ? quantity : 1;
+}
+
+function resolveExpenseUnitPrice(rawUnitPrice: unknown, rawAmount: unknown, quantity: number) {
+  const explicitUnitPrice = normalizeNonNegativeNumber(rawUnitPrice, -1);
+  if (explicitUnitPrice >= 0) {
+    return explicitUnitPrice;
+  }
+
+  const amount = normalizeNonNegativeNumber(rawAmount, 0);
+  return quantity > 0 ? roundCurrency(amount / quantity) : amount;
+}
+
+function computeBaseExpenseAmount(quantity: number, unitPrice: number) {
+  return roundCurrency(quantity * unitPrice);
+}
+
 function computeExpenseTotal(e: IExpense): number {
   const expenseAmount =
     typeof e.amount === "number" && !Number.isNaN(e.amount)
@@ -134,7 +172,7 @@ export async function GET(request: Request) {
 
     if (weekStart) {
       const wkItems = (await Expense.find({ weekStart })
-        .sort({ date: -1 })
+        .sort({ date: -1, createdAt: -1 })
         .lean()
         .exec()) as unknown as IExpense[];
 
@@ -152,7 +190,7 @@ export async function GET(request: Request) {
     }
 
     const expenses = (await Expense.find({})
-      .sort({ createdAt: -1 })
+      .sort({ date: -1, createdAt: -1 })
       .lean()
       .exec()) as unknown as IExpense[];
 
@@ -176,11 +214,15 @@ export async function POST(request: Request) {
     const body = (await request.json()) as Record<string, unknown>;
     console.log('body:>>>>>> ', body);
 
+    const productName =
+      typeof body.productName === "string" ? body.productName.trim() : "";
+
     const description =
       typeof body.description === "string" ? body.description.trim() : "";
 
-    const amount =
-      typeof body.amount === "number" ? body.amount : Number(body.amount);
+    const quantity = resolveExpenseQuantity(body.quantity);
+    const unitPrice = resolveExpenseUnitPrice(body.unitPrice, body.amount, quantity);
+    const amount = computeBaseExpenseAmount(quantity, unitPrice);
 
     const date = typeof body.date === "string" ? body.date : "";
     const weekStart = typeof body.weekStart === "string" ? body.weekStart : "";
@@ -246,7 +288,10 @@ export async function POST(request: Request) {
     await ensureConnected();
 
     const created = new Expense({
+      productName,
       description,
+      quantity,
+      unitPrice,
       amount,
       date,
       shop,
@@ -355,7 +400,10 @@ export async function PATCH(request: Request) {
     await ensureConnected();
 
     const allowed = [
+      "productName",
       "description",
+      "quantity",
+      "unitPrice",
       "amount",
       "paymentMode",
       "paymentType",
@@ -370,6 +418,8 @@ export async function PATCH(request: Request) {
     ];
 
     const payload: Record<string, unknown> = {};
+    let nextQuantity: number | undefined;
+    let nextUnitPrice: number | undefined;
 
     for (const key of Object.keys(updates)) {
       if (!allowed.includes(key)) continue;
@@ -381,8 +431,19 @@ export async function PATCH(request: Request) {
         case "paymentMode":
           payload[key] = String(updates[key] || "").trim();
           break;
+        case "productName":
+          payload.productName = String(updates.productName || "").trim();
+          break;
         case "paymnetType":
           payload[key] = String(updates[key] || "").trim();
+          break;
+        case "quantity":
+          nextQuantity = resolveExpenseQuantity(updates.quantity);
+          payload.quantity = nextQuantity;
+          break;
+        case "unitPrice":
+          nextUnitPrice = normalizeNonNegativeNumber(updates.unitPrice, 0);
+          payload.unitPrice = nextUnitPrice;
           break;
         case "amount":
           const am = Number(updates.amount);
@@ -448,10 +509,29 @@ export async function PATCH(request: Request) {
 
     console.log("PATCH: Found existing document");
 
+    const existingExpense = existing as unknown as IExpense;
+    const quantity =
+      nextQuantity ?? resolveExpenseQuantity(existingExpense.quantity ?? 1);
+    const unitPrice =
+      nextUnitPrice ??
+      resolveExpenseUnitPrice(
+        existingExpense.unitPrice,
+        existingExpense.amount,
+        quantity
+      );
+
+    if (
+      Object.prototype.hasOwnProperty.call(payload, "quantity") ||
+      Object.prototype.hasOwnProperty.call(payload, "unitPrice") ||
+      Object.prototype.hasOwnProperty.call(payload, "amount")
+    ) {
+      payload.quantity = quantity;
+      payload.unitPrice = unitPrice;
+      payload.amount = computeBaseExpenseAmount(quantity, unitPrice);
+    }
+
     // Role validation check
     if (payload.role === "manager" && !payload.employeeId) {
-      const existingExpense = existing as unknown as IExpense;
-
       const isUpdatingToManagerWithoutEmployee =
         updates.role === "manager" &&
         (updates.employeeId === null || updates.employeeId === undefined);

@@ -14,7 +14,10 @@ export interface SubExpense {
 }
 
 export interface IExpense extends Document {
+  productName?: string;
   description: string;
+  quantity?: number;
+  unitPrice?: number;
   amount: number;
   date: string;
   createdAt: Date;
@@ -44,7 +47,10 @@ const SubExpenseSchema = new Schema<SubExpense>(
 
 const ExpenseSchema = new Schema<IExpense>(
   {
-    description: { type: String, required: true, trim: true },
+    productName: { type: String, default: "", trim: true },
+    description: { type: String, default: "", trim: true },
+    quantity: { type: Number, required: false, default: 1 },
+    unitPrice: { type: Number, required: false, default: 0 },
     amount: { type: Number, required: true },
     date: { type: String, required: true },
     shop: { type: String, default: "", trim: true },

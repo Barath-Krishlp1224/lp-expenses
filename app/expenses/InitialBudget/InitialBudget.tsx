@@ -1,10 +1,9 @@
 "use client"
 import React, { useMemo, useState } from 'react'
-import { INITIAL_AMOUNT_CONSTANT, InitialAmountHistoryEntry } from '../components/types';
-import { Expense, isExpensePaid } from '../types';
+import { INITIAL_AMOUNT_CONSTANT, isExpensePaid, getExpenseTotal, expenseBelongsToWallet } from '../lib/expense-helpers';
+import { InitialAmountHistoryEntry } from '../components/types';
 import { toast } from 'react-toastify';
 import { WalletKey, WALLETS } from './walletType';
-import { expenseBelongsToWallet } from '../page';
 import WalletCard from './walletCard';
 import EditInitialAmountModal from './EditInitialAmountModal';
 
@@ -65,17 +64,10 @@ function InitialBudget({ budgetPeriodStart, setShowInitialAmountHistory, expense
                 .filter((e: any) => e.date >= budgetPeriodStart)
                 .filter((e: any) => expenseBelongsToWallet(e, key))
                 .forEach((e: any) => {
-                    const base = e.amount;
-                    const subs = (e.subtasks || []).reduce(
-                        (s: any, sub: any) => s + (sub.amount || 0),
-                        0
-                    );
-                    const total = base + subs;
-
                     if (isExpensePaid(e)) {
-                        spent += total;
+                        spent += getExpenseTotal(e);
                     } else {
-                        pending += total;
+                        pending += getExpenseTotal(e);
                     }
                 });
 
