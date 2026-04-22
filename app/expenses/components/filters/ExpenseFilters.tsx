@@ -89,12 +89,12 @@ const convertToCSV = (data: Expense[], employees: Employee[]) => {
 };
 
 const inputClass =
-  "border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 w-full bg-white text-gray-800 placeholder:text-gray-700";
+  "w-full rounded-2xl border border-slate-200 bg-white/90 px-3 py-3 text-sm text-slate-800 shadow-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100";
 
 const SummaryCard = ({ label, value }: { label: string; value: number }) => (
-  <div className="rounded-xl border border-gray-200 bg-white p-4">
-    <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">{label}</div>
-    <div className="mt-2 text-xl font-bold text-gray-900">
+  <div className="accent-panel rounded-[1.5rem] border border-white/80 p-5 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:shadow-md">
+    <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">{label}</div>
+    <div className="mt-3 text-2xl font-black tracking-tight text-slate-900">
       ₹{value.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
     </div>
   </div>
@@ -122,29 +122,31 @@ function ExpenseFilters(props: ExpenseFiltersProps) {
 
   const FilterItem = ({ label, children }: { label: string; children: React.ReactNode }) => (
     <div className="flex flex-col">
-      <span className="text-xs font-semibold text-gray-800 mb-1">{label}</span>
+      <span className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+        {label}
+      </span>
       {children}
     </div>
   );
 
   return (
-    <div className="rounded-2xl">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 mb-4">
-        <div className="flex items-center gap-3 flex-wrap md:flex-nowrap">
+    <div className="space-y-4">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="relative flex items-center">
-            <FiSearch className="absolute left-3 text-gray-800 w-4 h-4" />
+            <FiSearch className="absolute left-3 h-4 w-4 text-slate-400" />
             <input
               type="text"
               value={props.filterSearch}
               onChange={(e) => props.setFilterSearch(e.target.value)}
-              placeholder="Search..."
-              className="border border-gray-300 rounded-md pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 w-60 bg-white text-gray-800 placeholder:text-gray-700"
+              placeholder="Search products, notes, or vendors..."
+              className="w-72 rounded-2xl border border-slate-200 bg-white/90 py-3 pl-10 pr-3 text-sm text-slate-800 shadow-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
             />
           </div>
 
           <button
             onClick={() => setShowFilters((current) => !current)}
-            className="p-2 rounded-md bg-blue-600 hover:bg-blue-700 transition text-white shadow-sm"
+            className="rounded-2xl bg-slate-900 p-3 text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-800"
             title="Show Filters"
           >
             <FiFilter size={18} />
@@ -152,7 +154,7 @@ function ExpenseFilters(props: ExpenseFiltersProps) {
 
           <button
             onClick={() => setShowDate((current) => !current)}
-            className="p-2 rounded-md bg-blue-600 hover:bg-blue-700 transition text-white shadow-sm"
+            className="rounded-2xl bg-slate-900 p-3 text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-800"
             title="Date Range"
           >
             <FiCalendar size={18} />
@@ -160,23 +162,22 @@ function ExpenseFilters(props: ExpenseFiltersProps) {
 
           <button
             onClick={() => props.setShowHistory(!props.showHistory)}
-            className="px-3 py-2 rounded-md bg-white border border-gray-300 text-sm font-semibold text-gray-800 hover:border-blue-500 transition-all"
+            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-sky-400"
           >
             {props.showHistory ? "Hide History" : "Show History"}
           </button>
 
-          <div className="mt-2 md:mt-0">
-            <button
-              onClick={handleDownloadCSV}
-              className="flex items-center gap-2 px-3 py-2 bg-blue-600 border border-blue-700 text-white font-semibold rounded-md hover:bg-blue-700 transition-all shadow-md"
-            >
-              <FiDownload className="text-white" />
-            </button>
-          </div>
+          <button
+            onClick={handleDownloadCSV}
+            className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-sky-400"
+          >
+            <FiDownload className="text-slate-500" />
+            Export
+          </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <SummaryCard label="Filtered Total" value={props.totals.filteredTotal} />
         <SummaryCard
           label={props.filterProduct === "all" ? "Current Product Total" : `${props.filterProduct} Total`}
@@ -189,7 +190,7 @@ function ExpenseFilters(props: ExpenseFiltersProps) {
       </div>
 
       {showFilters && (
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-4">
+        <div className="grid grid-cols-1 gap-4 rounded-[1.75rem] border border-slate-200 bg-white/70 p-4 shadow-sm md:grid-cols-3 lg:grid-cols-6">
           <FilterItem label="Shop">
             <select
               value={props.filterShop}
@@ -278,7 +279,7 @@ function ExpenseFilters(props: ExpenseFiltersProps) {
       )}
 
       {showDate && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-1 gap-4 rounded-[1.75rem] border border-slate-200 bg-white/70 p-4 shadow-sm md:grid-cols-2">
           <FilterItem label="From">
             <input
               type="date"

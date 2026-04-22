@@ -785,6 +785,37 @@ export function useExpensesModule() {
     }
   };
 
+  const handleQuickRenameExpense = async (expense: Expense, productName: string) => {
+    const trimmedName = productName.trim();
+
+    try {
+      const res = await fetch("/api/expenses", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: expense._id,
+          updates: {
+            productName: trimmedName,
+          },
+        }),
+      });
+      const json = await res.json();
+      if (!json.success) {
+        toast.error(json.error || "Failed to update product name.");
+        return;
+      }
+
+      setExpenses((current) =>
+        sortExpensesDescending(
+          current.map((entry) => (entry._id === expense._id ? sanitizeExpense(json.data) : entry))
+        )
+      );
+      toast.success("Product name updated successfully!");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update product name.");
+    }
+  };
+
   const onStartEditSubtask = (parent: Expense, subtask: Subtask) => {
     setEditingSubtask({
       parentId: parent._id,
@@ -938,6 +969,7 @@ export function useExpensesModule() {
     handleDeleteExpense,
     onStartEditExpense,
     handleSaveEditExpense,
+    handleQuickRenameExpense,
     onStartEditSubtask,
     handleSaveEditSubtask,
     cancelEditExpense: () => setEditingExpense(null),

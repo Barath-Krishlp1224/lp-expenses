@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { FiCalendar, FiCreditCard, FiPackage, FiShoppingBag, FiUser } from "react-icons/fi";
 import { Employee, ExpenseFormValues, Role } from "../../lib/expense-types";
 
 interface ExpenseFormProps {
@@ -17,7 +18,30 @@ interface ExpenseFormProps {
 }
 
 const fieldClassName =
-  "w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 outline-none focus:border-blue-500 transition-all";
+  "w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3.5 text-sm text-slate-900 shadow-sm outline-none transition duration-200 placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-100";
+
+const labelClassName = "mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500";
+
+const FieldShell = ({
+  label,
+  icon,
+  optional,
+  children,
+}: {
+  label: string;
+  icon: React.ReactNode;
+  optional?: boolean;
+  children: React.ReactNode;
+}) => (
+  <div>
+    <label className={labelClassName}>
+      {icon}
+      {label}
+      {optional && <span className="text-[10px] font-medium normal-case tracking-normal text-slate-400">Optional</span>}
+    </label>
+    {children}
+  </div>
+);
 
 const ExpenseForm: React.FC<ExpenseFormProps> = ({
   formValues,
@@ -32,15 +56,25 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   title = "Add Expense",
 }) => {
   return (
-    <form onSubmit={onSubmit} className="p-8 max-w-4xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-2xl font-bold text-gray-900">{title}</h3>
+    <form onSubmit={onSubmit} className="mx-auto max-w-4xl p-1">
+      <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+          <h3 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">{title}</h3>
+          <p className="mt-2 text-sm text-slate-500">
+            Capture product, quantity, unit price, and payment details in one compact flow.
+          </p>
+        </div>
+        <div className="accent-panel rounded-3xl border border-white/80 px-5 py-4 shadow-sm">
+          <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Live Total</div>
+          <div className="mt-2 text-3xl font-black tracking-tight text-slate-900">
+            ₹{computedTotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
+        </div>
       </div>
 
       <div className="space-y-6">
-        <div className="grid gap-6 md:grid-cols-2">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Shop / Vendor</label>
+        <div className="grid gap-5 md:grid-cols-2">
+          <FieldShell label="Shop / Vendor" icon={<FiShoppingBag className="h-4 w-4" />}>
             <input
               value={formValues.shopName}
               onChange={(e) => setFormValue("shopName", e.target.value)}
@@ -53,13 +87,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 <option key={shop} value={shop} />
               ))}
             </datalist>
-          </div>
+          </FieldShell>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Product / Name
-              <span className="ml-2 text-xs font-normal text-gray-500">(Optional)</span>
-            </label>
+          <FieldShell label="Product / Name" icon={<FiPackage className="h-4 w-4" />} optional>
             <input
               value={formValues.productName}
               onChange={(e) => setFormValue("productName", e.target.value)}
@@ -72,12 +102,11 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 <option key={product} value={product} />
               ))}
             </datalist>
-          </div>
+          </FieldShell>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Quantity</label>
+        <div className="grid gap-5 md:grid-cols-3">
+          <FieldShell label="Quantity" icon={<FiPackage className="h-4 w-4" />}>
             <input
               type="number"
               min="0"
@@ -87,10 +116,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
               className={fieldClassName}
               placeholder="1"
             />
-          </div>
+          </FieldShell>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Price Per Unit (₹)</label>
+          <FieldShell label="Price Per Unit" icon={<FiCreditCard className="h-4 w-4" />}>
             <input
               type="number"
               min="0"
@@ -100,44 +128,37 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
               className={fieldClassName}
               placeholder="0.00"
             />
-          </div>
+          </FieldShell>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Total Amount (₹)</label>
-            <div className={`${fieldClassName} bg-gray-50 font-semibold`}>
+          <FieldShell label="Total Amount" icon={<FiCreditCard className="h-4 w-4" />}>
+            <div className={`${fieldClassName} accent-panel border-white/70 font-semibold`}>
               ₹{computedTotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
-          </div>
+          </FieldShell>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Notes
-              <span className="ml-2 text-xs font-normal text-gray-500">(Optional)</span>
-            </label>
+        <div className="grid gap-5 md:grid-cols-2">
+          <FieldShell label="Notes" icon={<FiPackage className="h-4 w-4" />} optional>
             <input
               value={formValues.description}
               onChange={(e) => setFormValue("description", e.target.value)}
               className={fieldClassName}
               placeholder="What is this expense for?"
             />
-          </div>
+          </FieldShell>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Date</label>
+          <FieldShell label="Date" icon={<FiCalendar className="h-4 w-4" />}>
             <input
               type="date"
               value={formValues.date}
               onChange={(e) => setFormValue("date", e.target.value)}
               className={fieldClassName}
             />
-          </div>
+          </FieldShell>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Role</label>
+        <div className="grid gap-5 md:grid-cols-2">
+          <FieldShell label="Role" icon={<FiUser className="h-4 w-4" />}>
             <select
               value={formValues.role}
               onChange={(e) => setFormValue("role", e.target.value as Role)}
@@ -147,10 +168,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
               <option value="manager">Manager</option>
               <option value="other">Other</option>
             </select>
-          </div>
+          </FieldShell>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Assign to Employee</label>
+          <FieldShell label="Assign to Employee" icon={<FiUser className="h-4 w-4" />}>
             <select
               value={formValues.selectedEmployeeId}
               onChange={(e) => setFormValue("selectedEmployeeId", e.target.value)}
@@ -164,12 +184,11 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 </option>
               ))}
             </select>
-          </div>
+          </FieldShell>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Mode of Payment</label>
+        <div className="grid gap-5 md:grid-cols-2">
+          <FieldShell label="Mode of Payment" icon={<FiCreditCard className="h-4 w-4" />}>
             <select
               value={formValues.paymentMode}
               onChange={(e) => setFormValue("paymentMode", e.target.value as "cash" | "upi")}
@@ -178,10 +197,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
               <option value="cash">Cash</option>
               <option value="upi">UPI</option>
             </select>
-          </div>
+          </FieldShell>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Payment Type</label>
+          <FieldShell label="Payment Type" icon={<FiCreditCard className="h-4 w-4" />}>
             <select
               value={formValues.paymentType}
               disabled={formValues.paymentMode !== "upi"}
@@ -191,21 +209,21 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
               <option value="">Select type</option>
               <option value="postpaid">Postpaid</option>
             </select>
-          </div>
+          </FieldShell>
         </div>
       </div>
 
-      <div className="mt-8 flex justify-end gap-4">
+      <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         <button
           type="button"
           onClick={onCancel}
-          className="px-6 py-3 rounded-xl font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-all"
+          className="rounded-2xl border border-slate-200 bg-white px-6 py-3 font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:border-slate-300 hover:bg-slate-50"
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="px-8 py-3 rounded-xl font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-lg transition-all"
+          className="rounded-2xl bg-slate-900 px-8 py-3 font-semibold text-white shadow-[0_14px_30px_rgba(15,23,42,0.18)] transition hover:-translate-y-0.5 hover:bg-slate-800"
         >
           {submitLabel}
         </button>
@@ -215,4 +233,3 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
 };
 
 export default ExpenseForm;
-

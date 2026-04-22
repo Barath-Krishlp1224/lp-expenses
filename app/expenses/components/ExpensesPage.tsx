@@ -28,10 +28,10 @@ const ExpensesPage = () => {
     : null;
 
   return (
-    <div className="min-h-screen bg-white p-8 text-gray-800">
+    <div className="min-h-screen px-4 py-6 text-gray-800 md:px-6 md:py-8">
       <ToastContainer position="bottom-right" autoClose={3000} />
 
-      <div className="max-w-400 mx-auto space-y-4">
+      <div className="mx-auto max-w-[1600px] space-y-6">
         <HeaderSection />
 
         <InitialBudget
@@ -60,17 +60,28 @@ const ExpensesPage = () => {
           onSubmit={expenseModule.handleAddExpense}
         />
 
-        <div className="bg-white rounded-2xl shadow-xl border-2 border-gray-100 p-5 space-y-6">
-          <div className="flex flex-col md:flex-row items-center justify-between mb-4">
-            <h3 className="flex items-center text-2xl md:text-3xl font-bold text-gray-900">
-              Expenses Table
-            </h3>
-            <button
-              onClick={() => expenseModule.setShowAddForm(true)}
-              className="mt-3 md:mt-0 inline-flex items-center px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition-all duration-300"
-            >
-              + Add Expense
-            </button>
+        <div className="glass-card space-y-6 rounded-[2rem] p-4 md:p-6">
+          <div className="flex flex-col gap-4 border-b border-slate-200/80 pb-5 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h3 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">
+                Expense Overview
+              </h3>
+              <p className="mt-1 text-sm text-slate-500">
+                Latest entries stay on top, totals stay readable, and edits stay close to the row.
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="hidden rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-500 shadow-sm md:block">
+                {expenseModule.filteredExpenses.length} visible expense
+                {expenseModule.filteredExpenses.length === 1 ? "" : "s"}
+              </div>
+              <button
+                onClick={() => expenseModule.setShowAddForm(true)}
+                className="inline-flex items-center rounded-2xl bg-slate-900 px-5 py-3 font-semibold text-white shadow-[0_16px_34px_rgba(15,23,42,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-slate-800"
+              >
+                + Add Expense
+              </button>
+            </div>
           </div>
 
           <ExpenseFilters
@@ -102,7 +113,7 @@ const ExpensesPage = () => {
             totals={expenseModule.filterTotals}
           />
 
-          <div className="bg-white rounded-2xl overflow-hidden shadow-xl border-2 border-gray-100">
+          <div className="overflow-hidden rounded-[1.75rem] border border-slate-200/80 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.08)]">
             {expenseModule.loading ? (
               <LoadingState />
             ) : expenseModule.error ? (
@@ -121,6 +132,7 @@ const ExpensesPage = () => {
                 onDeleteExpense={expenseModule.handleDeleteExpense}
                 onUpdatePaidStatus={expenseModule.handleUpdatePaidStatus}
                 onLoadMore={expenseModule.loadMoreRows}
+                onQuickRenameExpense={expenseModule.handleQuickRenameExpense}
               >
                 {expandedExpense && (
                   <SubExpensesSection
@@ -206,4 +218,3 @@ const ExpensesPage = () => {
 };
 
 export default ExpensesPage;
-

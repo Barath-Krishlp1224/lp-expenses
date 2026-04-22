@@ -30,11 +30,11 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 bg-white/90 bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl p-8 shadow-lg max-w-4xl w-full relative border-2 border-gray-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 p-4 backdrop-blur-sm">
+      <div className="glass-card relative max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-[2rem] p-6 md:p-8">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 font-bold"
+          className="absolute right-5 top-5 rounded-full border border-slate-200 bg-white/90 px-3 py-1 text-sm font-semibold text-slate-500 transition hover:text-slate-900"
         >
           ✕
         </button>
@@ -54,4 +54,3 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
 };
 
 export default AddExpenseModal;
-
