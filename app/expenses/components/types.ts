@@ -12,6 +12,7 @@ export type {
 
 export {
   formatDate,
+  getExpenseBreakdown,
   getExpenseAmount,
   getExpenseDisplayName,
   getExpenseQuantity,

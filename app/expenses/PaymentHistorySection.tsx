@@ -28,7 +28,6 @@ const PaymentHistorySection: React.FC<PaymentHistorySectionProps> = ({
   employeeHistory,
   employeeHistoryTotal,
 }) => {
-  console.log("employeeHistoryemployeeHistory",employeeHistory);
   if (!showHistory) return null;
 
   const displayedExpenses = historyEmployeeId

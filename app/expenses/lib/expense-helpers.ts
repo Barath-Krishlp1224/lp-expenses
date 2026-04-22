@@ -1,5 +1,12 @@
 import { Expense, PaymentMode, Subtask } from "./expense-types";
 
+export interface ExpenseBreakdownItem {
+  id: string;
+  amount: number;
+  label: string;
+  details: string;
+}
+
 export const INITIAL_AMOUNT_CONSTANT = 500000;
 
 export function formatDate(dateString: string | undefined): string {
@@ -76,6 +83,46 @@ export function getExpenseTotal(expense: Expense) {
   return roundCurrency(getExpenseAmount(expense) + getSubtasksTotal(expense.subtasks));
 }
 
+export function getExpenseBreakdown(expense: Expense): ExpenseBreakdownItem[] {
+  const mainAmount = getExpenseAmount(expense);
+  const mainLabel = getExpenseDisplayName(expense);
+  const mainDescription = expense.description?.trim();
+
+  const items: ExpenseBreakdownItem[] = [
+    {
+      id: `${expense._id}-main`,
+      amount: mainAmount,
+      label: mainLabel,
+      details:
+        mainDescription && mainDescription !== mainLabel
+          ? `${mainLabel} - ${mainDescription}`
+          : mainLabel,
+    },
+  ];
+
+  (expense.subtasks || []).forEach((subtask, index) => {
+    const amount = roundCurrency(parsePositiveNumber(subtask.amount));
+    if (amount <= 0) return;
+
+    const detailParts = [subtask.title?.trim() || `Sub expense ${index + 1}`];
+    if (subtask.employeeName?.trim()) {
+      detailParts.push(`Assigned to ${subtask.employeeName.trim()}`);
+    }
+    if (subtask.date?.trim()) {
+      detailParts.push(`Date ${formatDate(subtask.date)}`);
+    }
+
+    items.push({
+      id: `${expense._id}-sub-${subtask.id || index}`,
+      amount,
+      label: subtask.title?.trim() || `Sub expense ${index + 1}`,
+      details: detailParts.join(" | "),
+    });
+  });
+
+  return items;
+}
+
 export function isExpensePaid(expense: Pick<Expense, "paid" | "subtasks">) {
   if (expense.paid) return true;
   if (!expense.subtasks || expense.subtasks.length === 0) return false;
@@ -131,4 +178,3 @@ export function getPaymentTypeValue(paymentMode: PaymentMode, paymentType: strin
   if (paymentMode !== "upi") return "";
   return paymentType === "postpaid" ? "postpaid" : "";
 }
-

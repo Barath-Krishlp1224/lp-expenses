@@ -128,7 +128,7 @@ function ExpenseFilters(props: ExpenseFiltersProps) {
   );
 
   return (
-    <div className="rounded-2xl sticky top-6">
+    <div className="rounded-2xl">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-3 flex-wrap md:flex-nowrap">
           <div className="relative flex items-center">
@@ -302,4 +302,3 @@ function ExpenseFilters(props: ExpenseFiltersProps) {
 }
 
 export default ExpenseFilters;
-

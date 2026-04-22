@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   formatDate,
+  getExpenseBreakdown,
   getExpenseAmount,
   getExpenseDisplayName,
   getExpenseQuantity,
+  getExpenseTotal,
   getExpenseUnitPrice,
   isExpensePaid,
 } from "../../lib/expense-helpers";
@@ -43,6 +45,8 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
   onRowToggle,
 }) => {
   const tableRef = useRef<HTMLDivElement>(null);
+  const breakdownRef = useRef<HTMLTableCellElement | null>(null);
+  const [openBreakdownId, setOpenBreakdownId] = useState<string | null>(null);
   const hasMoreExpenses = visibleRowCount < filteredExpenses.length;
 
   useEffect(() => {
@@ -59,6 +63,17 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
     tableElement.addEventListener("scroll", handleScroll);
     return () => tableElement.removeEventListener("scroll", handleScroll);
   }, [hasMoreExpenses, isLoadingMore, onLoadMore]);
+
+  useEffect(() => {
+    const handlePointerDown = (event: MouseEvent) => {
+      if (!breakdownRef.current) return;
+      if (breakdownRef.current.contains(event.target as Node)) return;
+      setOpenBreakdownId(null);
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, []);
 
   if (visibleExpenses.length === 0 && filteredExpenses.length === 0) {
     return (
@@ -95,6 +110,9 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
           {visibleExpenses.map((expense, index) => {
             const paid = isExpensePaid(expense);
             const displayName = getExpenseDisplayName(expense);
+            const totalAmount = getExpenseTotal(expense);
+            const breakdownItems = getExpenseBreakdown(expense);
+            const isBreakdownOpen = openBreakdownId === expense._id;
 
             return (
               <React.Fragment key={expense._id}>
@@ -136,11 +154,77 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
                       maximumFractionDigits: 2,
                     })}
                   </td>
-                  <td className="p-4 text-right font-bold text-gray-900">
-                    ₹{getExpenseAmount(expense).toLocaleString("en-IN", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
+                  <td
+                    ref={isBreakdownOpen ? breakdownRef : null}
+                    className="p-4 text-right font-bold text-gray-900 relative"
+                  >
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setOpenBreakdownId((current) => (current === expense._id ? null : expense._id))
+                      }
+                      className="inline-flex items-center justify-end rounded-md text-right text-gray-900 transition hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                      aria-expanded={isBreakdownOpen}
+                      aria-label={`Show total breakdown for ${displayName}`}
+                    >
+                      ₹{totalAmount.toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </button>
+
+                    {isBreakdownOpen && (
+                      <div className="absolute right-4 top-full z-20 mt-2 w-80 max-w-[calc(100vw-3rem)] rounded-xl border border-gray-200 bg-white p-4 text-left shadow-2xl">
+                        <div className="mb-3 flex items-start justify-between gap-3">
+                          <div>
+                            <div className="text-xs font-black uppercase tracking-wide text-gray-500">
+                              Total Breakdown
+                            </div>
+                            <div className="text-sm font-semibold text-gray-900">{displayName}</div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setOpenBreakdownId(null)}
+                            className="text-xs font-bold text-gray-500 transition hover:text-gray-900"
+                            aria-label="Close total breakdown"
+                          >
+                            Close
+                          </button>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-2 text-sm font-semibold text-gray-900">
+                          {breakdownItems.map((item, itemIndex) => (
+                            <React.Fragment key={item.id}>
+                              <span className="group relative inline-flex">
+                                <span className="cursor-help rounded-md bg-blue-50 px-2 py-1 text-blue-800">
+                                  ₹{item.amount.toLocaleString("en-IN", {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                  })}
+                                </span>
+                                <span className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 hidden w-56 -translate-x-1/2 rounded-lg bg-gray-900 px-3 py-2 text-xs font-medium leading-relaxed text-white shadow-lg group-hover:block">
+                                  {item.details}
+                                </span>
+                              </span>
+                              {itemIndex < breakdownItems.length - 1 && (
+                                <span className="text-gray-400">+</span>
+                              )}
+                            </React.Fragment>
+                          ))}
+                          <span className="text-gray-400">=</span>
+                          <span className="rounded-md bg-gray-900 px-2 py-1 text-white">
+                            ₹{totalAmount.toLocaleString("en-IN", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                          </span>
+                        </div>
+
+                        <p className="mt-3 text-xs text-gray-500">
+                          Hover each amount to see what it covers.
+                        </p>
+                      </div>
+                    )}
                   </td>
                   <td className="p-4 text-gray-800 text-sm">{formatDate(expense.date)}</td>
                   <td className="p-4 text-gray-800 capitalize text-sm">{expense.role || "other"}</td>
@@ -207,4 +291,3 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
 };
 
 export default ExpensesTable;
-

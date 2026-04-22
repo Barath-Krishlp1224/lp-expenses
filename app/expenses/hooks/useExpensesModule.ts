@@ -260,19 +260,19 @@ export function useExpensesModule() {
   );
 
   const filterTotals = useMemo<FilterTotals>(() => {
-    const filteredTotal = filteredExpenses.reduce((sum, expense) => sum + getExpenseAmount(expense), 0);
+    const filteredTotal = filteredExpenses.reduce((sum, expense) => sum + getExpenseTotal(expense), 0);
     const selectedProductTotal =
       filterProduct === "all"
         ? filteredTotal
         : expenses
             .filter((expense) => getExpenseDisplayName(expense) === filterProduct)
-            .reduce((sum, expense) => sum + getExpenseAmount(expense), 0);
+            .reduce((sum, expense) => sum + getExpenseTotal(expense), 0);
     const selectedWeekTotal =
       filterWeek === "all"
         ? filteredTotal
         : expenses
             .filter((expense) => expense.weekStart === filterWeek)
-            .reduce((sum, expense) => sum + getExpenseAmount(expense), 0);
+            .reduce((sum, expense) => sum + getExpenseTotal(expense), 0);
 
     return {
       filteredTotal,
@@ -944,4 +944,3 @@ export function useExpensesModule() {
     cancelEditSubtask: () => setEditingSubtask(null),
   };
 }
-
