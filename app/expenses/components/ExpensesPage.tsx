@@ -18,6 +18,7 @@ import EditExpenseModal from "./modals/EditExpenseModal";
 import EditSubtaskModal from "./modals/EditSubtaskModal";
 import ExpensesTable from "./table/ExpensesTable";
 import SubExpensesSection from "./table/SubExpensesSection";
+import DailyExpenseSummary from "./DailyExpenseSummary";
 import { useExpensesModule } from "../hooks/useExpensesModule";
 
 const ExpensesPage = () => {
@@ -50,7 +51,10 @@ const ExpensesPage = () => {
 
         <AddExpenseModal
           show={expenseModule.showAddForm}
-          onClose={() => expenseModule.setShowAddForm(false)}
+          onClose={() => {
+            expenseModule.setShowAddForm(false);
+            expenseModule.setExpenseItems([]);
+          }}
           formValues={expenseModule.formValues}
           setFormValue={expenseModule.updateFormValue}
           employees={expenseModule.employees}
@@ -58,6 +62,8 @@ const ExpensesPage = () => {
           shops={expenseModule.shopSuggestions}
           computedTotal={expenseModule.addFormTotal}
           onSubmit={expenseModule.handleAddExpense}
+          expenseItems={expenseModule.expenseItems}
+          onExpenseItemsChange={expenseModule.setExpenseItems}
         />
 
         <div className="glass-card space-y-6 rounded-[2rem] p-4 md:p-6">
@@ -111,6 +117,11 @@ const ExpensesPage = () => {
             setFilterWeek={expenseModule.setFilterWeek}
             weekOptions={expenseModule.weekOptions}
             totals={expenseModule.filterTotals}
+          />
+
+          <DailyExpenseSummary
+            expenses={expenseModule.currentWeekExpenses}
+            onEditExpense={expenseModule.onStartEditExpense}
           />
 
           <div className="overflow-hidden rounded-[1.75rem] border border-slate-200/80 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.08)]">

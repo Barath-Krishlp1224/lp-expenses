@@ -9,6 +9,7 @@ import {
   getExpenseAmount,
   getExpenseDisplayName,
   getExpenseQuantity,
+  getExpenseTotal,
   getExpenseUnitPrice,
   getWeekLabel,
   isExpensePaid,
@@ -60,13 +61,19 @@ const convertToCSV = (data: Expense[], employees: Employee[]) => {
     "Quantity",
     "Price Per Unit",
     "Total Amount",
+    "Subtotal (with items)",
     "Status",
+    "Expense Items",
   ];
 
   const rows = data.map((expense) => {
     const employeeName = expense.employeeId
       ? employeeMap.get(expense.employeeId) || expense.employeeName || "-"
       : "-";
+
+    const subtasksList = (expense.subtasks || [])
+      .map((subtask) => `${subtask.title}: ₹${(subtask.amount || 0).toFixed(2)}${subtask.employeeName ? ` (${subtask.employeeName})` : ""}`)
+      .join("; ");
 
     return [
       formatDate(expense.date),
@@ -79,7 +86,9 @@ const convertToCSV = (data: Expense[], employees: Employee[]) => {
       String(getExpenseQuantity(expense)),
       getExpenseUnitPrice(expense).toFixed(2),
       getExpenseAmount(expense).toFixed(2),
+      getExpenseTotal(expense).toFixed(2),
       isExpensePaid(expense) ? "Done" : "Pending",
+      subtasksList ? `"${subtasksList.replace(/"/g, '""')}"` : "",
     ];
   });
 

@@ -4,6 +4,14 @@ import React from "react";
 import { Employee, ExpenseFormValues } from "../../lib/expense-types";
 import ExpenseForm from "../forms/ExpenseForm";
 
+interface ExpenseItem {
+  id: string;
+  shopName: string;
+  productName: string;
+  description: string;
+  amount: number;
+}
+
 interface AddExpenseModalProps {
   show: boolean;
   onClose: () => void;
@@ -14,6 +22,8 @@ interface AddExpenseModalProps {
   productSuggestions: string[];
   computedTotal: number;
   onSubmit: (e: React.FormEvent) => void;
+  expenseItems?: ExpenseItem[];
+  onExpenseItemsChange?: (items: ExpenseItem[]) => void;
 }
 
 const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
@@ -26,6 +36,8 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
   productSuggestions,
   computedTotal,
   onSubmit,
+  expenseItems = [],
+  onExpenseItemsChange,
 }) => {
   if (!show) return null;
 
@@ -47,6 +59,8 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
           computedTotal={computedTotal}
           onSubmit={onSubmit}
           onCancel={onClose}
+          expenseItems={expenseItems}
+          onExpenseItemsChange={onExpenseItemsChange}
         />
       </div>
     </div>

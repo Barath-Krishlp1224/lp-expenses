@@ -10,11 +10,13 @@ import {
   getExpenseAmount,
   getExpenseDisplayName,
   getExpenseTotal,
+  getCurrentWeekStart,
   getPaymentTypeValue,
   getWeekLabel,
   getWeekStart,
   INITIAL_AMOUNT_CONSTANT,
   isExpensePaid,
+  isExpenseInWeek,
   sortExpensesDescending,
 } from "../lib/expense-helpers";
 import {
@@ -58,6 +60,7 @@ const createDefaultEditFields = (): EditExpenseFields => ({
   paymentType: "",
   employeeId: "",
   employeeName: "",
+  attachments: "",
 });
 
 function sanitizeExpense(expense: any): Expense {
@@ -82,6 +85,7 @@ function sanitizeExpense(expense: any): Expense {
     } as Expense),
     paid: typeof expense.paid === "boolean" ? expense.paid : false,
     subtasks: Array.isArray(expense.subtasks) ? expense.subtasks : [],
+    attachments: Array.isArray(expense.attachments) ? expense.attachments.filter((value: unknown) => typeof value === "string") : [],
     paymentMode: expense.paymentMode === "upi" ? "upi" : "cash",
     paymentType: getPaymentTypeValue(expense.paymentMode === "upi" ? "upi" : "cash", expense.paymentType),
   };
@@ -114,6 +118,13 @@ export function useExpensesModule() {
   const [formValues, setFormValues] = useState<ExpenseFormValues>(createDefaultFormValues);
   const [editExpenseFields, setEditExpenseFields] =
     useState<EditExpenseFields>(createDefaultEditFields);
+  const [expenseItems, setExpenseItems] = useState<Array<{
+    id: string;
+    shopName: string;
+    productName: string;
+    description: string;
+    amount: number;
+  }>>([]);
 
   const [filterRole, setFilterRole] = useState<"all" | Role>("all");
   const [filterStatus, setFilterStatus] = useState<"all" | "paid" | "unpaid">("all");
@@ -210,7 +221,7 @@ export function useExpensesModule() {
         if (filterEmployee !== "all" && expense.employeeId !== filterEmployee) return false;
         if (filterShop !== "all" && expense.shop !== filterShop) return false;
         if (filterProduct !== "all" && getExpenseDisplayName(expense) !== filterProduct) return false;
-        if (filterWeek !== "all" && expense.weekStart !== filterWeek) return false;
+        if (filterWeek !== "all" && !isExpenseInWeek(expense, filterWeek)) return false;
         if (filterFrom && expense.date < filterFrom) return false;
         if (filterTo && expense.date > filterTo) return false;
 
@@ -269,9 +280,11 @@ export function useExpensesModule() {
             .reduce((sum, expense) => sum + getExpenseTotal(expense), 0);
     const selectedWeekTotal =
       filterWeek === "all"
-        ? filteredTotal
+        ? expenses
+            .filter((expense) => isExpenseInWeek(expense, getCurrentWeekStart()))
+            .reduce((sum, expense) => sum + getExpenseTotal(expense), 0)
         : expenses
-            .filter((expense) => expense.weekStart === filterWeek)
+            .filter((expense) => isExpenseInWeek(expense, filterWeek))
             .reduce((sum, expense) => sum + getExpenseTotal(expense), 0);
 
     return {
@@ -280,6 +293,11 @@ export function useExpensesModule() {
       selectedWeekTotal,
     };
   }, [expenses, filterProduct, filterWeek, filteredExpenses]);
+
+  const currentWeekExpenses = useMemo(
+    () => expenses.filter((expense) => isExpenseInWeek(expense, filterWeek === "all" ? getCurrentWeekStart() : filterWeek)),
+    [expenses, filterWeek]
+  );
 
   const filteredHistory = useMemo(() => {
     if (!activeWallet) return [];
@@ -483,11 +501,13 @@ export function useExpensesModule() {
       return;
     }
 
+    const itemsTotal = expenseItems.reduce((sum, item) => sum + item.amount, 0);
+    const totalAmount = expenseAmount + itemsTotal;
     const remaining = walletStats[wallet]?.remaining ?? 0;
     const pending = walletStats[wallet]?.pending ?? 0;
     const availableBalance = remaining - pending;
 
-    if (wallet !== "upi_postpaid" && expenseAmount > availableBalance) {
+    if (wallet !== "upi_postpaid" && totalAmount > availableBalance) {
       toast.error(`Cannot add expense. ${wallet} wallet remaining balance is Rs ${availableBalance.toLocaleString()}`);
       return;
     }
@@ -497,13 +517,23 @@ export function useExpensesModule() {
       return;
     }
 
+    // Build subtasks from expense items
+    const subtasksFromItems: Subtask[] = expenseItems.map((item) => ({
+      id: item.id,
+      title: item.productName || item.shopName || "Expense item",
+      done: false,
+      amount: item.amount,
+      date: formValues.date,
+      ...(item.shopName ? { employeeName: item.shopName } : {}),
+    }));
+
     const payload = {
       shop: formValues.shopName.trim(),
       productName: formValues.productName.trim(),
       description: formValues.description.trim(),
       quantity,
       unitPrice,
-      amount: expenseAmount,
+      amount: totalAmount,
       date: formValues.date,
       weekStart: getWeekStart(formValues.date),
       role: formValues.role,
@@ -513,7 +543,7 @@ export function useExpensesModule() {
         EMPLOYEES.find((employee) => employee._id === formValues.selectedEmployeeId)?.name,
       paymentMode: formValues.paymentMode,
       paymentType: formValues.paymentMode === "upi" ? formValues.paymentType : null,
-      subtasks: [],
+      subtasks: subtasksFromItems,
     };
 
     try {
@@ -530,6 +560,7 @@ export function useExpensesModule() {
 
       setExpenses((current) => sortExpensesDescending([...current, sanitizeExpense(json.data)]));
       setFormValues(createDefaultFormValues());
+      setExpenseItems([]);
       setShowAddForm(false);
       toast.success("Expense added successfully!");
     } catch (err: any) {
@@ -708,6 +739,7 @@ export function useExpensesModule() {
       paymentType: getPaymentTypeValue(expense.paymentMode || "cash", expense.paymentType),
       employeeId: expense.employeeId || "",
       employeeName: expense.employeeName || "",
+      attachments: (expense.attachments || []).join("\n"),
     });
   };
 
@@ -757,6 +789,10 @@ export function useExpensesModule() {
       employeeName,
       paymentMode: editExpenseFields.paymentMode,
       paymentType: editExpenseFields.paymentMode === "upi" ? editExpenseFields.paymentType : null,
+      attachments: editExpenseFields.attachments
+        .split(/\n|,/)
+        .map((attachment) => attachment.trim())
+        .filter(Boolean),
     };
 
     try {
@@ -926,6 +962,8 @@ export function useExpensesModule() {
     updateFormValue,
     editExpenseFields,
     setEditExpenseFields,
+    expenseItems,
+    setExpenseItems,
     filterRole,
     setFilterRole,
     filterStatus,
@@ -953,6 +991,7 @@ export function useExpensesModule() {
     employeeHistory,
     employeeHistoryTotal,
     filterTotals,
+    currentWeekExpenses,
     filteredHistory,
     walletStats,
     addFormTotal,

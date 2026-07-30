@@ -29,11 +29,33 @@ export function formatDate(dateString: string | undefined): string {
 }
 
 export function getWeekStart(dateString: string): string {
-  const date = new Date(dateString);
+  // Parse date-only values locally so a dashboard week never shifts with UTC offsets.
+  const date = new Date(`${dateString}T00:00:00`);
   const day = date.getDay();
   const diff = date.getDate() - day;
-  const weekStart = new Date(date.setDate(diff));
-  return weekStart.toISOString().slice(0, 10);
+  date.setDate(diff);
+  return toLocalDateString(date);
+}
+
+export function toLocalDateString(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+export function getCurrentWeekStart(referenceDate = new Date()): string {
+  return getWeekStart(toLocalDateString(referenceDate));
+}
+
+export function isExpenseInWeek(expense: Pick<Expense, "date">, weekStart: string): boolean {
+  if (!expense.date || !weekStart) return false;
+  const start = new Date(`${weekStart}T00:00:00`);
+  if (Number.isNaN(start.getTime())) return false;
+  const end = new Date(start);
+  end.setDate(end.getDate() + 6);
+  const date = new Date(`${expense.date}T00:00:00`);
+  return date >= start && date <= end;
 }
 
 export function roundCurrency(value: number): number {

@@ -106,6 +106,16 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
             </FieldShell>
           </div>
 
+          <FieldShell label="Supporting attachments" icon={<FiPackage className="h-4 w-4" />} optional>
+            <textarea
+              value={editExpenseFields.attachments}
+              onChange={(e) => setField("attachments", e.target.value)}
+              className={fieldClassName}
+              rows={3}
+              placeholder="One attachment URL per line (if attachments are permitted)"
+            />
+          </FieldShell>
+
           <div className="grid gap-5 md:grid-cols-3">
             <FieldShell label="Quantity" icon={<FiPackage className="h-4 w-4" />}>
               <input

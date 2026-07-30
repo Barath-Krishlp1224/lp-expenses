@@ -33,6 +33,8 @@ export interface Expense {
   employeeName?: string | null;
   paymentMode: PaymentMode;
   paymentType?: PaymentType | null;
+  /** Links to receipts or other supporting documents, when attachments are enabled. */
+  attachments?: string[];
   paid: boolean;
   subtasks?: Subtask[];
   createdAt: string;
@@ -71,6 +73,7 @@ export interface EditExpenseFields {
   paymentType: PaymentType;
   employeeId: string;
   employeeName: string;
+  attachments: string;
 }
 
 export interface EditingSubtaskState {
@@ -87,4 +90,3 @@ export interface FilterTotals {
   selectedProductTotal: number;
   selectedWeekTotal: number;
 }
-

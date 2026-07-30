@@ -94,6 +94,14 @@ function normalizeSubExpenses(arr: unknown): SubExpense[] {
     .filter((s): s is SubExpense => s !== null);
 }
 
+function normalizeAttachments(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((attachment): attachment is string => typeof attachment === "string")
+    .map((attachment) => attachment.trim())
+    .filter(Boolean);
+}
+
 function roundCurrency(value: number) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
@@ -258,6 +266,7 @@ export async function POST(request: Request) {
 
 
     const subtasks = normalizeSubExpenses(body.subtasks);
+    const attachments = normalizeAttachments(body.attachments);
 
     // if (
     //   !description ||
@@ -303,6 +312,7 @@ export async function POST(request: Request) {
       paymentMode,
       paymentType,
       subtasks,
+      attachments,
     });
     console.log("createdcreated", created);
 
@@ -415,6 +425,7 @@ export async function PATCH(request: Request) {
       "role",
       "employeeId",
       "employeeName",
+      "attachments",
     ];
 
     const payload: Record<string, unknown> = {};
@@ -451,6 +462,9 @@ export async function PATCH(request: Request) {
           break;
         case "subtasks":
           payload.subtasks = normalizeSubExpenses(updates.subtasks);
+          break;
+        case "attachments":
+          payload.attachments = normalizeAttachments(updates.attachments);
           break;
         case "date":
         case "description":
