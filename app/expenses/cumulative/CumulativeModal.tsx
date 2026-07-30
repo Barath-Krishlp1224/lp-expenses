@@ -31,7 +31,6 @@ export function CumulativeModal({
         return sum + mainAmount + subTotal;
     }, 0);
 
-
     const now = new Date();
     const [paymentDate, setPaymentDate] = useState(
         now.toISOString().split("T")[0]
@@ -67,51 +66,48 @@ export function CumulativeModal({
 
     const data = await res.json();
     console.log("Cumulative Payment Added:", data.data);
-    onClose(); // close modal
+    onClose();
   } catch (err: any) {
     console.error(err);
     alert(err.message);
   }
 };
 
-
-
     return (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/40 p-4">
             <form
                 onSubmit={handleAdd}
-                className="bg-white rounded-3xl shadow-xl w-full max-w-4xl p-8 flex flex-col space-y-6"
+                className="bg-white rounded-2xl shadow-xl w-full max-w-4xl p-6 md:p-8 flex flex-col space-y-5"
             >
-                <h3 className="text-2xl font-bold text-gray-900 text-center">
+                <h3 className="text-xl font-bold text-slate-900 text-center">
                     Add Cumulative Payment
                 </h3>
 
-                {/* Payment Info */}
-                <div className="grid gap-6 md:grid-cols-3">
+                <div className="grid gap-4 md:grid-cols-3">
                     <div>
-                        <label className="block text-sm font-semibold text-gray-800 mb-2">
+                        <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">
                             Payment Date
                         </label>
                         <input
                             type="date"
                             value={paymentDate}
                             onChange={(e) => setPaymentDate(e.target.value)}
-                            className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 outline-none focus:border-blue-500 transition-all"
+                            className="input-field"
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-semibold text-gray-800 mb-2">
+                        <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">
                             Payment Time
                         </label>
                         <input
                             type="time"
                             value={paymentTime}
                             onChange={(e) => setPaymentTime(e.target.value)}
-                            className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 outline-none focus:border-blue-500 transition-all"
+                            className="input-field"
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-semibold text-gray-800 mb-2">
+                        <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">
                             Paid By (optional)
                         </label>
                         <input
@@ -119,32 +115,29 @@ export function CumulativeModal({
                             placeholder="Enter name"
                             value={paidBy}
                             onChange={(e) => setPaidBy(e.target.value)}
-                            className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 outline-none focus:border-blue-500 transition-all"
+                            className="input-field"
                         />
                     </div>
                 </div>
 
-                {/* Total Amount */}
-                <div className="flex justify-between items-center font-bold text-lg border-t pt-4">
-                    <span>Total Amount</span>
-                    <span className="text-gray-900">₹{totalAmount.toLocaleString()}</span>
+                <div className="flex justify-between items-center font-bold text-base border-t border-slate-200 pt-4">
+                    <span className="text-slate-700">Total Amount</span>
+                    <span className="text-slate-900">₹{totalAmount.toLocaleString("en-IN")}</span>
                 </div>
 
-                {/* View Expenses Toggle */}
                 {selectedExpenses.length > 0 && (
                     <button
                         type="button"
                         onClick={() => setShowExpenses(!showExpenses)}
-                        className="self-start bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-xl font-semibold transition-all"
+                        className="self-start btn-secondary !text-xs"
                     >
                         {showExpenses ? "Hide Expenses" : "View Expenses"}
                     </button>
                 )}
 
-                {/* Selected Expenses */}
                 {showExpenses && (
-                    <div className="border rounded-xl overflow-hidden max-h-72 overflow-y-auto mt-2 bg-white">
-                        <div className="grid grid-cols-3 bg-white font-semibold text-gray-800 text-sm p-3 border-b">
+                    <div className="border border-slate-200 rounded-xl overflow-hidden max-h-72 overflow-y-auto">
+                        <div className="grid grid-cols-3 bg-slate-50 font-semibold text-slate-600 text-xs p-3 border-b border-slate-200">
                             <span>Shop</span>
                             <span>Role</span>
                             <span>Amount</span>
@@ -155,29 +148,28 @@ export function CumulativeModal({
                             return (
                                 <div
                                     key={e._id}
-                                    className="grid grid-cols-3 text-sm text-gray-800 p-3 border-b last:border-b-0"
+                                    className="grid grid-cols-3 text-sm text-slate-700 p-3 border-b border-slate-100 last:border-b-0"
                                 >
                                     <span>{e.shop}</span>
                                     <span>{e.role}</span>
-                                    <span>₹{(e.amount + subTotal).toLocaleString()}</span>
+                                    <span>₹{(e.amount + subTotal).toLocaleString("en-IN")}</span>
                                 </div>
                             );
                         })}
                     </div>
                 )}
 
-                {/* Action Buttons */}
-                <div className="mt-6 flex justify-end gap-4">
+                <div className="flex justify-end gap-3 pt-2">
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-6 py-3 rounded-xl font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-all"
+                        className="btn-secondary"
                     >
                         Cancel
                     </button>
                     <button
                         type="submit"
-                        className="px-8 py-3 rounded-xl font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-lg transition-all"
+                        className="btn-primary"
                     >
                         Add Cumulative Payment
                     </button>

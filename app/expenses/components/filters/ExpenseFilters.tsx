@@ -97,13 +97,10 @@ const convertToCSV = (data: Expense[], employees: Employee[]) => {
   );
 };
 
-const inputClass =
-  "w-full rounded-2xl border border-slate-200 bg-white/90 px-3 py-3 text-sm text-slate-800 shadow-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100";
-
 const SummaryCard = ({ label, value }: { label: string; value: number }) => (
-  <div className="accent-panel rounded-[1.5rem] border border-white/80 p-5 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:shadow-md">
-    <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">{label}</div>
-    <div className="mt-3 text-2xl font-black tracking-tight text-slate-900">
+  <div className="stat-card">
+    <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{label}</div>
+    <div className="mt-2 text-xl font-bold tracking-tight text-slate-900">
       ₹{value.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
     </div>
   </div>
@@ -130,8 +127,8 @@ function ExpenseFilters(props: ExpenseFiltersProps) {
   };
 
   const FilterItem = ({ label, children }: { label: string; children: React.ReactNode }) => (
-    <div className="flex flex-col">
-      <span className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+    <div className="flex flex-col gap-1.5">
+      <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
         {label}
       </span>
       {children}
@@ -140,8 +137,9 @@ function ExpenseFilters(props: ExpenseFiltersProps) {
 
   return (
     <div className="space-y-4">
+      {/* Action Bar */}
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           <div className="relative flex items-center">
             <FiSearch className="absolute left-3 h-4 w-4 text-slate-400" />
             <input
@@ -149,44 +147,45 @@ function ExpenseFilters(props: ExpenseFiltersProps) {
               value={props.filterSearch}
               onChange={(e) => props.setFilterSearch(e.target.value)}
               placeholder="Search products, notes, or vendors..."
-              className="w-72 rounded-2xl border border-slate-200 bg-white/90 py-3 pl-10 pr-3 text-sm text-slate-800 shadow-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+              className="input-field !w-64 !pl-10"
             />
           </div>
 
           <button
             onClick={() => setShowFilters((current) => !current)}
-            className="rounded-2xl bg-slate-900 p-3 text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-800"
+            className={`btn-secondary !p-2.5 ${showFilters ? "!bg-slate-100 !border-slate-300" : ""}`}
             title="Show Filters"
           >
-            <FiFilter size={18} />
+            <FiFilter size={16} />
           </button>
 
           <button
             onClick={() => setShowDate((current) => !current)}
-            className="rounded-2xl bg-slate-900 p-3 text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-800"
+            className={`btn-secondary !p-2.5 ${showDate ? "!bg-slate-100 !border-slate-300" : ""}`}
             title="Date Range"
           >
-            <FiCalendar size={18} />
+            <FiCalendar size={16} />
           </button>
 
           <button
             onClick={() => props.setShowHistory(!props.showHistory)}
-            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-sky-400"
+            className={`btn-secondary ${props.showHistory ? "!bg-slate-100 !border-slate-300" : ""}`}
           >
             {props.showHistory ? "Hide History" : "Show History"}
           </button>
 
           <button
             onClick={handleDownloadCSV}
-            className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-sky-400"
+            className="btn-secondary"
           >
-            <FiDownload className="text-slate-500" />
+            <FiDownload size={14} />
             Export
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <SummaryCard label="Filtered Total" value={props.totals.filteredTotal} />
         <SummaryCard
           label={props.filterProduct === "all" ? "Current Product Total" : `${props.filterProduct} Total`}
@@ -198,113 +197,119 @@ function ExpenseFilters(props: ExpenseFiltersProps) {
         />
       </div>
 
+      {/* Filters Panel */}
       {showFilters && (
-        <div className="grid grid-cols-1 gap-4 rounded-[1.75rem] border border-slate-200 bg-white/70 p-4 shadow-sm md:grid-cols-3 lg:grid-cols-6">
-          <FilterItem label="Shop">
-            <select
-              value={props.filterShop}
-              onChange={(e) => props.setFilterShop(e.target.value)}
-              className={inputClass}
-            >
-              <option value="all">All Shops</option>
-              {props.shopSuggestions.map((shop) => (
-                <option key={shop} value={shop}>
-                  {shop}
-                </option>
-              ))}
-            </select>
-          </FilterItem>
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+            <FilterItem label="Shop">
+              <select
+                value={props.filterShop}
+                onChange={(e) => props.setFilterShop(e.target.value)}
+                className="select-field"
+              >
+                <option value="all">All Shops</option>
+                {props.shopSuggestions.map((shop) => (
+                  <option key={shop} value={shop}>
+                    {shop}
+                  </option>
+                ))}
+              </select>
+            </FilterItem>
 
-          <FilterItem label="Product">
-            <select
-              value={props.filterProduct}
-              onChange={(e) => props.setFilterProduct(e.target.value)}
-              className={inputClass}
-            >
-              <option value="all">All Products</option>
-              {props.productSuggestions.map((product) => (
-                <option key={product} value={product}>
-                  {product}
-                </option>
-              ))}
-            </select>
-          </FilterItem>
+            <FilterItem label="Product">
+              <select
+                value={props.filterProduct}
+                onChange={(e) => props.setFilterProduct(e.target.value)}
+                className="select-field"
+              >
+                <option value="all">All Products</option>
+                {props.productSuggestions.map((product) => (
+                  <option key={product} value={product}>
+                    {product}
+                  </option>
+                ))}
+              </select>
+            </FilterItem>
 
-          <FilterItem label="Week">
-            <select
-              value={props.filterWeek}
-              onChange={(e) => props.setFilterWeek(e.target.value)}
-              className={inputClass}
-            >
-              <option value="all">All Weeks</option>
-              {props.weekOptions.map((week) => (
-                <option key={week.value} value={week.value}>
-                  {week.label}
-                </option>
-              ))}
-            </select>
-          </FilterItem>
+            <FilterItem label="Week">
+              <select
+                value={props.filterWeek}
+                onChange={(e) => props.setFilterWeek(e.target.value)}
+                className="select-field"
+              >
+                <option value="all">All Weeks</option>
+                {props.weekOptions.map((week) => (
+                  <option key={week.value} value={week.value}>
+                    {week.label}
+                  </option>
+                ))}
+              </select>
+            </FilterItem>
 
-          <FilterItem label="Role">
-            <select
-              value={props.filterRole}
-              onChange={(e) => props.setFilterRole(e.target.value as "all" | Role)}
-              className={inputClass}
-            >
-              <option value="all">All Roles</option>
-              <option value="founder">Founder</option>
-              <option value="manager">Manager</option>
-              <option value="other">Other</option>
-            </select>
-          </FilterItem>
+            <FilterItem label="Role">
+              <select
+                value={props.filterRole}
+                onChange={(e) => props.setFilterRole(e.target.value as "all" | Role)}
+                className="select-field"
+              >
+                <option value="all">All Roles</option>
+                <option value="founder">Founder</option>
+                <option value="manager">Manager</option>
+                <option value="other">Other</option>
+              </select>
+            </FilterItem>
 
-          <FilterItem label="Status">
-            <select
-              value={props.filterStatus}
-              onChange={(e) => props.setFilterStatus(e.target.value as "all" | "paid" | "unpaid")}
-              className={inputClass}
-            >
-              <option value="all">All Status</option>
-              <option value="paid">Done/Paid</option>
-              <option value="unpaid">Pending</option>
-            </select>
-          </FilterItem>
+            <FilterItem label="Status">
+              <select
+                value={props.filterStatus}
+                onChange={(e) => props.setFilterStatus(e.target.value as "all" | "paid" | "unpaid")}
+                className="select-field"
+              >
+                <option value="all">All Status</option>
+                <option value="paid">Done/Paid</option>
+                <option value="unpaid">Pending</option>
+              </select>
+            </FilterItem>
 
-          <FilterItem label="Employee">
-            <select
-              value={props.filterEmployee}
-              onChange={(e) => props.setFilterEmployee(e.target.value)}
-              className={inputClass}
-            >
-              <option value="all">All Employees</option>
-              {props.employees.map((employee) => (
-                <option key={employee._id} value={employee._id}>
-                  {employee.name}
-                </option>
-              ))}
-            </select>
-          </FilterItem>
+            <FilterItem label="Employee">
+              <select
+                value={props.filterEmployee}
+                onChange={(e) => props.setFilterEmployee(e.target.value)}
+                className="select-field"
+              >
+                <option value="all">All Employees</option>
+                {props.employees.map((employee) => (
+                  <option key={employee._id} value={employee._id}>
+                    {employee.name}
+                  </option>
+                ))}
+              </select>
+            </FilterItem>
+          </div>
         </div>
       )}
 
+      {/* Date Range Panel */}
       {showDate && (
-        <div className="grid grid-cols-1 gap-4 rounded-[1.75rem] border border-slate-200 bg-white/70 p-4 shadow-sm md:grid-cols-2">
-          <FilterItem label="From">
-            <input
-              type="date"
-              value={props.filterFrom}
-              onChange={(e) => props.setFilterFrom(e.target.value)}
-              className={inputClass}
-            />
-          </FilterItem>
-          <FilterItem label="To">
-            <input
-              type="date"
-              value={props.filterTo}
-              onChange={(e) => props.setFilterTo(e.target.value)}
-              className={inputClass}
-            />
-          </FilterItem>
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <FilterItem label="From">
+              <input
+                type="date"
+                value={props.filterFrom}
+                onChange={(e) => props.setFilterFrom(e.target.value)}
+                className="input-field"
+              />
+            </FilterItem>
+            <FilterItem label="To">
+              <input
+                type="date"
+                value={props.filterTo}
+                onChange={(e) => props.setFilterTo(e.target.value)}
+                className="input-field"
+              />
+            </FilterItem>
+          </div>
         </div>
       )}
     </div>

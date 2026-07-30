@@ -82,10 +82,14 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
 
   if (visibleExpenses.length === 0 && filteredExpenses.length === 0) {
     return (
-      <div className="p-16 text-center text-slate-700">
-        <div className="mb-4 text-4xl text-slate-400">[ ]</div>
-        <p className="text-lg font-bold">No expenses found</p>
-        <p className="text-sm text-slate-500">Try adjusting your filters</p>
+      <div className="p-12 text-center">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100">
+          <svg className="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m6 4.125l2.25 2.25m0 0l2.25 2.25M12 11.625l2.25-2.25M12 11.625l-2.25 2.25M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+          </svg>
+        </div>
+        <p className="text-lg font-bold text-slate-900">No expenses found</p>
+        <p className="mt-1 text-sm text-slate-500">Try adjusting your filters or add a new expense</p>
       </div>
     );
   }
@@ -117,7 +121,7 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
         <button
           type="button"
           onClick={() => setOpenBreakdownId((current) => (current === expense._id ? null : expense._id))}
-          className="inline-flex items-center justify-end rounded-2xl bg-slate-900 px-3 py-2 text-right text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2"
+          className="inline-flex items-center rounded-lg bg-slate-900 px-2.5 py-1.5 text-xs font-bold text-white transition hover:bg-slate-800"
           aria-expanded={isBreakdownOpen}
           aria-label={`Show total breakdown for ${displayName}`}
         >
@@ -128,10 +132,10 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
         </button>
 
         {isBreakdownOpen && (
-          <div className="absolute right-0 top-full z-20 mt-3 w-80 max-w-[calc(100vw-3rem)] rounded-[1.5rem] border border-slate-200 bg-white p-4 text-left shadow-[0_24px_60px_rgba(15,23,42,0.16)]">
+          <div className="absolute right-0 top-full z-20 mt-2 w-80 max-w-[calc(100vw-3rem)] rounded-xl border border-slate-200 bg-white p-4 text-left shadow-xl">
             <div className="mb-3 flex items-start justify-between gap-3">
               <div>
-                <div className="text-[11px] font-black uppercase tracking-[0.24em] text-slate-400">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                   Total Breakdown
                 </div>
                 <div className="mt-1 text-sm font-semibold text-slate-900">{displayName}</div>
@@ -139,7 +143,7 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
               <button
                 type="button"
                 onClick={() => setOpenBreakdownId(null)}
-                className="text-xs font-bold text-slate-400 transition hover:text-slate-900"
+                className="text-xs font-semibold text-slate-400 transition hover:text-slate-900"
                 aria-label="Close total breakdown"
               >
                 Close
@@ -150,13 +154,13 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
               {breakdownItems.map((item, itemIndex) => (
                 <React.Fragment key={item.id}>
                   <span className="group relative inline-flex">
-                    <span className="cursor-help rounded-xl bg-sky-50 px-2.5 py-1.5 text-sky-800">
+                    <span className="cursor-help rounded-lg bg-sky-50 px-2 py-1 text-xs text-sky-800">
                       ₹{item.amount.toLocaleString("en-IN", {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
                     </span>
-                    <span className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 hidden w-56 -translate-x-1/2 rounded-xl bg-slate-900 px-3 py-2 text-xs font-medium leading-relaxed text-white shadow-lg group-hover:block">
+                    <span className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 hidden w-56 -translate-x-1/2 rounded-lg bg-slate-900 px-3 py-2 text-xs font-medium leading-relaxed text-white shadow-lg group-hover:block">
                       {item.details}
                     </span>
                   </span>
@@ -164,7 +168,7 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
                 </React.Fragment>
               ))}
               <span className="text-slate-300">=</span>
-              <span className="rounded-xl bg-slate-900 px-2.5 py-1.5 text-white">
+              <span className="rounded-lg bg-slate-900 px-2 py-1 text-xs text-white">
                 ₹{totalAmount.toLocaleString("en-IN", {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
@@ -172,7 +176,7 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
               </span>
             </div>
 
-            <p className="mt-3 text-xs text-slate-500">Hover each amount to see what it covers.</p>
+            <p className="mt-2 text-xs text-slate-400">Hover each amount to see what it covers.</p>
           </div>
         )}
       </div>
@@ -185,30 +189,30 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
 
     if (isEditing) {
       return (
-        <div className="rounded-2xl border border-sky-200 bg-sky-50/70 p-3 shadow-sm transition-all">
+        <div className="rounded-lg border border-sky-200 bg-sky-50/70 p-2">
           <input
             value={editingNameValue}
             onChange={(event) => setEditingNameValue(event.target.value)}
-            className="w-full rounded-xl border border-sky-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className="w-full rounded-lg border border-sky-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-900 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
             placeholder="Enter product name"
             autoFocus
           />
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-2 flex gap-2">
             <button
               type="button"
               onClick={() => saveInlineEdit(expense)}
               disabled={isSaving}
-              className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800 disabled:cursor-wait disabled:opacity-70"
+              className="inline-flex items-center gap-1 rounded-lg bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white transition hover:bg-slate-800 disabled:cursor-wait disabled:opacity-70"
             >
-              <FiSave className="h-3.5 w-3.5" />
+              <FiSave className="h-3 w-3" />
               {isSaving ? "Saving..." : "Save"}
             </button>
             <button
               type="button"
               onClick={cancelInlineEdit}
-              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
+              className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
             >
-              <FiX className="h-3.5 w-3.5" />
+              <FiX className="h-3 w-3" />
               Cancel
             </button>
           </div>
@@ -218,19 +222,19 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
 
     return (
       <div className="group">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <div className="text-base font-bold text-slate-900">{displayName}</div>
-            <div className="mt-1 text-xs leading-relaxed text-slate-500">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-semibold text-slate-900 truncate">{displayName}</div>
+            <div className="mt-0.5 text-xs text-slate-500 truncate">
               {expense.description ? expense.description : "No additional notes"}
             </div>
           </div>
           <button
             type="button"
             onClick={() => startInlineEdit(expense)}
-            className="inline-flex items-center gap-1 rounded-full border border-transparent px-2.5 py-1 text-xs font-semibold text-slate-400 transition hover:border-slate-200 hover:bg-slate-50 hover:text-slate-700 group-hover:text-slate-700"
+            className="inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-slate-400 opacity-0 transition hover:bg-slate-50 hover:text-slate-700 group-hover:opacity-100"
           >
-            <FiEdit3 className="h-3.5 w-3.5" />
+            <FiEdit3 className="h-3 w-3" />
             Rename
           </button>
         </div>
@@ -239,37 +243,38 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
   };
 
   const renderActions = (expense: Expense) => (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-1.5">
       <button
         type="button"
-        className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:-translate-y-0.5 hover:bg-slate-50"
+        className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
         onClick={() => onToggleExpand(expense._id)}
       >
-        <FiChevronRight className={`h-3.5 w-3.5 transition ${expandedId === expense._id ? "rotate-90" : ""}`} />
+        <FiChevronRight className={`h-3 w-3 transition ${expandedId === expense._id ? "rotate-90" : ""}`} />
         {expandedId === expense._id ? "Hide" : "Details"}
       </button>
       <button
         type="button"
-        className="inline-flex items-center gap-2 rounded-xl bg-sky-600 px-3 py-2 text-xs font-bold text-white transition hover:-translate-y-0.5 hover:bg-sky-700"
+        className="inline-flex items-center gap-1 rounded-lg bg-sky-600 px-2.5 py-1.5 text-xs font-semibold text-white transition hover:bg-sky-700"
         onClick={() => onStartEditExpense(expense)}
       >
-        <FiEdit3 className="h-3.5 w-3.5" />
+        <FiEdit3 className="h-3 w-3" />
         Edit
       </button>
       <button
         type="button"
-        className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-3 py-2 text-xs font-bold text-white transition hover:-translate-y-0.5 hover:bg-rose-700"
+        className="inline-flex items-center gap-1 rounded-lg bg-rose-600 px-2.5 py-1.5 text-xs font-semibold text-white transition hover:bg-rose-700"
         onClick={() => onDeleteExpense(expense)}
       >
-        <FiTrash2 className="h-3.5 w-3.5" />
+        <FiTrash2 className="h-3 w-3" />
         Delete
       </button>
     </div>
   );
 
   return (
-    <div className="space-y-4">
-      <div className="grid gap-4 lg:hidden">
+    <div className="space-y-3">
+      {/* Mobile Card View */}
+      <div className="grid gap-3 lg:hidden">
         {visibleExpenses.map((expense, index) => {
           const paid = isExpensePaid(expense);
           const displayName = getExpenseDisplayName(expense);
@@ -278,14 +283,14 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
           return (
             <div
               key={expense._id}
-              className={`rounded-[1.5rem] border p-4 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:shadow-md ${
+              className={`rounded-xl border p-4 transition ${
                 selectedExpenseIds.includes(expense._id)
                   ? "border-sky-300 bg-sky-50/60"
                   : "border-slate-200 bg-white"
               }`}
             >
-              <div className="flex items-start justify-between gap-3">
-                <label className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+              <div className="mb-3 flex items-start justify-between gap-2">
+                <label className="inline-flex items-center gap-2 text-xs font-medium text-slate-400">
                   <input
                     type="checkbox"
                     checked={selectedExpenseIds.includes(expense._id)}
@@ -294,27 +299,23 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
                   />
                   Select
                 </label>
-                <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-500">
+                <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-500">
                   #{index + 1}
                 </span>
               </div>
 
-              <div className="mt-4">{renderProductCell(expense, displayName)}</div>
+              <div className="mb-3">{renderProductCell(expense, displayName)}</div>
 
-              <div className="mt-4 grid grid-cols-2 gap-3">
-                <div className="rounded-2xl bg-slate-50 p-3">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
-                    Quantity
-                  </div>
-                  <div className="mt-2 text-lg font-bold text-slate-900">
+              <div className="mb-3 grid grid-cols-2 gap-2">
+                <div className="rounded-lg bg-slate-50 p-2.5">
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Qty</div>
+                  <div className="mt-1 text-base font-bold text-slate-900">
                     {getExpenseQuantity(expense).toLocaleString()}
                   </div>
                 </div>
-                <div className="rounded-2xl bg-slate-50 p-3">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
-                    Unit Price
-                  </div>
-                  <div className="mt-2 text-lg font-bold text-slate-900">
+                <div className="rounded-lg bg-slate-50 p-2.5">
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Unit Price</div>
+                  <div className="mt-1 text-base font-bold text-slate-900">
                     ₹{getExpenseUnitPrice(expense).toLocaleString("en-IN", {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
@@ -323,12 +324,10 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
                 </div>
               </div>
 
-              <div className="mt-4 flex items-start justify-between gap-3 rounded-[1.25rem] bg-gradient-to-r from-slate-900 to-slate-700 p-4 text-white">
+              <div className="mb-3 flex items-center justify-between rounded-lg bg-slate-900 p-3 text-white">
                 <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/60">
-                    Total Amount
-                  </div>
-                  <div className="mt-2 text-2xl font-black tracking-tight">
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-white/60">Total</div>
+                  <div className="mt-0.5 text-xl font-bold tracking-tight">
                     ₹{totalAmount.toLocaleString("en-IN", {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
@@ -338,25 +337,25 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
                 {renderBreakdown(expense, totalAmount, displayName)}
               </div>
 
-              <div className="mt-4 grid grid-cols-2 gap-3 text-sm text-slate-600">
-                <div className="rounded-2xl border border-slate-200 p-3">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Vendor</div>
-                  <div className="mt-1 font-semibold text-slate-800">{expense.shop || "-"}</div>
+              <div className="mb-3 grid grid-cols-2 gap-2 text-sm">
+                <div className="rounded-lg border border-slate-100 p-2.5">
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Vendor</div>
+                  <div className="mt-0.5 font-semibold text-slate-800">{expense.shop || "-"}</div>
                 </div>
-                <div className="rounded-2xl border border-slate-200 p-3">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Date</div>
-                  <div className="mt-1 font-semibold text-slate-800">{formatDate(expense.date)}</div>
+                <div className="rounded-lg border border-slate-100 p-2.5">
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Date</div>
+                  <div className="mt-0.5 font-semibold text-slate-800">{formatDate(expense.date)}</div>
                 </div>
-                <div className="rounded-2xl border border-slate-200 p-3">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Assignee</div>
-                  <div className="mt-1 font-semibold text-slate-800">{expense.employeeName || "-"}</div>
+                <div className="rounded-lg border border-slate-100 p-2.5">
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Assignee</div>
+                  <div className="mt-0.5 font-semibold text-slate-800">{expense.employeeName || "-"}</div>
                 </div>
-                <div className="rounded-2xl border border-slate-200 p-3">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Status</div>
+                <div className="rounded-lg border border-slate-100 p-2.5">
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Status</div>
                   <select
                     value={paid ? "paid" : "unpaid"}
                     onChange={(e) => onUpdatePaidStatus(expense, e.target.value === "paid")}
-                    className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-800 outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+                    className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
                   >
                     <option value="unpaid">Pending</option>
                     <option value="paid">Done</option>
@@ -364,34 +363,35 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
                 </div>
               </div>
 
-              <div className="mt-4">{renderActions(expense)}</div>
-              {expandedId === expense._id && <div className="mt-4 overflow-hidden rounded-[1.25rem]">{children}</div>}
+              <div>{renderActions(expense)}</div>
+              {expandedId === expense._id && <div className="mt-3 overflow-hidden rounded-lg border border-slate-200">{children}</div>}
             </div>
           );
         })}
       </div>
 
+      {/* Desktop Table View */}
       <div ref={tableRef} className="hidden overflow-x-auto lg:block" style={{ maxHeight: "70vh" }}>
-        <table className="min-w-[1320px] w-full">
-          <thead className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 backdrop-blur">
+        <table className="premium-table min-w-[1320px] w-full">
+          <thead>
             <tr>
-              <th className="p-4 text-left text-[11px] font-black uppercase tracking-[0.24em] text-slate-500">Select</th>
-              <th className="p-4 text-left text-[11px] font-black uppercase tracking-[0.24em] text-slate-500">#</th>
-              <th className="p-4 text-left text-[11px] font-black uppercase tracking-[0.24em] text-slate-500">Vendor</th>
-              <th className="p-4 text-left text-[11px] font-black uppercase tracking-[0.24em] text-slate-500">Product</th>
-              <th className="p-4 text-right text-[11px] font-black uppercase tracking-[0.24em] text-slate-500">Qty</th>
-              <th className="p-4 text-right text-[11px] font-black uppercase tracking-[0.24em] text-slate-500">Unit Price</th>
-              <th className="p-4 text-right text-[11px] font-black uppercase tracking-[0.24em] text-slate-500">Total</th>
-              <th className="p-4 text-left text-[11px] font-black uppercase tracking-[0.24em] text-slate-500">Date</th>
-              <th className="p-4 text-left text-[11px] font-black uppercase tracking-[0.24em] text-slate-500">Role</th>
-              <th className="p-4 text-left text-[11px] font-black uppercase tracking-[0.24em] text-slate-500">Employee</th>
-              <th className="p-4 text-left text-[11px] font-black uppercase tracking-[0.24em] text-slate-500">Payment</th>
-              <th className="p-4 text-left text-[11px] font-black uppercase tracking-[0.24em] text-slate-500">Type</th>
-              <th className="p-4 text-left text-[11px] font-black uppercase tracking-[0.24em] text-slate-500">Status</th>
-              <th className="p-4 text-left text-[11px] font-black uppercase tracking-[0.24em] text-slate-500">Actions</th>
+              <th className="!w-12">Select</th>
+              <th className="!w-10">#</th>
+              <th>Vendor</th>
+              <th>Product</th>
+              <th className="!text-right">Qty</th>
+              <th className="!text-right">Unit Price</th>
+              <th className="!text-right">Total</th>
+              <th>Date</th>
+              <th>Role</th>
+              <th>Employee</th>
+              <th>Payment</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody>
             {visibleExpenses.map((expense, index) => {
               const paid = isExpensePaid(expense);
               const displayName = getExpenseDisplayName(expense);
@@ -400,13 +400,13 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
               return (
                 <React.Fragment key={expense._id}>
                   <tr
-                    className={`transition-colors ${
+                    className={`${
                       selectedExpenseIds.includes(expense._id)
-                        ? "bg-sky-50/70"
-                        : "bg-white hover:bg-slate-50/80"
+                        ? "!bg-sky-50/70"
+                        : ""
                     }`}
                   >
-                    <td className="p-4">
+                    <td>
                       <input
                         type="checkbox"
                         checked={selectedExpenseIds.includes(expense._id)}
@@ -414,39 +414,47 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
                         className="cursor-pointer"
                       />
                     </td>
-                    <td className="p-4 text-sm font-bold text-slate-700">{index + 1}</td>
-                    <td className="p-4 text-sm font-semibold text-slate-900">{expense.shop || "-"}</td>
-                    <td className="p-4 text-slate-900">{renderProductCell(expense, displayName)}</td>
-                    <td className="p-4 text-right text-sm font-bold text-slate-900">
+                    <td className="!font-semibold">{index + 1}</td>
+                    <td className="!font-medium">{expense.shop || "-"}</td>
+                    <td>{renderProductCell(expense, displayName)}</td>
+                    <td className="!text-right !font-semibold">
                       {getExpenseQuantity(expense).toLocaleString()}
                     </td>
-                    <td className="p-4 text-right text-sm font-bold text-slate-900">
+                    <td className="!text-right !font-semibold">
                       ₹{getExpenseUnitPrice(expense).toLocaleString("en-IN", {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
                     </td>
-                    <td className="p-4 text-right font-bold text-slate-900">
+                    <td className="!text-right !font-semibold">
                       {renderBreakdown(expense, totalAmount, displayName)}
                     </td>
-                    <td className="p-4 text-sm text-slate-600">{formatDate(expense.date)}</td>
-                    <td className="p-4 text-sm capitalize text-slate-600">{expense.role || "other"}</td>
-                    <td className="p-4 text-sm text-slate-600">{expense.employeeName || "-"}</td>
-                    <td className="p-4 text-sm text-slate-600">{expense.paymentMode || "-"}</td>
-                    <td className="p-4 text-sm text-slate-600">{expense.paymentType || "-"}</td>
-                    <td className="p-4">
+                    <td className="!text-slate-500">{formatDate(expense.date)}</td>
+                    <td className="!capitalize !text-slate-500">{expense.role || "other"}</td>
+                    <td className="!text-slate-500">{expense.employeeName || "-"}</td>
+                    <td className="!text-slate-500">{expense.paymentMode || "-"}</td>
+                    <td className="!text-slate-500">{expense.paymentType || "-"}</td>
+                    <td>
                       <select
                         value={paid ? "paid" : "unpaid"}
                         onChange={(e) => onUpdatePaidStatus(expense, e.target.value === "paid")}
-                        className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+                        className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
                       >
                         <option value="unpaid">Pending</option>
                         <option value="paid">Done</option>
                       </select>
                     </td>
-                    <td className="p-4">{renderActions(expense)}</td>
+                    <td>{renderActions(expense)}</td>
                   </tr>
-                  {expandedId === expense._id && children}
+                  {expandedId === expense._id && (
+                    <tr>
+                      <td colSpan={14} className="!border-b-0 !p-0">
+                        <div className="border-t border-slate-100 bg-slate-50/50 p-4">
+                          {children}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
                 </React.Fragment>
               );
             })}
@@ -454,13 +462,14 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({
         </table>
       </div>
 
-      <div className="rounded-[1.5rem] border border-slate-200 bg-white py-5 text-center text-sm font-bold text-slate-700 shadow-sm">
+      {/* Load More */}
+      <div className="rounded-xl border border-slate-200 bg-white py-4 text-center text-sm font-semibold text-slate-600">
         {isLoadingMore && <p>Loading more expenses...</p>}
         {!hasMoreExpenses && filteredExpenses.length > 0 && <p>All expenses loaded</p>}
         {hasMoreExpenses && !isLoadingMore && (
           <button
             onClick={onLoadMore}
-            className="rounded-2xl bg-slate-900 px-6 py-3 font-bold text-white shadow-[0_14px_30px_rgba(15,23,42,0.16)] transition hover:-translate-y-0.5 hover:bg-slate-800"
+            className="btn-primary"
           >
             Load More ({filteredExpenses.length - visibleRowCount} remaining)
           </button>

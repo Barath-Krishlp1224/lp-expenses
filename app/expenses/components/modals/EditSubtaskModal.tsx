@@ -23,43 +23,43 @@ const EditSubtaskModal: React.FC<EditSubtaskModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
-        <h2 className="text-2xl font-black text-gray-900 mb-6">Edit Sub Expense</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 p-4 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+        <h2 className="text-lg font-bold text-slate-900 mb-5">Edit Sub Expense</h2>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Title</label>
+            <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">Title</label>
             <input
               value={editingSubtask.title}
               onChange={(e) => setField("title", e.target.value)}
-              className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-gray-900 outline-none focus:border-blue-500"
+              className="input-field"
             />
           </div>
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Amount</label>
+            <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">Amount</label>
             <input
               type="number"
               value={editingSubtask.amount}
               onChange={(e) => setField("amount", e.target.value)}
-              className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-gray-900 outline-none focus:border-blue-500"
+              className="input-field"
             />
           </div>
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Date</label>
+            <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">Date</label>
             <input
               type="date"
               value={editingSubtask.date}
               onChange={(e) => setField("date", e.target.value)}
-              className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-gray-900 outline-none focus:border-blue-500"
+              className="input-field"
             />
           </div>
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Employee</label>
+            <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">Employee</label>
             <select
               value={editingSubtask.employeeId}
               onChange={(e) => setField("employeeId", e.target.value)}
-              className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 text-gray-900 outline-none focus:border-blue-500 bg-white"
+              className="select-field"
             >
               <option value="">None</option>
               {employees.map((employee) => (
@@ -71,15 +71,15 @@ const EditSubtaskModal: React.FC<EditSubtaskModalProps> = ({
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 mt-8">
+        <div className="flex justify-end gap-3 mt-6">
           <button
-            className="px-6 py-3 rounded-xl font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-all"
+            className="btn-secondary"
             onClick={onCancel}
           >
             Cancel
           </button>
           <button
-            className="px-8 py-3 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-lg transition-all"
+            className="btn-primary"
             onClick={onSave}
           >
             Save
@@ -91,4 +91,3 @@ const EditSubtaskModal: React.FC<EditSubtaskModalProps> = ({
 };
 
 export default EditSubtaskModal;
-

@@ -14,9 +14,8 @@ interface EditExpenseModalProps {
   onCancel: () => void;
 }
 
-const fieldClassName =
-  "w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3.5 text-sm text-slate-900 shadow-sm outline-none transition duration-200 focus:border-sky-400 focus:ring-4 focus:ring-sky-100";
-const labelClassName = "mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500";
+const fieldClassName = "input-field";
+const labelClassName = "mb-1.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500";
 
 const FieldShell = ({
   label,
@@ -64,29 +63,29 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 p-4 backdrop-blur-sm">
-      <div className="glass-card max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-[2rem] p-6 md:p-8">
-        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+      <div className="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl md:p-8">
+        <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <h3 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">
+            <h3 className="text-xl font-bold tracking-tight text-slate-900 md:text-2xl">
               Edit Expense
             </h3>
-            <span className="mt-2 block text-sm text-slate-500">
+            <span className="mt-1 block text-sm text-slate-500">
               Update the key details without losing the existing expense history.
             </span>
           </div>
-          <div className="accent-panel rounded-3xl border border-white/80 px-5 py-4 shadow-sm">
-            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Current Entry</div>
-            <div className="mt-2 text-sm font-semibold text-slate-700">
+          <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Current Entry</div>
+            <div className="mt-1 text-sm font-semibold text-slate-700">
             {editingExpense.productName || editingExpense.description || editingExpense.shop || ""}
             </div>
-            <div className="mt-3 text-3xl font-black tracking-tight text-slate-900">
+            <div className="mt-2 text-2xl font-bold tracking-tight text-slate-900">
               ₹{computedTotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
         </div>
 
-        <div className="space-y-6">
-          <div className="grid gap-5 md:grid-cols-2">
+        <div className="space-y-5">
+          <div className="grid gap-4 md:grid-cols-2">
             <FieldShell label="Shop / Vendor" icon={<FiShoppingBag className="h-4 w-4" />}>
               <input
                 value={editExpenseFields.shop}
@@ -116,7 +115,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
             />
           </FieldShell>
 
-          <div className="grid gap-5 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-3">
             <FieldShell label="Quantity" icon={<FiPackage className="h-4 w-4" />}>
               <input
                 type="number"
@@ -138,13 +137,13 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
               />
             </FieldShell>
             <FieldShell label="Total Amount" icon={<FiCreditCard className="h-4 w-4" />}>
-              <div className={`${fieldClassName} accent-panel border-white/70 font-semibold`}>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900">
                 ₹{computedTotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
             </FieldShell>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2">
             <FieldShell label="Notes" icon={<FiPackage className="h-4 w-4" />} optional>
               <input
                 value={editExpenseFields.description}
@@ -163,12 +162,12 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
             </FieldShell>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2">
             <FieldShell label="Role" icon={<FiUser className="h-4 w-4" />}>
               <select
                 value={editExpenseFields.role}
                 onChange={(e) => setField("role", e.target.value as Role)}
-                className={`${fieldClassName} bg-white cursor-pointer`}
+                className="select-field"
               >
                 <option value="founder">Founder</option>
                 <option value="manager">Manager</option>
@@ -181,7 +180,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
                 value={editExpenseFields.employeeId}
                 onChange={(e) => setField("employeeId", e.target.value)}
                 disabled={editExpenseFields.role !== "manager"}
-                className={`${fieldClassName} bg-white cursor-pointer disabled:bg-white disabled:cursor-not-allowed`}
+                className="select-field disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <option value="">Select Employee</option>
                 {employees.map((employee) => (
@@ -193,12 +192,12 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
             </FieldShell>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2">
             <FieldShell label="Mode of Payment" icon={<FiCreditCard className="h-4 w-4" />}>
               <select
                 value={editExpenseFields.paymentMode}
                 onChange={(e) => setField("paymentMode", e.target.value)}
-                className={`${fieldClassName} bg-white cursor-pointer`}
+                className="select-field"
               >
                 <option value="cash">Cash</option>
                 <option value="upi">UPI</option>
@@ -210,7 +209,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
                 value={editExpenseFields.paymentType}
                 disabled={editExpenseFields.paymentMode !== "upi"}
                 onChange={(e) => setField("paymentType", e.target.value)}
-                className={`${fieldClassName} bg-white cursor-pointer disabled:bg-white disabled:cursor-not-allowed`}
+                className="select-field disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <option value="">Select type</option>
                 <option value="postpaid">Postpaid</option>
@@ -219,18 +218,18 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
           </div>
         </div>
 
-        <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-2xl border border-slate-200 bg-white px-6 py-3 font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:border-slate-300 hover:bg-slate-50"
+            className="btn-secondary"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={onSave}
-            className="rounded-2xl bg-slate-900 px-8 py-3 font-semibold text-white shadow-[0_14px_30px_rgba(15,23,42,0.18)] transition hover:-translate-y-0.5 hover:bg-slate-800"
+            className="btn-primary"
           >
             Save Changes
           </button>

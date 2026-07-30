@@ -38,19 +38,19 @@ const PaymentHistorySection: React.FC<PaymentHistorySectionProps> = ({
     : historyExpenses.reduce((sum, expense) => sum + getExpenseTotal(expense), 0);
 
   return (
-    <div className="bg-white rounded-2xl p-8 shadow-xl border-2 border-gray-100">
-      <h2 className="text-2xl font-black text-gray-900 mb-6">
+    <div className="premium-card p-5 md:p-6">
+      <h2 className="text-lg font-bold text-slate-900 mb-5">
         Payment History
       </h2>
-      <div className="grid gap-6 md:grid-cols-2 mb-6">
+      <div className="grid gap-4 md:grid-cols-2 mb-5">
         <div>
-          <label className="block text-sm font-bold text-gray-800 mb-2">
+          <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">
             Filter by Employee
           </label>
           <select
             value={historyEmployeeId}
             onChange={(e) => setHistoryEmployeeId(e.target.value)}
-            className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 outline-none focus:border-blue-500 transition-all bg-white"
+            className="select-field"
           >
             <option value="">All Paid Expenses</option>
             {employees.map((emp) => (
@@ -61,95 +61,72 @@ const PaymentHistorySection: React.FC<PaymentHistorySectionProps> = ({
           </select>
         </div>
         <div>
-          <label className="block text-sm font-bold text-gray-800 mb-2">
+          <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">
             {historyEmployeeId
               ? "Selected Employee Total"
               : "All Time Total"}
           </label>
-          <div
-            className="border-2 rounded-xl px-6 py-4 text-2xl font-black border-gray-300 bg-white text-gray-900"
-          >
-            ₹{totalAmount.toLocaleString()}
+          <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xl font-bold text-slate-900">
+            ₹{totalAmount.toLocaleString("en-IN")}
           </div>
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border-2 border-gray-200">
-        <table className="min-w-full">
-          <thead className="bg-white border-b border-gray-200">
+      <div className="overflow-x-auto rounded-xl border border-slate-200">
+        <table className="premium-table min-w-[800px] w-full">
+          <thead>
             <tr>
-              <th className="p-4 text-left font-black text-gray-900 uppercase tracking-wide text-xs">
-                Date
-              </th>
-              <th className="p-4 text-left font-black text-gray-900 uppercase tracking-wide text-xs">
-                Product
-              </th>
-              <th className="p-4 text-left font-black text-gray-900 uppercase tracking-wide text-xs">
-                Shop
-              </th>
-              <th className="p-4 text-right font-black text-gray-900 uppercase tracking-wide text-xs">
-                Qty
-              </th>
-              <th className="p-4 text-right font-black text-gray-900 uppercase tracking-wide text-xs">
-                Unit Price
-              </th>
-              <th className="p-4 text-right font-black text-gray-900 uppercase tracking-wide text-xs">
-                Amount
-              </th>
-              <th className="p-4 text-right font-black text-gray-900 uppercase tracking-wide text-xs">
-                Total
-              </th>
-              <th className="p-4 text-left font-black text-gray-900 uppercase tracking-wide text-xs">
-                Employee
-              </th>
+              <th>Date</th>
+              <th>Product</th>
+              <th>Shop</th>
+              <th className="!text-right">Qty</th>
+              <th className="!text-right">Unit Price</th>
+              <th className="!text-right">Amount</th>
+              <th className="!text-right">Total</th>
+              <th>Employee</th>
             </tr>
           </thead>
-          <tbody className="divide-y-2 divide-gray-100">
+          <tbody>
             {displayedExpenses.length === 0 ? (
               <tr>
-                <td colSpan={8} className="p-16 text-center text-gray-800">
-                  <div className="text-4xl mb-4 text-gray-900">[ ]</div>
-                  <p className="font-bold text-lg">No payment history</p>
+                <td colSpan={8} className="!p-12 !text-center">
+                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100">
+                    <svg className="h-6 w-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m6 4.125l2.25 2.25m0 0l2.25 2.25M12 11.625l2.25-2.25M12 11.625l-2.25 2.25M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                    </svg>
+                  </div>
+                  <p className="font-semibold text-slate-900">No payment history</p>
                 </td>
               </tr>
             ) : (
               displayedExpenses.map((exp) => {
                 return (
-                  <tr
-                    key={exp._id}
-                    className="hover:bg-gray-50 transition-colors"
-                  >
-                    <td className="p-4 text-gray-800 text-sm">
-                      {formatDate(exp.date)}
-                    </td>
-                    <td className="p-4 text-gray-900 font-bold">
-                      {getExpenseDisplayName(exp)}
-                    </td>
-                    <td className="p-4 text-gray-900">{exp.shop || "-"}</td>
-                    <td className="p-4 text-right text-gray-800 font-bold">
+                  <tr key={exp._id}>
+                    <td className="!text-slate-500">{formatDate(exp.date)}</td>
+                    <td className="!font-semibold">{getExpenseDisplayName(exp)}</td>
+                    <td>{exp.shop || "-"}</td>
+                    <td className="!text-right !font-semibold">
                       {getExpenseQuantity(exp).toLocaleString()}
                     </td>
-                    <td className="p-4 text-right text-gray-800 font-bold">
+                    <td className="!text-right !font-semibold">
                       ₹{getExpenseUnitPrice(exp).toLocaleString("en-IN", {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
                     </td>
-                    <td className="p-4 text-right text-gray-800 font-bold">
+                    <td className="!text-right !font-semibold">
                       ₹{getExpenseAmount(exp).toLocaleString("en-IN", {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
                     </td>
-                    <td className="p-4 text-right font-black text-gray-900 text-lg">
+                    <td className="!text-right !font-bold">
                       ₹{getExpenseTotal(exp).toLocaleString("en-IN", {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
                     </td>
-                    <td className="p-4 text-gray-800">
-                      {exp.employeeName || "-"}
-                    </td>
+                    <td>{exp.employeeName || "-"}</td>
                   </tr>
                 );
               })

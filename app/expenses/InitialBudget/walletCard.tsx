@@ -25,74 +25,99 @@ export default function WalletCard({
   const pendingDisplay = stats.pending;
 
   return (
-    <div className="w-full rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-      <div className="flex justify-between items-center mb-6">
-        <h3 className="text-xs font-extrabold tracking-widest uppercase text-gray-800">
-          {title}
-        </h3>
+    <div className="premium-card p-5 md:p-6">
+      {/* Header */}
+      <div className="mb-5 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${
+            isPostpaid ? "bg-violet-100 text-violet-700" : "bg-emerald-100 text-emerald-700"
+          }`}>
+            {isPostpaid ? (
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              </svg>
+            ) : (
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            )}
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-slate-900">{title}</h3>
+            <p className="text-xs text-slate-500">{isPostpaid ? "Credit card / Postpaid" : "Cash / Prepaid"}</p>
+          </div>
+        </div>
 
         <div className="flex gap-2">
           {!isPostpaid && (
             <button
               onClick={onEdit}
-              className="px-3 py-1 text-xs font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition shadow-sm"
+              className="btn-secondary !px-3 !py-1.5 !text-xs"
             >
               Edit
             </button>
           )}
           <button
             onClick={onHistory}
-            className="px-3 py-1 text-xs font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition shadow-sm"
+            className="btn-secondary !px-3 !py-1.5 !text-xs"
           >
             History
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        {!isPostpaid && (
-          <div className="p-4 rounded-xl bg-white border border-gray-200 text-center">
-            <div className="text-xs uppercase tracking-wide text-gray-800">
-              Initial
-            </div>
-            <div className="mt-1 text-3xl font-bold text-gray-900">
-              ₹{stats.initialAmount.toLocaleString()}
-            </div>
-          </div>
-        )}
-
-        <div className="p-4 rounded-xl bg-white border border-gray-200 text-center">
-          <div className="text-xs uppercase tracking-wide text-gray-800">
-            {isPostpaid ? "Pending Payment" : "Remaining"}
-          </div>
-          <div className="mt-1 text-3xl font-extrabold text-gray-900">
-            {topAmount > 0
-              ? isPostpaid
-                ? `₹-${topAmount.toLocaleString()}`
-                : `₹${topAmount.toLocaleString()}`
-              : "₹0"}
-          </div>
+      {/* Main Stat */}
+      <div className="mb-5 rounded-xl bg-slate-50 p-4">
+        <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+          {isPostpaid ? "Pending Payment" : "Remaining Balance"}
+        </div>
+        <div className="mt-1 text-3xl font-extrabold text-slate-900">
+          {topAmount > 0
+            ? isPostpaid
+              ? `₹-${topAmount.toLocaleString("en-IN")}`
+              : `₹${topAmount.toLocaleString("en-IN")}`
+            : "₹0"}
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 text-sm font-semibold">
-        <div className="flex flex-col items-center p-4 rounded-xl bg-white border border-gray-200">
-          <span className="text-xs uppercase tracking-wide text-gray-800">
+      {/* Stats Grid */}
+      <div className="grid grid-cols-3 gap-3">
+        {!isPostpaid && (
+          <div className="rounded-xl border border-slate-100 bg-white p-3 text-center">
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+              Initial
+            </div>
+            <div className="mt-1 text-base font-bold text-slate-900">
+              ₹{stats.initialAmount.toLocaleString("en-IN")}
+            </div>
+          </div>
+        )}
+        <div className={`rounded-xl border border-slate-100 bg-white p-3 text-center ${isPostpaid ? "col-span-1" : ""}`}>
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
             Spent
-          </span>
-          <span className="mt-1 text-lg font-bold text-gray-900">
-            ₹{stats.spent.toLocaleString()}
-          </span>
+          </div>
+          <div className="mt-1 text-base font-bold text-slate-900">
+            ₹{stats.spent.toLocaleString("en-IN")}
+          </div>
         </div>
-
-        <div className="flex flex-col items-center p-4 rounded-xl bg-white border border-gray-200">
-          <span className="text-xs uppercase tracking-wide text-gray-800">
+        <div className="rounded-xl border border-slate-100 bg-white p-3 text-center">
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
             Pending
-          </span>
-          <span className="mt-1 text-lg font-bold text-gray-900">
-            ₹{pendingDisplay.toLocaleString()}
-          </span>
+          </div>
+          <div className="mt-1 text-base font-bold text-slate-900">
+            ₹{pendingDisplay.toLocaleString("en-IN")}
+          </div>
         </div>
+        {isPostpaid && (
+          <div className="rounded-xl border border-slate-100 bg-white p-3 text-center">
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+              Limit
+            </div>
+            <div className="mt-1 text-base font-bold text-slate-900">
+              ₹{stats.initialAmount.toLocaleString("en-IN")}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

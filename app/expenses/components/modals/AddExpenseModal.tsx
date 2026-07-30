@@ -43,10 +43,10 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 p-4 backdrop-blur-sm">
-      <div className="glass-card relative max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-[2rem] p-6 md:p-8">
+      <div className="relative max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl md:p-8">
         <button
           onClick={onClose}
-          className="absolute right-5 top-5 rounded-full border border-slate-200 bg-white/90 px-3 py-1 text-sm font-semibold text-slate-500 transition hover:text-slate-900"
+          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-sm font-semibold text-slate-500 transition hover:bg-slate-50 hover:text-slate-900"
         >
           ✕
         </button>
